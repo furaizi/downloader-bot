@@ -4,8 +4,9 @@ data class Media(
     val url: String,
     val title: String,
     val path: String,
-    val quality: String,
-    val duration: String,
+    val filename: String,
+    val quality: Int,
+    val duration: Long,
     val platform: String,
     val type: MediaType,
     val hasAudio: Boolean = false
