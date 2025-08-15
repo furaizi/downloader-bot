@@ -21,6 +21,9 @@ class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
     private val mapper = ObjectMapper().registerKotlinModule()
 
     override suspend fun fetchMediaInfo(url: String, path: String): Media = coroutineScope {
+        require(url.isNotBlank()) { "url must not be blank" }
+        require(path.isNotBlank()) { "path must not be blank" }
+
         log.info { "Fetching media info for url=$url path=$path" }
         val json = readJsonFromYtDlp(url)
         val ytDlpMedia = try {
