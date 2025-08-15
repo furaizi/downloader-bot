@@ -4,6 +4,7 @@ import com.download.downloaderbot.core.downloader.MediaDownloader
 import com.download.downloaderbot.core.entity.Media
 import com.download.downloaderbot.core.mediainfo.MediaInfoExtractor
 import mu.KotlinLogging
+import org.springframework.stereotype.Service
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -16,6 +17,7 @@ import kotlin.streams.asSequence
 
 private val log = KotlinLogging.logger {}
 
+@Service
 class MediaServiceImpl(
     val downloader: MediaDownloader,
     val mediaInfoExtractor: MediaInfoExtractor,
@@ -29,28 +31,11 @@ class MediaServiceImpl(
         val outputTemplate = generateFileTemplate(basePrefix)
         log.info { "Starting downloader for url=$url to path=$outputTemplate" }
 
-        try {
-            downloader.download(url, outputTemplate)
-        } catch (e: Exception) {
-            log.error(e) { "Download failed for url=$url" }
-            throw RuntimeException("Download failed for url=$url", e)
-        }
-
-        val downloadedFile = findFirstMatchingFile(downloadsRoot, basePrefix) ?: run {
-            val msg = "Downloaded file not found for prefix $basePrefix in $downloadsRoot"
-            log.error { msg }
-            throw RuntimeException(msg)
-        }
-
+        safeDownload(url, outputTemplate)
+        val downloadedFile = findDownloadedFileOrThrow(basePrefix)
         log.info { "Download completed. File located: ${downloadedFile.toAbsolutePath()}" }
 
-        val media = try {
-            mediaInfoExtractor.fetchMediaInfo(url, downloadedFile.toAbsolutePath().toString())
-        } catch (e: Exception) {
-            log.error(e) { "Failed to extract media info for file=${downloadedFile.toAbsolutePath()}" }
-            throw RuntimeException("Failed to extract media info", e)
-        }
-
+        val media = safeFetchMediaInfo(url, downloadedFile.toAbsolutePath().toString())
         log.info { "Media created: ${media.title} (${media.path})" }
         return media
     }
@@ -79,6 +64,27 @@ class MediaServiceImpl(
     }
 
     private fun generateFileTemplate(basePrefix: String) = downloadsRoot.resolve("$basePrefix.%(ext)s").toString()
+
+    private suspend fun safeDownload(url: String, outputPath: String) = try {
+            downloader.download(url, outputPath)
+        } catch (e: Exception) {
+            log.error(e) { "Download failed for url=$url" }
+            throw RuntimeException("Download failed for url=$url", e)
+        }
+
+    private fun findDownloadedFileOrThrow(basePrefix: String) =
+        findFirstMatchingFile(downloadsRoot, basePrefix) ?: run {
+            val msg = "Downloaded file not found for prefix $basePrefix in $downloadsRoot"
+            log.error { msg }
+            throw RuntimeException(msg)
+        }
+
+    private suspend fun safeFetchMediaInfo(url: String, path: String): Media = try {
+        mediaInfoExtractor.fetchMediaInfo(url, path)
+    } catch (e: Exception) {
+        log.error(e) { "Failed to extract media info for file=${path}" }
+        throw RuntimeException("Failed to extract media info", e)
+    }
 
     private fun findFirstMatchingFile(dir: Path, prefix: String) = Files.list(dir)
         .asSequence()
