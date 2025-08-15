@@ -31,8 +31,7 @@ class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
         }
 
         val hasAudio = ytDlpMedia.audioCodec != null && ytDlpMedia.audioCodec != "none"
-
-        Media(
+        val media = Media(
             url = url,
             title = ytDlpMedia.title,
             path = path,
@@ -43,6 +42,9 @@ class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
             type = MediaType.fromString(ytDlpMedia.type),
             hasAudio = hasAudio
         )
+
+        log.info { "Fetched media info: $media" }
+        media
     }
 
     private suspend fun readJsonFromYtDlp(url: String): String = withContext(Dispatchers.IO) {
