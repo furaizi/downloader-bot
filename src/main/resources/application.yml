@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: downloader-bot
+
+downloader:
+  ytdlp:
+    bin: yt-dlp
+    format: best
+    extra-args:

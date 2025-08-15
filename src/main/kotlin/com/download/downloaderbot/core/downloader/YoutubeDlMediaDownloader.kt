@@ -1,8 +1,10 @@
 package com.download.downloaderbot.core.downloader
 
+import com.download.downloaderbot.core.config.YtDlpConfig
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -16,19 +18,21 @@ import kotlin.coroutines.resumeWithException
 private val log = KotlinLogging.logger {}
 
 @Component
-class YoutubeDlMediaDownloader : MediaDownloader {
+class YoutubeDlMediaDownloader(
+    val config: YtDlpConfig
+) : MediaDownloader {
 
     override suspend fun download(url: String, outputPath: String) = coroutineScope {
-        val processBuilder = ProcessBuilder(
-            "yt-dlp",
-            "-f", "best",
-            "-o", outputPath,
-            url
-        )
-            .redirectErrorStream(true)
+        require(url.isNotBlank()) { "url must not be blank" }
+        require(outputPath.isNotBlank()) { "outputPath must not be blank" }
+
+        val cmd = buildCommand(url, outputPath)
+        log.info { "Starting download: $url -> $outputPath\n$ ${cmd.joinToString(" ")}" }
 
         val process = withContext(Dispatchers.IO) {
-            processBuilder.start()
+            ProcessBuilder(cmd)
+                .redirectErrorStream(true)
+                .start()
         }
 
         val output = StringBuilder()
@@ -42,33 +46,44 @@ class YoutubeDlMediaDownloader : MediaDownloader {
             }
         }
 
-        log.info { "Starting download: $url -> $outputPath" }
-
-        val exitCode = suspendCancellableCoroutine<Int> { cont ->
-            val future = process.onExit()
-            future.whenComplete { proc, throwable ->
-                if (throwable != null) cont.resumeWithException(throwable)
-                else cont.resume(proc.exitValue())
-            }
-            cont.invokeOnCancellation {
-                try { future.cancel(true) } catch (_: Exception) {}
-                if (process.isAlive) {
-                    log.info { "Cancelling process for $url" }
-                    process.destroyForcibly()
-                }
-            }
-        }
-
         try {
+            val exitCode = try {
+                process.onExit().await().exitValue()
+            } catch (t: Throwable) {
+                if (process.isAlive) process.destroyForcibly()
+                throw t
+            }
+
             readerJob.join()
-        } catch (_: CancellationException) {}
 
-        if (exitCode != 0) {
-            val out = output.toString()
-            log.error { "yt-dlp failed (code=$exitCode). Output:\n$out" }
-            throw RuntimeException("yt-dlp failed with exit code $exitCode")
+            if (exitCode != 0) {
+                val out = output.toString()
+                log.error { "yt-dlp failed (code=$exitCode). Output:\n$out" }
+                throw MediaDownloadException(
+                    message = "yt-dlp failed with exit code $exitCode",
+                    exitCode = exitCode,
+                    output = out
+                )
+            }
+
+            log.info { "Download finished: $outputPath" }
+        } catch (ce: CancellationException) {
+            log.info { "Cancelling download process for $url" }
+            if (process.isAlive) process.destroyForcibly()
+            throw ce
+        } finally {
+            runCatching { process.inputStream.close() }
+            runCatching { process.errorStream.close() }
+            runCatching { process.outputStream.close() }
+            readerJob.cancel()
         }
+    }
 
-        log.info { "Download finished: $outputPath" }
+    private fun buildCommand(url: String, outputPath: String): List<String> {
+        return listOf(
+            config.bin,
+            "-f", config.format,
+            "-o", outputPath
+        ) + config.extraArgs + url
     }
 }
