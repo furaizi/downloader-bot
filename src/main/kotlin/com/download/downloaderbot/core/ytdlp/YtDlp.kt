@@ -19,7 +19,6 @@ private val log = KotlinLogging.logger {}
 class YtDlp(val config: YtDlpConfig) {
 
     suspend fun download(url: String, outputPath: String) {
-        require(outputPath.isNotBlank()) { "Output path must not be blank" }
         val args = listOf("-f", config.format, "-o", outputPath) + config.extraArgs
         execute(url, args)
         log.info { "yt-dlp download finished: $url -> $outputPath" }
@@ -100,7 +99,6 @@ class YtDlp(val config: YtDlpConfig) {
     }
 
     private fun buildCommand(url: String, args: List<String> = emptyList()): List<String> {
-        require(url.isNotBlank()) { "URL must not be blank" }
         val command = mutableListOf(config.bin)
         command.addAll(args)
         command.add(url)

@@ -3,6 +3,7 @@ package com.download.downloaderbot.core.mediainfo
 import com.download.downloaderbot.core.entity.Media
 import com.download.downloaderbot.core.entity.MediaType
 import com.download.downloaderbot.core.entity.YoutubeDlMedia
+import com.download.downloaderbot.core.ytdlp.YtDlp
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component
 private val log = KotlinLogging.logger {}
 
 @Component
-class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
+class YoutubeDlMediaInfoExtractor(val ytDlp: YtDlp) : MediaInfoExtractor {
 
     private val mapper = ObjectMapper().registerKotlinModule()
 
@@ -25,13 +26,8 @@ class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
         require(path.isNotBlank()) { "path must not be blank" }
 
         log.info { "Fetching media info for url=$url path=$path" }
-        val json = readJsonFromYtDlp(url)
-        val ytDlpMedia = try {
-            mapper.readValue(json, YoutubeDlMedia::class.java)
-        } catch (e: Exception) {
-            log.error(e) { "Failed to parse yt-dlp json for url=$url" }
-            throw RuntimeException("Failed to parse yt-dlp output", e)
-        }
+        val json = ytDlp.dumpJson(url)
+        val ytDlpMedia = mapJsonToMedia(json, url)
 
         val hasAudio = ytDlpMedia.audioCodec != null && ytDlpMedia.audioCodec != "none"
         val media = Media(
@@ -50,32 +46,10 @@ class YoutubeDlMediaInfoExtractor : MediaInfoExtractor {
         media
     }
 
-    private suspend fun readJsonFromYtDlp(url: String): String = withContext(Dispatchers.IO) {
-        val processBuilder = ProcessBuilder(
-            "yt-dlp",
-            "--dump-json",
-            "--no-warnings",
-            "--skip-download",
-            url
-        )
-            .redirectErrorStream(true)
-
-        val process = processBuilder.start()
-
-        val stdoutDeferred = let {
-            GlobalScope.async(Dispatchers.IO) {
-                process.inputStream.bufferedReader().use { it.readText() }
-            }
+    private fun mapJsonToMedia(json: String, url: String) = try {
+            mapper.readValue(json, YoutubeDlMedia::class.java)
+        } catch (e: Exception) {
+            log.error(e) { "Failed to parse yt-dlp json for url=$url" }
+            throw RuntimeException("Failed to parse yt-dlp output", e)
         }
-
-        val exitCode = process.waitFor()
-        val output = stdoutDeferred.getCompleted()
-
-        if (exitCode != 0) {
-            log.error { "yt-dlp failed (code=$exitCode). Output:\n$output" }
-            throw RuntimeException("yt-dlp failed with exit code $exitCode")
-        }
-
-        output
-    }
 }
