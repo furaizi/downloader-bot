@@ -3,12 +3,15 @@ package com.download.downloaderbot.core.service
 import com.download.downloaderbot.core.downloader.MediaDownloader
 import com.download.downloaderbot.core.entity.Media
 import com.download.downloaderbot.core.mediainfo.MediaInfoExtractor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.util.UUID
 import kotlin.io.path.isRegularFile
@@ -28,7 +31,7 @@ class MediaServiceImpl(
         log.info { "MediaService: requested download for url=$url" }
         prepareDownloadsDirectory()
         val basePrefix = generateBasePrefix(url)
-        val outputTemplate = generateFileTemplate(basePrefix)
+        val outputTemplate = generateFilePathTemplate(basePrefix)
         log.info { "Starting downloader for url=$url to path=$outputTemplate" }
 
         safeDownload(url, outputTemplate)
@@ -40,7 +43,7 @@ class MediaServiceImpl(
         return media
     }
 
-    private fun prepareDownloadsDirectory() {
+    private suspend fun prepareDownloadsDirectory(): Unit = withContext(Dispatchers.IO) {
         try {
             if (Files.notExists(downloadsRoot)) {
                 Files.createDirectories(downloadsRoot)
@@ -50,20 +53,19 @@ class MediaServiceImpl(
             log.error(e) { "Failed to create downloads directory: $downloadsRoot" }
             throw RuntimeException("Cannot create downloads directory", e)
         }
-
     }
 
     private fun generateBasePrefix(url: String): String {
-        val host = try {
-            URI(url).host?.replace(":", "-") ?: "media"
-        } catch (e: Exception) {
-            "media"
-        }
-        val timestamp = Instant.now().epochSecond
-        return "$host-$timestamp-${UUID.randomUUID().toString().substring(0, 8)}"
+        val host = runCatching { URI(url).host?.replace(":", "-") }
+            .getOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?: "media"
+        val timestamp = Instant.now().toEpochMilli()
+        val shortUuid = UUID.randomUUID().toString().take(8)
+        return "$host-$timestamp-$shortUuid"
     }
 
-    private fun generateFileTemplate(basePrefix: String) = downloadsRoot.resolve("$basePrefix.%(ext)s").toString()
+    private fun generateFilePathTemplate(basePrefix: String) = downloadsRoot.resolve("$basePrefix.%(ext)s").toString()
 
     private suspend fun safeDownload(url: String, outputPath: String) = try {
             downloader.download(url, outputPath)
@@ -72,8 +74,8 @@ class MediaServiceImpl(
             throw RuntimeException("Download failed for url=$url", e)
         }
 
-    private fun findDownloadedFileOrThrow(basePrefix: String) =
-        findFirstMatchingFile(downloadsRoot, basePrefix) ?: run {
+    private suspend fun findDownloadedFileOrThrow(basePrefix: String) =
+        findLatestMatchingFile(downloadsRoot, basePrefix) ?: run {
             val msg = "Downloaded file not found for prefix $basePrefix in $downloadsRoot"
             log.error { msg }
             throw RuntimeException(msg)
@@ -86,8 +88,13 @@ class MediaServiceImpl(
         throw RuntimeException("Failed to extract media info", e)
     }
 
-    private fun findFirstMatchingFile(dir: Path, prefix: String) = Files.list(dir)
-        .asSequence()
-        .filter { it.isRegularFile() && it.name.startsWith(prefix) }
-        .firstOrNull()
+    private suspend fun findLatestMatchingFile(dir: Path, prefix: String): Path? = withContext(Dispatchers.IO) {
+            Files.list(dir).use { stream ->
+                stream.asSequence()
+                    .filter { it.isRegularFile() && it.name.startsWith(prefix) }
+                    .map { it to runCatching { Files.getLastModifiedTime(it) }.getOrDefault(FileTime.fromMillis(0)) }
+                    .maxByOrNull { it.second.toMillis() }
+                    ?.first
+            }
+        }
 }
