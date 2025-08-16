@@ -1,6 +1,6 @@
 package com.download.downloaderbot.core.ytdlp
 
-import com.download.downloaderbot.core.config.YtDlpConfig
+import com.download.downloaderbot.core.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 private val log = KotlinLogging.logger {}
 
 @Service
-class YtDlp(val config: YtDlpConfig) {
+class YtDlp(val config: YtDlpProperties) {
 
     suspend fun download(url: String, outputPath: String) {
         val args = listOf("-f", config.format, "-o", outputPath) + config.extraArgs

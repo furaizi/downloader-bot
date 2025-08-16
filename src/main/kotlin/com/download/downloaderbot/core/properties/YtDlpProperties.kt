@@ -1,9 +1,9 @@
-package com.download.downloaderbot.core.config
+package com.download.downloaderbot.core.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "downloader.ytdlp")
-data class YtDlpConfig(
+data class YtDlpProperties(
     val bin: String,
     val format: String,
     val extraArgs: List<String> = emptyList()

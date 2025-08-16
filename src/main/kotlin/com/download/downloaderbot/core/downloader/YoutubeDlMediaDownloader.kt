@@ -1,20 +1,9 @@
 package com.download.downloaderbot.core.downloader
 
-import com.download.downloaderbot.core.config.YtDlpConfig
 import com.download.downloaderbot.core.ytdlp.YtDlp
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 private val log = KotlinLogging.logger {}
 
