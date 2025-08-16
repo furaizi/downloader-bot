@@ -1,0 +1,109 @@
+package com.download.downloaderbot.bot.commands
+
+import com.github.kotlintelegrambot.Bot
+import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.TelegramFile
+import org.springframework.stereotype.Component
+import java.io.File
+import java.nio.file.Path
+
+@Component
+class TelegramGateway(private val bot: Bot) {
+    suspend fun replyText(chatId: Long, text: String) {
+        bot.sendMessage(ChatId.fromId(chatId), text)
+    }
+
+    suspend fun sendVideo(
+        chatId: Long,
+        file: File,
+        caption: String? = null,
+        durationSeconds: Int? = null,
+        width: Int? = null,
+        height: Int? = null
+    ) {
+        bot.sendVideo(
+            chatId = ChatId.fromId(chatId),
+            video = TelegramFile.ByFile(file),
+            caption = caption,
+            duration = durationSeconds,
+            width = width,
+            height = height
+        )
+    }
+
+    suspend fun sendVideo(
+        chatId: Long,
+        path: Path,
+        caption: String? = null,
+        durationSeconds: Int? = null,
+        width: Int? = null,
+        height: Int? = null
+    ) = sendVideo(chatId, path.toFile(),
+            caption, durationSeconds, width, height)
+
+    suspend fun sendPhoto(
+        chatId: Long,
+        file: File,
+        caption: String? = null
+    ) {
+        bot.sendPhoto(
+            chatId = ChatId.fromId(chatId),
+            photo = TelegramFile.ByFile(file),
+            caption = caption
+        )
+    }
+
+    suspend fun sendPhoto(
+        chatId: Long,
+        path: Path,
+        caption: String? = null
+    ) = sendPhoto(chatId, path.toFile(), caption)
+
+    suspend fun sendAudio(
+        chatId: Long,
+        file: File,
+        durationSeconds: Int? = null,
+        performer: String? = null,
+        title: String? = null
+    ) {
+        bot.sendAudio(
+            chatId = ChatId.fromId(chatId),
+            audio = TelegramFile.ByFile(file),
+            duration = durationSeconds,
+            performer = performer,
+            title = title,
+        )
+    }
+
+    suspend fun sendAudio(
+        chatId: Long,
+        path: Path,
+        durationSeconds: Int? = null,
+        performer: String? = null,
+        title: String? = null,
+    ) = sendAudio(chatId, path.toFile(),
+        durationSeconds, performer, title)
+
+    suspend fun sendDocument(
+        chatId: Long,
+        file: File,
+        caption: String? = null
+    ) {
+        bot.sendDocument(
+            chatId = ChatId.fromId(chatId),
+            document = TelegramFile.ByFile(file),
+            caption = caption
+        )
+    }
+
+    suspend fun sendDocument(
+        chatId: Long,
+        path: Path,
+        caption: String? = null
+    ) = sendDocument(chatId, path.toFile(), caption)
+}
+
+val CommandContext.chatId: Long
+    get() = update.message?.chat?.id
+        ?: update.callbackQuery?.message?.chat?.id
+        ?: error("No chatId in update")
