@@ -6,5 +6,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class BotProperties(
     val token: String,
     val path: String
-) {
-}
+)
