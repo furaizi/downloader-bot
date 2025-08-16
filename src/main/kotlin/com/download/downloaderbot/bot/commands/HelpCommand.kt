@@ -1,5 +1,8 @@
 package com.download.downloaderbot.bot.commands
 
+import org.springframework.stereotype.Component
+
+@Component
 class HelpCommand : CommandHandler {
     override val name = "help"
     override suspend fun handle(ctx: CommandContext) {
