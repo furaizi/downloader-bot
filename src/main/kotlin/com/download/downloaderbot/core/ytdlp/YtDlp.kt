@@ -1,6 +1,6 @@
 package com.download.downloaderbot.core.ytdlp
 
-import com.download.downloaderbot.core.properties.YtDlpProperties
+import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
