@@ -2,6 +2,11 @@ spring:
   application:
     name: downloader-bot
 
+telegram:
+  bot:
+    token: ${DOWNLOADER_BOT_TOKEN}
+    path: "/telegram"
+
 downloader:
   ytdlp:
     bin: yt-dlp
