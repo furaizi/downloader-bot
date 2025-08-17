@@ -30,7 +30,7 @@ class BotConfig(
         dispatch {
             commands.forEach { handler ->
                 command(handler.name) {
-                    log.info { "Executing command /${handler.name}" }
+                    log.info { "Executing command /${handler.name} with args: $args" }
                     handler.handle(CommandContext(update, args, gateway))
                 }
             }
