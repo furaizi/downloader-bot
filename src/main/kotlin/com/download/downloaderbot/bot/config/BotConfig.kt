@@ -23,7 +23,6 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val commands: List<CommandHandler>,
-    val gateway: TelegramGateway,
     private val botScope: CoroutineScope
 ) {
 
@@ -36,12 +35,12 @@ class BotConfig(
             commands.forEach { handler ->
                 command(handler.name) {
                     log.info { "Executing command /${handler.name} with args: $args" }
-                    handler.safeHandle(CommandContext(update, args, gateway))
+                    handler.safeHandle(CommandContext(update, args))
                 }
             }
 
             text {
-                defaultCommand.safeHandle(CommandContext(update, listOf(text), gateway))
+                defaultCommand.safeHandle(CommandContext(update, listOf(text)))
             }
         }
     }

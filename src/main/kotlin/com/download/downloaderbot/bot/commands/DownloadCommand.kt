@@ -12,12 +12,12 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class DownloadCommand(
-    private val mediaService: MediaService
-) : CommandHandler {
+    private val mediaService: MediaService,
+    gateway: TelegramGateway
+) : CommandHandler(gateway) {
     override val name = "download"
 
     override suspend fun handle(ctx: CommandContext) {
-        val gateway = ctx.gateway
         val url = ctx.args.first()
 
         val media = withContext(Dispatchers.IO) {

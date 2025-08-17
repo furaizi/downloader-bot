@@ -3,10 +3,10 @@ package com.download.downloaderbot.bot.commands
 import org.springframework.stereotype.Component
 
 @Component
-class HelpCommand : CommandHandler {
+class HelpCommand(gateway: TelegramGateway) : CommandHandler(gateway) {
     override val name = "help"
     override suspend fun handle(ctx: CommandContext) {
-        ctx.gateway.replyText(
+        gateway.replyText(
             ctx.chatId,
             """
             /start – приветствие
