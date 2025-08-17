@@ -9,15 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class WebhookBotController(
-    private val bot: Bot,
-    private val botScope: CoroutineScope
-) {
+class WebhookBotController(private val bot: Bot) {
 
     @PostMapping("/telegram")
     suspend fun onUpdate(@RequestBody update: Update) {
-        botScope.launch {
-            bot.processUpdate(update)
-        }
+        bot.processUpdate(update)
     }
 }
