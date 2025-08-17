@@ -36,6 +36,7 @@ class BotConfig(
                 command(handler.name) {
                     log.info { "Executing command /${handler.name} with args: $args" }
                     handler.safeHandle(CommandContext(update, args))
+                    update.consume()
                 }
             }
 

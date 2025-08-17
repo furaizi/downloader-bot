@@ -1,6 +1,8 @@
 spring:
   application:
     name: downloader-bot
+  config:
+    import: optional:file:.env[.properties]
   jackson:
     property-naming-strategy: SNAKE_CASE
     deserialization:

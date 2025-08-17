@@ -1,9 +1,10 @@
 package com.download.downloaderbot.core.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class YoutubeDlMedia(
-    val url: String,
     val title: String,
     val filename: String,
     val resolution: String,
