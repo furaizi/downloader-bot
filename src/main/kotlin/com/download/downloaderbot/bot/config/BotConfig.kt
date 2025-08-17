@@ -23,7 +23,6 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val commands: List<CommandHandler>,
-    private val botScope: CoroutineScope
 ) {
 
     private val defaultCommand = commands.first { it.name == "download" }
@@ -31,6 +30,7 @@ class BotConfig(
     @Bean
     fun telegramBot(): Bot = bot {
         token = botProperties.token
+
         dispatch {
             commands.forEach { handler ->
                 command(handler.name) {
@@ -40,24 +40,23 @@ class BotConfig(
             }
 
             text {
+                log.info { "Executing default command with text: '${text}'" }
                 defaultCommand.safeHandle(CommandContext(update, listOf(text)))
             }
         }
     }
 
-    private fun CommandHandler.safeHandle(ctx: CommandContext) {
-        botScope.launch {
-            try {
-                handle(ctx)
-            } catch (e: RuntimeException) {
-                val errId = UUID.randomUUID().toString().take(8)
-                log.error(e) { "Unhandled error id=$errId in /${name}" }
-                runCatching {
-                    gateway.replyText(
-                        ctx.chatId,
-                        "An error occurred while handling a command (id=$errId). Check log for a detailed message."
-                    )
-                }
+    private suspend fun CommandHandler.safeHandle(ctx: CommandContext) {
+        try {
+            handle(ctx)
+        } catch (e: RuntimeException) {
+            val errId = UUID.randomUUID().toString().take(8)
+            log.error(e) { "Unhandled error id=$errId in /${name}" }
+            runCatching {
+                gateway.replyText(
+                    ctx.chatId,
+                    "An error occurred while handling a command (id=$errId). Check log for a detailed message."
+                )
             }
         }
     }

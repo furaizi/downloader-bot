@@ -4,6 +4,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "telegram.bot")
 class BotProperties(
-    val token: String,
-    val path: String
+    val token: String
 )

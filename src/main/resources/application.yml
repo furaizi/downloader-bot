@@ -1,11 +1,26 @@
 spring:
   application:
     name: downloader-bot
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    deserialization:
+      fail-on-unknown-properties: false
+    mapper:
+      accept-case-insensitive-enums: true
+
+logging:
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans
 
 telegram:
   bot:
     token: ${DOWNLOADER_BOT_TOKEN}
-    path: "/telegram"
 
 downloader:
   ytdlp:
