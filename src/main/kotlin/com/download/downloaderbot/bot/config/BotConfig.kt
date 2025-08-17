@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.config
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.CommandHandler
 import com.download.downloaderbot.bot.commands.TelegramGateway
+import com.download.downloaderbot.bot.commands.chatId
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
@@ -12,6 +13,7 @@ import com.github.kotlintelegrambot.dispatcher.text
 import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -31,12 +33,27 @@ class BotConfig(
             commands.forEach { handler ->
                 command(handler.name) {
                     log.info { "Executing command /${handler.name} with args: $args" }
-                    handler.handle(CommandContext(update, args, gateway))
+                    handler.safeHandle(CommandContext(update, args, gateway))
                 }
             }
 
             text {
-                defaultCommand.handle(CommandContext(update, listOf(text), gateway))
+                defaultCommand.safeHandle(CommandContext(update, listOf(text), gateway))
+            }
+        }
+    }
+
+    private suspend fun CommandHandler.safeHandle(ctx: CommandContext) {
+        try {
+            handle(ctx)
+        } catch (e: RuntimeException) {
+            val errId = UUID.randomUUID().toString().take(8)
+            log.error(e) { "Unhandled error id=$errId in /${name}" }
+            runCatching {
+                gateway.replyText(
+                    ctx.chatId,
+                    "An error occurred while handling a command (id=$errId). Check log for a detailed message."
+                )
             }
         }
     }
