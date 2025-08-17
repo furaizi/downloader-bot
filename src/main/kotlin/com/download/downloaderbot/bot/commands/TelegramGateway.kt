@@ -3,12 +3,13 @@ package com.download.downloaderbot.bot.commands
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.TelegramFile
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import java.io.File
 import java.nio.file.Path
 
 @Component
-class TelegramGateway(private val bot: Bot) {
+class TelegramGateway(@Lazy private val bot: Bot) {
     suspend fun replyText(chatId: Long, text: String) {
         bot.sendMessage(ChatId.fromId(chatId), text)
     }
