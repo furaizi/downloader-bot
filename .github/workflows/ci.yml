@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+      - name: Build & Test
+        run: ./gradlew --no-daemon clean build
+
+      - name: Static analysis (ktlint/detekt if present)
+        run: |
+          if ./gradlew -q tasks --all | grep -q "^ktlintCheck"; then ./gradlew ktlintCheck; else echo "ktlint not configured, skipping"; fi
+          if ./gradlew -q tasks --all | grep -q "^detekt"; then ./gradlew detekt; else echo "detekt not configured, skipping"; fi
+
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            **/build/test-results/test/*.xml
+
+      - name: Upload JARs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jars
+          path: |
+            **/build/libs/*.jar
