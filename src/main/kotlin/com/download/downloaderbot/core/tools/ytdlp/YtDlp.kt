@@ -5,6 +5,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.tools.AbstractCliTool
+import com.download.downloaderbot.core.tools.ForYtDlp
 import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -26,7 +27,7 @@ private val log = KotlinLogging.logger {}
 class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
-    val pathGenerator: PathTemplateGenerator,
+    @ForYtDlp val pathGenerator: PathTemplateGenerator,
     val fileFinder: FileByPrefixFinder
 ) : AbstractCliTool(config.bin) {
 
