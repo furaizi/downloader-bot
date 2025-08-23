@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.core.entity.MediaType
-import com.download.downloaderbot.core.service.MediaService
+import com.download.downloaderbot.core.usecase.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -12,7 +12,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class DownloadCommand(
-    private val mediaService: MediaService,
+    private val mediaDownloadService: MediaDownloadService,
     gateway: TelegramGateway
 ) : CommandHandler(gateway) {
     override val name = "download"
@@ -21,7 +21,7 @@ class DownloadCommand(
         val url = ctx.args.first()
 
         val media = withContext(Dispatchers.IO) {
-            mediaService.download(url)
+            mediaDownloadService.download(url)
         }
         val file = File(media.fileUrl)
 
