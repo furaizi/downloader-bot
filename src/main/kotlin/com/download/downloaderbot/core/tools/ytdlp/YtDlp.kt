@@ -20,7 +20,7 @@ class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
     @ForYtDlp val pathGenerator: PathTemplateGenerator,
-    val fileFinder: FilesByPrefixFinder
+    @ForYtDlp val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)

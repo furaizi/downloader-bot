@@ -16,7 +16,7 @@ class GalleryDl(
     val config: GalleryDlProperties,
     val mapper: ObjectMapper,
     @ForGalleryDl val pathGenerator: PathTemplateGenerator,
-    val fileFinder: FilesByPrefixFinder
+    @ForGalleryDl val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
     private val downloadsDir = Paths.get(config.baseDir)
 

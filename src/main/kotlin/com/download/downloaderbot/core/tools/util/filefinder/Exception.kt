@@ -2,9 +2,14 @@ package com.download.downloaderbot.core.tools.util.filefinder
 
 import java.nio.file.Path
 
-open class FileByPrefixFinderException(message: String) : RuntimeException(message)
+open class FilesByPrefixFinderException(message: String) : RuntimeException(message)
 
-class FileByPrefixNotFoundException(
+class FilesByPrefixNotFoundException(
     val prefix: String,
     val dir: Path
-) : FileByPrefixFinderException("File with prefix '$prefix' not found in directory: $dir")
+) : FilesByPrefixFinderException("File with prefix '$prefix' not found in directory: $dir")
+
+class FilesByDirectoryPrefixNotFoundException(
+    val prefix: String,
+    val dir: Path
+) : FilesByPrefixFinderException("Directory with prefix '$prefix' not found in directory: $dir")
