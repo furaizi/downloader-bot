@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.core.domain.MediaType
-import com.download.downloaderbot.core.usecase.MediaDownloadService
+import com.download.downloaderbot.core.service.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging

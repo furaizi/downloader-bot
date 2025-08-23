@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.port
+package com.download.downloaderbot.core.downloader
 
 class MediaDownloadException(
     message: String,

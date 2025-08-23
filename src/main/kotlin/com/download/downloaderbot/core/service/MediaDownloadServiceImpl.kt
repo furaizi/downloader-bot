@@ -1,7 +1,7 @@
-package com.download.downloaderbot.core.usecase
+package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.domain.Media
-import com.download.downloaderbot.core.port.MediaDownloader
+import com.download.downloaderbot.core.downloader.MediaDownloader
 import org.springframework.stereotype.Service
 
 @Service

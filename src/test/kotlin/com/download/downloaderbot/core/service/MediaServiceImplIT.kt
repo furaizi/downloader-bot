@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.usecase
+package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.downloader.MediaDownloader
 import com.download.downloaderbot.core.domain.Media
