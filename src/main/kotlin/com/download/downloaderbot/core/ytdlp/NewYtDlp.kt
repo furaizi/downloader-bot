@@ -2,9 +2,9 @@ package com.download.downloaderbot.core.ytdlp
 
 import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloadException
-import com.download.downloaderbot.core.entity.Media
-import com.download.downloaderbot.core.entity.MediaType
-import com.download.downloaderbot.core.entity.YoutubeDlMedia
+import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.core.domain.MediaType
+import com.download.downloaderbot.core.domain.YoutubeDlMedia
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope

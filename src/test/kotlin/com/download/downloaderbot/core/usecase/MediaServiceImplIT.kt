@@ -1,8 +1,8 @@
 package com.download.downloaderbot.core.usecase
 
 import com.download.downloaderbot.core.downloader.MediaDownloader
-import com.download.downloaderbot.core.entity.Media
-import com.download.downloaderbot.core.entity.MediaType
+import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.mediainfo.MediaInfoExtractor
 import io.mockk.coEvery
 import io.mockk.coVerify

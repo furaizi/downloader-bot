@@ -1,6 +1,6 @@
 package com.download.downloaderbot.core.port
 
-import com.download.downloaderbot.core.entity.Media
+import com.download.downloaderbot.core.domain.Media
 
 interface MediaDownloader {
     fun supports(url: String): Boolean

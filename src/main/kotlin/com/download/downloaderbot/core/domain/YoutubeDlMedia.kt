@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.entity
+package com.download.downloaderbot.core.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

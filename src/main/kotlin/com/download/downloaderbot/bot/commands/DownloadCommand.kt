@@ -1,6 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.core.entity.MediaType
+import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.usecase.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
