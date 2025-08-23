@@ -4,7 +4,6 @@ import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
-import com.download.downloaderbot.core.ytdlp.YoutubeDlMedia
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +48,7 @@ class NewYtDlp(
         return generateFilePathTemplate(basePrefix)
     }
 
-    private suspend fun probe(url: String): YoutubeDlMedia {
+    private suspend fun probe(url: String): YtDlpMedia {
         val json = dumpJson(url)
         return mapJsonToInnerMedia(json, url)
     }
@@ -78,8 +77,8 @@ class NewYtDlp(
             ?: throw MediaDownloadException("yt-dlp produced no JSON", exitCode = 0, output = raw)
     }
 
-    private fun mapJsonToInnerMedia(json: String, url: String): YoutubeDlMedia = try {
-        mapper.readValue(json, YoutubeDlMedia::class.java)
+    private fun mapJsonToInnerMedia(json: String, url: String): YtDlpMedia = try {
+        mapper.readValue(json, YtDlpMedia::class.java)
     } catch (e: Exception) {
         log.error(e) { "Failed to parse yt-dlp json for url=$url" }
         throw RuntimeException("Failed to parse yt-dlp output", e)
