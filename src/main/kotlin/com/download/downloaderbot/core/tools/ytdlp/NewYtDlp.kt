@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.ytdlp
+package com.download.downloaderbot.core.tools.ytdlp
 
 import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloadException

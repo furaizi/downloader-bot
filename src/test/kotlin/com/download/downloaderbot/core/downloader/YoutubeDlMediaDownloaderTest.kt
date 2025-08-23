@@ -1,6 +1,6 @@
 package com.download.downloaderbot.core.downloader
 
-import com.download.downloaderbot.core.ytdlp.YtDlp
+import com.download.downloaderbot.core.tools.ytdlp.YtDlp
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
