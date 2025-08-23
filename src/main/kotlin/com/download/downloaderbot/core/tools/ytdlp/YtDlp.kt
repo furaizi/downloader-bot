@@ -5,6 +5,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.tools.AbstractCliTool
+import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,8 @@ private val log = KotlinLogging.logger {}
 class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
-    val pathGenerator: PathTemplateGenerator
+    val pathGenerator: PathTemplateGenerator,
+    val fileFinder: FileByPrefixFinder
 ) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)
@@ -37,7 +39,7 @@ class YtDlp(
         val args = listOf("-f", config.format, "-o", outputPathTemplate) + config.extraArgs
         execute(url, args)
 
-        val downloadedFile = findDownloadedFileOrThrow(basePrefix)
+        val downloadedFile = fileFinder.find(basePrefix, downloadsDir)
         val media = Media(
             type = MediaType.fromString(ytDlpMedia.type),
             fileUrl = downloadedFile.toAbsolutePath().toString(),
@@ -51,23 +53,6 @@ class YtDlp(
     private suspend fun probe(url: String): YtDlpMedia {
         val json = dumpJson(url)
         return mapJsonToInnerMedia(json, url)
-    }
-
-    private suspend fun findDownloadedFileOrThrow(basePrefix: String) =
-        findLatestMatchingFile(downloadsDir, basePrefix) ?: run {
-            val msg = "Downloaded file not found for prefix $basePrefix in $downloadsDir"
-            log.error { msg }
-            throw RuntimeException(msg)
-        }
-
-    private suspend fun findLatestMatchingFile(dir: Path, prefix: String): Path? = withContext(Dispatchers.IO) {
-        Files.list(dir).use { stream ->
-            stream.asSequence()
-                .filter { it.isRegularFile() && it.name.startsWith(prefix) }
-                .map { it to runCatching { Files.getLastModifiedTime(it) }.getOrDefault(FileTime.fromMillis(0)) }
-                .maxByOrNull { it.second.toMillis() }
-                ?.first
-        }
     }
 
     private suspend fun dumpJson(url: String): String {
