@@ -5,6 +5,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.tools.AbstractCliTool
+import com.download.downloaderbot.core.tools.util.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,14 +27,14 @@ private val log = KotlinLogging.logger {}
 @Service
 class YtDlp(
     val config: YtDlpProperties,
-    val mapper: ObjectMapper
+    val mapper: ObjectMapper,
+    val pathGenerator: PathTemplateGenerator
 ) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)
 
     suspend fun download(url: String): Media {
-        val basePrefix = generateBasePrefix(url)
-        val outputPathTemplate = generateFilePathTemplate(basePrefix)
+        val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = probe(url)
         val args = listOf("-f", config.format, "-o", outputPathTemplate) + config.extraArgs
@@ -71,21 +72,6 @@ class YtDlp(
                 ?.first
         }
     }
-
-
-
-    private fun generateBasePrefix(url: String): String {
-        val host = runCatching { URI(url).host?.replace(":", "-") }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() }
-            ?: "media"
-        val timestamp = Instant.now().toEpochMilli()
-        val shortUuid = UUID.randomUUID().toString().take(8)
-        return "$host-$timestamp-$shortUuid"
-    }
-
-    private fun generateFilePathTemplate(basePrefix: String): String =
-        downloadsDir.resolve("$basePrefix.%(ext)s").toString()
 
     private suspend fun dumpJson(url: String): String {
         val args = listOf("--dump-json", "--no-warnings", "--skip-download")
