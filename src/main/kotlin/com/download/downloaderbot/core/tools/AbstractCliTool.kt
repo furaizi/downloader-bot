@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.tools.ytdlp
+package com.download.downloaderbot.core.tools
 
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import kotlinx.coroutines.CancellationException
