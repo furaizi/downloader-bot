@@ -1,28 +1,24 @@
-package com.download.downloaderbot.core.tools.ytdlp.util
+package com.download.downloaderbot.core.tools.gallerydl.util
 
-import com.download.downloaderbot.core.config.properties.YtDlpProperties
-import com.download.downloaderbot.core.tools.ForYtDlp
+import com.download.downloaderbot.core.config.properties.GalleryDlProperties
+import com.download.downloaderbot.core.tools.ForGalleryDl
 import com.download.downloaderbot.core.tools.util.baseprefix.BasePrefixGenerator
 import com.download.downloaderbot.core.tools.util.pathgenerator.DownloadPath
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import org.springframework.stereotype.Component
-import java.net.URI
 import java.nio.file.Paths
-import java.time.Instant
-import java.util.UUID
 
 @Component
-@ForYtDlp
-class YtDlpPathTemplateGenerator(
-    val props: YtDlpProperties
+@ForGalleryDl
+class GalleryDlPathGenerator(
+    val props: GalleryDlProperties
 ) : PathTemplateGenerator {
 
     private val baseDir = Paths.get(props.baseDir)
 
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)
-        val outputTemplate = baseDir.resolve("$basePrefix.%(ext)s")
-            .toString()
-        return DownloadPath(basePrefix, outputTemplate)
+        val outputPath = baseDir.resolve(basePrefix).toString()
+        return DownloadPath(basePrefix, outputPath)
     }
 }
