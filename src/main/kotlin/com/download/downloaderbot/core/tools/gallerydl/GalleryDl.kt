@@ -19,7 +19,7 @@ class GalleryDl(
 ) : AbstractCliTool(config.bin) {
     private val downloadsDir = Paths.get(config.baseDir)
 
-    suspend fun download(url: String): List<Media> {
+    override suspend fun download(url: String): List<Media> {
         val (folderName, outputPath) = pathGenerator.generate(url)
 
         val galleryDlMedia = probe(url)
