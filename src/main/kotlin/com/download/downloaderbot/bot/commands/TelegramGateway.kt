@@ -99,13 +99,15 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         }
     }
 
-    suspend fun sendPhotosAlbum(
+    // Compiler doesn't allow to have both List<File> and List<Path> overloads
+    // due to type erasure
+    suspend fun sendPhotosAlbumFromPaths(
         chatId: Long,
         paths: List<Path>,
         caption: String? = null
     ) = sendPhotosAlbum(chatId, paths.map { it.toFile() }, caption)
 
-    suspend fun sendPhotosAlbumChunked(
+    suspend fun sendPhotosAlbumChunkedFromPaths(
         chatId: Long,
         paths: List<Path>,
         caption: String? = null
