@@ -4,24 +4,18 @@ import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
+import com.download.downloaderbot.core.tools.AbstractCliTool
+import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
+import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.attribute.FileTime
-import java.time.Instant
-import java.util.UUID
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.streams.asSequence
@@ -31,27 +25,28 @@ private val log = KotlinLogging.logger {}
 @Service
 class YtDlp(
     val config: YtDlpProperties,
-    val mapper: ObjectMapper
-) {
+    val mapper: ObjectMapper,
+    val pathGenerator: PathTemplateGenerator,
+    val fileFinder: FileByPrefixFinder
+) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)
 
     suspend fun download(url: String): Media {
-        val basePrefix = generateBasePrefix(url)
-        val outputPathTemplate = generateFilePathTemplate(basePrefix)
+        val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = probe(url)
         val args = listOf("-f", config.format, "-o", outputPathTemplate) + config.extraArgs
         execute(url, args)
 
-        val downloadedFile = findDownloadedFileOrThrow(basePrefix)
+        val downloadedFile = fileFinder.find(basePrefix, downloadsDir)
         val media = Media(
             type = MediaType.fromString(ytDlpMedia.type),
             fileUrl = downloadedFile.toAbsolutePath().toString(),
             sourceUrl = url,
             title = ytDlpMedia.title
         )
-        log.info { "yt-dlp download finished: $url -> $outputPathTemplate" }
+        log.info { "yt-dlp download finished: $url -> ${media.fileUrl}" }
         return media
     }
 
@@ -59,38 +54,6 @@ class YtDlp(
         val json = dumpJson(url)
         return mapJsonToInnerMedia(json, url)
     }
-
-    private suspend fun findDownloadedFileOrThrow(basePrefix: String) =
-        findLatestMatchingFile(downloadsDir, basePrefix) ?: run {
-            val msg = "Downloaded file not found for prefix $basePrefix in $downloadsDir"
-            log.error { msg }
-            throw RuntimeException(msg)
-        }
-
-    private suspend fun findLatestMatchingFile(dir: Path, prefix: String): Path? = withContext(Dispatchers.IO) {
-        Files.list(dir).use { stream ->
-            stream.asSequence()
-                .filter { it.isRegularFile() && it.name.startsWith(prefix) }
-                .map { it to runCatching { Files.getLastModifiedTime(it) }.getOrDefault(FileTime.fromMillis(0)) }
-                .maxByOrNull { it.second.toMillis() }
-                ?.first
-        }
-    }
-
-
-
-    private fun generateBasePrefix(url: String): String {
-        val host = runCatching { URI(url).host?.replace(":", "-") }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() }
-            ?: "media"
-        val timestamp = Instant.now().toEpochMilli()
-        val shortUuid = UUID.randomUUID().toString().take(8)
-        return "$host-$timestamp-$shortUuid"
-    }
-
-    private fun generateFilePathTemplate(basePrefix: String): String =
-        downloadsDir.resolve("$basePrefix.%(ext)s").toString()
 
     private suspend fun dumpJson(url: String): String {
         val args = listOf("--dump-json", "--no-warnings", "--skip-download")
@@ -108,75 +71,4 @@ class YtDlp(
         throw RuntimeException("Failed to parse yt-dlp output", e)
     }
 
-    private suspend fun execute(url: String, args: List<String>) = coroutineScope {
-        val cmd = buildCommand(url, args)
-        val process = startProcess(cmd)
-        val (readerJob, output) = startReaderJob(process)
-        awaitProcessCompletion(process, readerJob, url, output)
-        output.toString()
-    }
-
-    private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {
-        ProcessBuilder(cmd)
-            .redirectErrorStream(true)
-            .start()
-    }
-
-    private fun CoroutineScope.startReaderJob(process: Process): Pair<Job, StringBuilder> {
-        val output = StringBuilder()
-        val readerJob = launch(Dispatchers.IO) {
-            process.inputStream.bufferedReader().useLines { lines ->
-                lines.forEach { line ->
-                    log.debug { line }
-                    output.appendLine(line)
-                }
-            }
-        }
-        return readerJob to output
-    }
-
-    private suspend fun awaitProcessCompletion(
-        process: Process,
-        readerJob: Job,
-        url: String,
-        output: StringBuilder
-    ) = try {
-        val exitCode = awaitExitCode(process)
-        readerJob.join()
-        handleExitCode(exitCode, output.toString())
-    } catch (ce: CancellationException) {
-        log.info { "Cancelling download process for $url" }
-        if (process.isAlive) process.destroyForcibly()
-        throw ce
-    } finally {
-        runCatching { process.inputStream.close() }
-        runCatching { process.errorStream.close() }
-        runCatching { process.outputStream.close() }
-        readerJob.cancel()
-    }
-
-    private suspend fun awaitExitCode(process: Process) = try {
-        process.onExit().await().exitValue()
-    } catch (t: Throwable) {
-        if (process.isAlive) process.destroyForcibly()
-        throw t
-    }
-
-    private fun handleExitCode(exitCode: Int, output: String) {
-        if (exitCode != 0) {
-            log.error { "yt-dlp failed (code=$exitCode). Output:\n$output" }
-            throw MediaDownloadException(
-                message = "yt-dlp failed with exit code $exitCode",
-                exitCode = exitCode,
-                output = output
-            )
-        }
-    }
-
-    private fun buildCommand(url: String, args: List<String> = emptyList()): List<String> {
-        val command = mutableListOf(config.bin)
-        command.addAll(args)
-        command.add(url)
-        return command
-    }
 }
