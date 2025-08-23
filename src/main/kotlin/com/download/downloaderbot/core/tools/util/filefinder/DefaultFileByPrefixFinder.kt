@@ -17,8 +17,11 @@ private val log = KotlinLogging.logger {}
 @Component
 class DefaultFileByPrefixFinder : FileByPrefixFinder {
 
-    override suspend fun find(prefix: String, dir: Path): Path =
-        findLatestMatchingFile(prefix, dir) ?: throw FileByPrefixNotFoundException(prefix, dir)
+    override suspend fun find(prefix: String, dir: Path): Path {
+        val file = findLatestMatchingFile(prefix, dir) ?: throw FileByPrefixNotFoundException(prefix, dir)
+        log.info { "File found with prefix '$prefix' in directory '$dir': $file" }
+        return file
+    }
 
     private suspend fun findLatestMatchingFile(
         prefix: String,
