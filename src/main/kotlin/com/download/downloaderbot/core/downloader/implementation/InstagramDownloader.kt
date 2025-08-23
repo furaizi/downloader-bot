@@ -21,6 +21,6 @@ class InstagramDownloader(
         return host.contains("instagram.com")
     }
 
-    override suspend fun download(url: String): Media =
+    override suspend fun download(url: String): List<Media> =
         ytDlp.download(url)
 }

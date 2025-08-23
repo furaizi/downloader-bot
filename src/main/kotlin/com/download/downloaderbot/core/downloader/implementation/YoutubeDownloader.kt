@@ -22,6 +22,6 @@ class YoutubeDownloader(
                host.contains("youtu.be")
     }
 
-    override suspend fun download(url: String): Media =
+    override suspend fun download(url: String): List<Media> =
         ytDlp.download(url)
 }

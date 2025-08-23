@@ -25,7 +25,7 @@ class YtDlp(
 
     private val downloadsDir = Paths.get(config.baseDir)
 
-    suspend fun download(url: String): Media {
+    suspend fun download(url: String): List<Media> {
         val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = probe(url)
@@ -41,7 +41,7 @@ class YtDlp(
             title = ytDlpMedia.title
         )
         log.info { "yt-dlp download finished: $url -> ${media.fileUrl}" }
-        return media
+        return listOf(media)
     }
 
     private suspend fun probe(url: String): YtDlpMedia {
