@@ -39,7 +39,7 @@ class MediaServiceImpl(
         log.info { "Download completed. File located: ${downloadedFile.toAbsolutePath()}" }
 
         val media = safeFetchMediaInfo(url, downloadedFile.toAbsolutePath().toString())
-        log.info { "Media created: ${media.title} (${media.path})" }
+        log.info { "Media created: ${media.title} (${media.fileUrl})" }
         return media
     }
 

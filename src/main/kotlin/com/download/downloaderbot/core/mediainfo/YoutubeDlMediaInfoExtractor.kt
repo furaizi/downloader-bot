@@ -29,17 +29,11 @@ class YoutubeDlMediaInfoExtractor(val ytDlp: YtDlp) : MediaInfoExtractor {
         val json = ytDlp.dumpJson(url)
         val ytDlpMedia = mapJsonToMedia(json, url)
 
-        val hasAudio = ytDlpMedia.audioCodec != null && ytDlpMedia.audioCodec != "none"
         val media = Media(
-            url = url,
-            title = ytDlpMedia.title,
-            path = path,
-            filename = ytDlpMedia.filename,
-            quality = ytDlpMedia.height,
-            duration = ytDlpMedia.duration,
-            platform = ytDlpMedia.extractor,
             type = MediaType.fromString(ytDlpMedia.type),
-            hasAudio = hasAudio
+            fileUrl = path,
+            sourceUrl = url,
+            title = ytDlpMedia.title
         )
 
         log.info { "Fetched media info: $media" }

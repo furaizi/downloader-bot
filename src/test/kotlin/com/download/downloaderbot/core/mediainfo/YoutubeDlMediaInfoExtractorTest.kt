@@ -26,39 +26,12 @@ class YoutubeDlMediaInfoExtractorTest {
 
         val media = extractor.fetchMediaInfo(url, path)
 
-        assertEquals(url, media.url)
-        assertEquals(path, media.path)
+        assertEquals(url, media.sourceUrl)
+        assertEquals(path, media.fileUrl)
         assertEquals("Cool video", media.title)
-        assertEquals("cool_video.mp4", media.filename)
-        assertEquals(1080, media.quality)
-        assertEquals(123L, media.duration)
-        assertEquals("youtube", media.platform)
         assertEquals(MediaType.VIDEO, media.type)
-        assertEquals(true, media.hasAudio)
 
         coVerify(exactly = 1) { ytDlp.dumpJson(url) }
-    }
-
-    @Test
-    fun `hasAudio is false when acodec is none`() = runTest {
-        val url = "https://example.com/vid"
-        val path = "/var/data"
-        coEvery { ytDlp.dumpJson(url) } returns sampleJson(acodec = "none")
-
-        val media = extractor.fetchMediaInfo(url, path)
-
-        assertEquals(false, media.hasAudio)
-    }
-
-    @Test
-    fun `hasAudio is false when acodec is null`() = runTest {
-        val url = "https://example.com/vid2"
-        val path = "/var/data2"
-        coEvery { ytDlp.dumpJson(url) } returns sampleJson(acodec = null)
-
-        val media = extractor.fetchMediaInfo(url, path)
-
-        assertEquals(false, media.hasAudio)
     }
 
     @Test

@@ -23,13 +23,11 @@ class DownloadCommand(
         val media = withContext(Dispatchers.IO) {
             mediaService.download(url)
         }
-        val file = File(media.path)
+        val file = File(media.fileUrl)
 
         when (media.type) {
-            MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file,
-                durationSeconds = media.duration.toInt())
-            MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file,
-                durationSeconds = media.duration.toInt())
+            MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file)
+            MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file)
             MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file)
         }
 

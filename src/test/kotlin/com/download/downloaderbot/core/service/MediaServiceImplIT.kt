@@ -60,15 +60,10 @@ class MediaServiceImplIT {
         coEvery { extractor.fetchMediaInfo(url, any()) } answers {
             val pathArg = arg<String>(1)
             Media(
-                url = url,
-                title = "OK",
-                path = pathArg,
-                filename = Paths.get(pathArg).fileName.toString(),
-                quality = 1080,
-                duration = 10,
-                platform = "youtube",
                 type = MediaType.VIDEO,
-                hasAudio = true
+                fileUrl = pathArg,
+                sourceUrl = url,
+                title = "OK"
             )
         }
 
@@ -77,10 +72,10 @@ class MediaServiceImplIT {
 
         val media = svc.download(url)
 
-        assertEquals(url, media.url)
+        assertEquals(url, media.sourceUrl)
         assertTrue(downloadsRoot.exists())
-        assertTrue(media.path.endsWith(".mp4"))
-        assertTrue(Paths.get(media.path).isAbsolute)
+        assertTrue(media.fileUrl.endsWith(".mp4"))
+        assertTrue(Paths.get(media.fileUrl).isAbsolute)
 
         coVerify(exactly = 1) {
             downloader.download(
@@ -111,23 +106,18 @@ class MediaServiceImplIT {
         coEvery { extractor.fetchMediaInfo(url, any()) } answers {
             val pathArg = arg<String>(1)
             Media(
-                url = url,
-                title = "Picked-latest",
-                path = pathArg,
-                filename = Paths.get(pathArg).fileName.toString(),
-                quality = 720,
-                duration = 5,
-                platform = "youtube",
                 type = MediaType.VIDEO,
-                hasAudio = true
+                fileUrl = pathArg,
+                sourceUrl = url,
+                title = "Picked-latest"
             )
         }
 
         val svc = service(downloader, extractor, tmpDir.resolve("root2"))
         val media = svc.download(url)
 
-        assertTrue(media.path.endsWith(".webm"), "Expected latest file (.webm) to be chosen")
-        assertEquals(newer.toAbsolutePath().toString(), media.path)
+        assertTrue(media.fileUrl.endsWith(".webm"), "Expected latest file (.webm) to be chosen")
+        assertEquals(newer.toAbsolutePath().toString(), media.fileUrl)
     }
 
     @Test
