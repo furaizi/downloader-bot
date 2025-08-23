@@ -4,5 +4,5 @@ import java.nio.file.Path
 
 interface FileByPrefixFinder {
 
-    suspend fun find(dir: Path, prefix: String): Path?
+    suspend fun find(prefix: String, dir: Path): Path?
 }
