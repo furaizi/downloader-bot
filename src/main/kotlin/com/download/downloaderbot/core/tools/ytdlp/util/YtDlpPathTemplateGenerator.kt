@@ -1,8 +1,8 @@
 package com.download.downloaderbot.core.tools.ytdlp.util
 
 import com.download.downloaderbot.core.config.properties.YtDlpProperties
-import com.download.downloaderbot.core.tools.util.DownloadPath
-import com.download.downloaderbot.core.tools.util.PathTemplateGenerator
+import com.download.downloaderbot.core.tools.util.pathgenerator.DownloadPath
+import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import org.springframework.stereotype.Component
 import java.net.URI
 import java.nio.file.Paths
