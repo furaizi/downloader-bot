@@ -14,7 +14,6 @@ import java.nio.file.Paths
 @Service
 class GalleryDl(
     val config: GalleryDlProperties,
-    val mapper: ObjectMapper,
     @ForGalleryDl val pathGenerator: PathTemplateGenerator,
     @ForGalleryDl val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
@@ -41,7 +40,6 @@ class GalleryDl(
         }
 
     }
-
 
     private suspend fun probe(url: String) {}
 }

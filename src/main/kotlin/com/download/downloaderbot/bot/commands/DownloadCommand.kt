@@ -20,7 +20,7 @@ class DownloadCommand(
     override suspend fun handle(ctx: CommandContext) {
         val url = ctx.args.first()
 
-        val media = withContext(Dispatchers.IO) {
+        val mediaList = withContext(Dispatchers.IO) {
             mediaDownloadService.download(url)
         }
         val file = File(media.fileUrl)

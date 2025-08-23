@@ -21,6 +21,6 @@ class TikTokDownloader(
         return host.contains("tiktok.com")
     }
 
-    override suspend fun download(url: String): Media =
+    override suspend fun download(url: String): List<Media> =
         ytDlp.download(url)
 }

@@ -9,7 +9,7 @@ class MediaDownloadServiceImpl(
     private val downloaders: List<MediaDownloader>
 ) : MediaDownloadService {
 
-    override suspend fun download(url: String): Media {
+    override suspend fun download(url: String): List<Media> {
         val downloader = downloaders.find { it.supports(url) }
             ?: error("No downloader found for URL: $url")
         return downloader.download(url)

@@ -3,6 +3,9 @@ package com.download.downloaderbot.bot.commands
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.TelegramFile
+import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
+import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
+import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
@@ -63,6 +66,50 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         path: Path,
         caption: String? = null
     ) = sendPhoto(chatId, path.toFile(), caption)
+
+    suspend fun sendPhotosAlbum(
+        chatId: Long,
+        files: List<File>,
+        caption: String? = null
+    ) {
+        val media = files.mapIndexed { index, file ->
+            InputMediaPhoto(
+                media = TelegramFile.ByFile(file),
+                caption = caption.takeIf { index == 0 }
+            )
+        }.toTypedArray()
+
+        bot.sendMediaGroup(
+            chatId = ChatId.fromId(chatId),
+            mediaGroup = MediaGroup.from(*media)
+        )
+    }
+
+    suspend fun sendPhotosAlbumChunked(
+        chatId: Long,
+        files: List<File>,
+        caption: String? = null
+    ) {
+        files.chunked(10).forEachIndexed { chunkIndex, chunk ->
+            val shouldCaption = chunkIndex == 0
+            sendPhotosAlbum(
+                chatId = chatId,
+                files = chunk,
+                caption = caption.takeIf { shouldCaption })
+        }
+    }
+
+    suspend fun sendPhotosAlbum(
+        chatId: Long,
+        paths: List<Path>,
+        caption: String? = null
+    ) = sendPhotosAlbum(chatId, paths.map { it.toFile() }, caption)
+
+    suspend fun sendPhotosAlbumChunked(
+        chatId: Long,
+        paths: List<Path>,
+        caption: String? = null
+    ) = sendPhotosAlbumChunked(chatId, paths.map { it.toFile() }, caption)
 
     suspend fun sendAudio(
         chatId: Long,
