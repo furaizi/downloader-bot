@@ -1,7 +1,7 @@
 package com.download.downloaderbot.core.service
 
-import com.download.downloaderbot.core.entity.Media
+import com.download.downloaderbot.core.domain.Media
 
-interface MediaService {
+interface MediaDownloadService {
     suspend fun download(url: String): Media
 }

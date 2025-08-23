@@ -27,5 +27,6 @@ telegram:
 downloader:
   ytdlp:
     bin: yt-dlp
+    base-dir: /downloads
     format: best
     extra-args:

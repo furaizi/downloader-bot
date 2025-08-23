@@ -1,5 +1,8 @@
 package com.download.downloaderbot.core.downloader
 
+import com.download.downloaderbot.core.domain.Media
+
 interface MediaDownloader {
-    suspend fun download(url: String, outputPath: String)
+    fun supports(url: String): Boolean
+    suspend fun download(url: String): Media
 }
