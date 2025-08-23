@@ -15,7 +15,7 @@ import kotlin.use
 private val log = KotlinLogging.logger {}
 
 @Component
-class DefaultFileByPrefixFinder : FileByPrefixFinder {
+class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
 
     override suspend fun find(prefix: String, dir: Path): List<Path> {
         val files = findAllMatchingFile(prefix, dir)
