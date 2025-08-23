@@ -1,5 +1,7 @@
 package com.download.downloaderbot.core.entity
 
+import java.time.OffsetDateTime
+
 data class Media(
     val url: String,
     val title: String,
@@ -10,6 +12,14 @@ data class Media(
     val platform: String,
     val type: MediaType,
     val hasAudio: Boolean = false
+)
+
+data class NewMedia(
+    val type: MediaType,
+    val fileUrl: String,
+    val sourceUrl: String,
+    val title: String?,
+    val downloadedAt: OffsetDateTime = OffsetDateTime.now()
 )
 
 enum class MediaType {
