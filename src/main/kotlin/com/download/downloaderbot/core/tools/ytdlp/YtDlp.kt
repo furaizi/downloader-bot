@@ -14,6 +14,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import org.springframework.stereotype.Service
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,6 +28,7 @@ import kotlin.streams.asSequence
 
 private val log = KotlinLogging.logger {}
 
+@Service
 class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper
