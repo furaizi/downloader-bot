@@ -1,5 +1,6 @@
 package com.download.downloaderbot.core.tools.util.filefinder
 
+import com.download.downloaderbot.core.tools.ForYtDlp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -15,12 +16,13 @@ import kotlin.use
 private val log = KotlinLogging.logger {}
 
 @Component
+@ForYtDlp // temporary, can be reused later
 class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
 
     override suspend fun find(prefix: String, dir: Path): List<Path> {
         val files = findAllMatchingFile(prefix, dir)
         if (files.isEmpty())
-            throw FileByPrefixNotFoundException(prefix, dir)
+            throw FilesByPrefixNotFoundException(prefix, dir)
         log.info { "File found with prefix '$prefix' in directory '$dir': ${files.first()}" }
         return files
     }
