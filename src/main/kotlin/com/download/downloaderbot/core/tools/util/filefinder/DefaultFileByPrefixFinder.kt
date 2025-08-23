@@ -17,22 +17,27 @@ private val log = KotlinLogging.logger {}
 @Component
 class DefaultFileByPrefixFinder : FileByPrefixFinder {
 
-    override suspend fun find(prefix: String, dir: Path): Path {
-        val file = findLatestMatchingFile(prefix, dir) ?: throw FileByPrefixNotFoundException(prefix, dir)
-        log.info { "File found with prefix '$prefix' in directory '$dir': $file" }
-        return file
+    override suspend fun find(prefix: String, dir: Path): List<Path> {
+        val files = findAllMatchingFile(prefix, dir)
+        if (files.isEmpty())
+            throw FileByPrefixNotFoundException(prefix, dir)
+        log.info { "File found with prefix '$prefix' in directory '$dir': ${files.first()}" }
+        return files
     }
 
-    private suspend fun findLatestMatchingFile(
+    private suspend fun findAllMatchingFile(
         prefix: String,
         dir: Path
-    ): Path? = withContext(Dispatchers.IO) {
+    ): List<Path> = withContext(Dispatchers.IO) {
         Files.list(dir).use { stream ->
             stream.asSequence()
                 .filter { it.isRegularFile() && it.name.startsWith(prefix) }
-                .map { it to runCatching { Files.getLastModifiedTime(it) }.getOrDefault(FileTime.fromMillis(0)) }
-                .maxByOrNull { it.second.toMillis() }
-                ?.first
+                .sortedBy { getLastModifiedTime(it) }
+                .toList()
         }
     }
+
+    private fun getLastModifiedTime(path: Path): FileTime =
+        runCatching { Files.getLastModifiedTime(path) }
+            .getOrDefault(FileTime.fromMillis(0))
 }

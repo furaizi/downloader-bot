@@ -41,6 +41,7 @@ class YtDlp(
         execute(url, args)
 
         val downloadedFile = fileFinder.find(basePrefix, downloadsDir)
+                                        .first()
         val media = Media(
             type = MediaType.fromString(ytDlpMedia.type),
             fileUrl = downloadedFile.toAbsolutePath().toString(),
