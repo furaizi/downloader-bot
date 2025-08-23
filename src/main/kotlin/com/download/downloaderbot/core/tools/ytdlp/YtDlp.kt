@@ -6,20 +6,12 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.tools.AbstractCliTool
 import com.download.downloaderbot.core.tools.ForYtDlp
-import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
+import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.attribute.FileTime
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.name
-import kotlin.streams.asSequence
 
 private val log = KotlinLogging.logger {}
 
@@ -28,7 +20,7 @@ class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
     @ForYtDlp val pathGenerator: PathTemplateGenerator,
-    val fileFinder: FileByPrefixFinder
+    val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)

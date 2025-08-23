@@ -5,7 +5,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.tools.AbstractCliTool
 import com.download.downloaderbot.core.tools.ForGalleryDl
-import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
+import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
@@ -16,7 +16,7 @@ class GalleryDl(
     val config: GalleryDlProperties,
     val mapper: ObjectMapper,
     @ForGalleryDl val pathGenerator: PathTemplateGenerator,
-    val fileFinder: FileByPrefixFinder
+    val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
     private val downloadsDir = Paths.get(config.baseDir)
 
