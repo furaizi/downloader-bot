@@ -47,7 +47,7 @@ class YtDlp(
             sourceUrl = url,
             title = ytDlpMedia.title
         )
-        log.info { "yt-dlp download finished: $url -> $outputPathTemplate" }
+        log.info { "yt-dlp download finished: $url -> ${media.fileUrl}" }
         return media
     }
 
