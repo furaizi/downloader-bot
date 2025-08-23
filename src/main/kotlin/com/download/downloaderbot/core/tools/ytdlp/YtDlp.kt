@@ -5,20 +5,13 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloadException
 import com.download.downloaderbot.core.tools.AbstractCliTool
-import com.download.downloaderbot.core.tools.util.filefinder.FileByPrefixFinder
+import com.download.downloaderbot.core.tools.ForYtDlp
+import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.attribute.FileTime
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.name
-import kotlin.streams.asSequence
 
 private val log = KotlinLogging.logger {}
 
@@ -26,13 +19,13 @@ private val log = KotlinLogging.logger {}
 class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
-    val pathGenerator: PathTemplateGenerator,
-    val fileFinder: FileByPrefixFinder
+    @ForYtDlp val pathGenerator: PathTemplateGenerator,
+    @ForYtDlp val fileFinder: FilesByPrefixFinder
 ) : AbstractCliTool(config.bin) {
 
     private val downloadsDir = Paths.get(config.baseDir)
 
-    suspend fun download(url: String): Media {
+    override suspend fun download(url: String): List<Media> {
         val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = probe(url)
@@ -40,6 +33,7 @@ class YtDlp(
         execute(url, args)
 
         val downloadedFile = fileFinder.find(basePrefix, downloadsDir)
+                                        .first()
         val media = Media(
             type = MediaType.fromString(ytDlpMedia.type),
             fileUrl = downloadedFile.toAbsolutePath().toString(),
@@ -47,7 +41,7 @@ class YtDlp(
             title = ytDlpMedia.title
         )
         log.info { "yt-dlp download finished: $url -> ${media.fileUrl}" }
-        return media
+        return listOf(media)
     }
 
     private suspend fun probe(url: String): YtDlpMedia {
