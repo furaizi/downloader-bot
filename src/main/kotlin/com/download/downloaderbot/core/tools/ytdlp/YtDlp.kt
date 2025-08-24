@@ -6,7 +6,6 @@ import com.download.downloaderbot.core.tools.AbstractCliTool
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
-import org.springframework.util.unit.DataSize
 
 private val log = KotlinLogging.logger {}
 
@@ -16,9 +15,8 @@ class YtDlp(
     val mapper: ObjectMapper,
 ) : AbstractCliTool(config.bin) {
 
-    suspend fun download(url: String, outputPathTemplate: String, sizeLimit: DataSize) {
+    suspend fun download(url: String, outputPathTemplate: String) {
         val args = listOf("-f", config.format,
-            "--max-filesize", sizeLimit.toYtDlpArg(),
             "-o", outputPathTemplate) +
             config.extraArgs
         execute(url, args)
@@ -30,8 +28,6 @@ class YtDlp(
         val json = getJson(raw)
         return mapJsonToInnerMedia(json, url)
     }
-
-    private fun DataSize.toYtDlpArg(): String = "${this.toMegabytes()}M"
 
 
     private fun mapJsonToInnerMedia(json: String, url: String): YtDlpMedia = try {
