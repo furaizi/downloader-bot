@@ -25,14 +25,14 @@ telegram:
     token: ${DOWNLOADER_BOT_TOKEN}
 
 downloader:
+  media:
+    base-dir: /downloads
   yt-dlp:
     bin: yt-dlp
-    base-dir: /downloads
     format: best
     extra-args:
   gallery-dl:
     bin: gallery-dl
-    base-dir: /downloads
     extra-args:
   cache:
     ttl: 7

@@ -1,24 +1,20 @@
 package com.download.downloaderbot.core.tools.gallerydl.util
 
-import com.download.downloaderbot.core.config.properties.GalleryDlProperties
+import com.download.downloaderbot.core.config.properties.MediaProperties
 import com.download.downloaderbot.core.tools.ForGalleryDl
 import com.download.downloaderbot.core.tools.util.baseprefix.BasePrefixGenerator
 import com.download.downloaderbot.core.tools.util.pathgenerator.DownloadPath
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import org.springframework.stereotype.Component
-import java.nio.file.Paths
 
 @Component
 @ForGalleryDl
 class GalleryDlPathGenerator(
-    val props: GalleryDlProperties
+    val props: MediaProperties
 ) : PathTemplateGenerator {
-
-    private val baseDir = Paths.get(props.baseDir)
-
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)
-        val outputPath = baseDir.resolve(basePrefix).toString()
+        val outputPath = props.basePath.resolve(basePrefix).toString()
         return DownloadPath(basePrefix, outputPath)
     }
 }

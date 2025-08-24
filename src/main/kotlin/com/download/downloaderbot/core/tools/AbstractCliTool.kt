@@ -1,7 +1,6 @@
 package com.download.downloaderbot.core.tools
 
 import com.download.downloaderbot.core.downloader.MediaDownloadException
-import com.download.downloaderbot.core.downloader.MediaDownloader
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +15,7 @@ private val log = KotlinLogging.logger {}
 
 abstract class AbstractCliTool(
     val bin: String
-) : MediaDownloader {
+) {
 
     protected suspend fun execute(url: String, args: List<String>) = coroutineScope {
         val cmd = buildCommand(url, args)
