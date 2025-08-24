@@ -32,7 +32,7 @@ class YtDlpOrchestrator(
             throw MediaTooLargeException(
                 actualSize = ytDlpMedia.filesize,
                 limit = videoMaxSize.toBytes(),
-                mediaType = MediaType.VIDEO
+                mediaType = MediaType.fromString(ytDlpMedia.type)
             )
 
         ytDlp.download(url, outputPathTemplate)
