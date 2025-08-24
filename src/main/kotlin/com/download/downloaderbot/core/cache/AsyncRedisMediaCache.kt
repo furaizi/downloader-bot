@@ -3,8 +3,10 @@ package com.download.downloaderbot.core.cache
 import com.download.downloaderbot.core.domain.Media
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.redis.core.ReactiveRedisTemplate
+import org.springframework.stereotype.Component
 import java.time.Duration
 
+@Component
 class AsyncRedisMediaCache(
     private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>
 ) : MediaCache {
