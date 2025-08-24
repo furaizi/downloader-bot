@@ -9,6 +9,10 @@ spring:
       fail-on-unknown-properties: false
     mapper:
       accept-case-insensitive-enums: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
