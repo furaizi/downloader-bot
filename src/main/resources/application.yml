@@ -34,3 +34,5 @@ downloader:
     bin: gallery-dl
     base-dir: /downloads
     extra-args:
+  cache:
+    ttl: 7
