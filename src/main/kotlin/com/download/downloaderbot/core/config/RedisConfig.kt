@@ -17,12 +17,15 @@ class RedisConfig {
     @Bean
     fun mediaRedisTemplate(
         factory: ReactiveRedisConnectionFactory,
-        objectMapper: ObjectMapper
-    ): ReactiveRedisTemplate<String, Media> {
+        mapper: ObjectMapper
+    ): ReactiveRedisTemplate<String, List<Media>> {
         val key = StringRedisSerializer()
-        val value = Jackson2JsonRedisSerializer(objectMapper, Media::class.java)
+        val javaType = mapper.typeFactory
+            .constructCollectionType(List::class.java, Media::class.java)
+        val value = Jackson2JsonRedisSerializer<List<Media>>(mapper, javaType)
+
         val ctx = RedisSerializationContext
-            .newSerializationContext<String, Media>(key)
+            .newSerializationContext<String, List<Media>>(key)
             .value(value)
             .build()
         return ReactiveRedisTemplate(factory, ctx)
