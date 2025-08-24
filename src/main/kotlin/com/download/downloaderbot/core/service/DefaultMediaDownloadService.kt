@@ -5,7 +5,7 @@ import com.download.downloaderbot.core.downloader.MediaDownloader
 import org.springframework.stereotype.Service
 
 @Service
-class MediaDownloadServiceImpl(
+class DefaultMediaDownloadService(
     private val downloaders: List<MediaDownloader>
 ) : MediaDownloadService {
 
