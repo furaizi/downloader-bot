@@ -19,6 +19,7 @@ class AsyncRedisMediaCache(
             .awaitFirstOrNull()
 
     override suspend fun put(media: List<Media>, ttl: Duration) {
+        if (media.isEmpty()) return
         val url = media.first().sourceUrl
         mediaTemplate.opsForValue()
             .set(key(url), media, ttl)
