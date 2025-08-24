@@ -23,7 +23,7 @@ class YtDlpOrchestrator(
         val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = ytDlp.probe(url)
-        ytDlp.download(url, outputPathTemplate)
+        ytDlp.download(url, outputPathTemplate, props.maxSize.video)
 
         return fileFinder.find(basePrefix, props.basePath)
             .onEach { path -> log.info { "yt-dlp download finished: $url -> $path" } }
