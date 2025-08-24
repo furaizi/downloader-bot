@@ -1,6 +1,7 @@
 package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.config.properties.CacheProperties
 import com.download.downloaderbot.core.domain.Media
 import mu.KotlinLogging
 import org.springframework.context.annotation.Primary
@@ -13,11 +14,11 @@ private val log = KotlinLogging.logger {}
 @Primary
 class CachedMediaDownloadService(
     private val delegate: MediaDownloadService,
-    private val cache: MediaCache
+    private val cache: MediaCache,
+    private val props: CacheProperties
 ) : MediaDownloadService {
 
-    // TODO: make ttl configurable
-    private val ttl = Duration.ofDays(7)
+    private val ttl = Duration.ofDays(props.ttlDays)
 
     override suspend fun download(url: String): List<Media> {
         cache.get(url)?.let { cached ->
