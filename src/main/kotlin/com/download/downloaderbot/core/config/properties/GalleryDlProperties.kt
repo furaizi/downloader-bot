@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "downloader.gallery-dl")
 data class GalleryDlProperties(
-    val bin: String,
+    val bin: String = "gallery-dl",
     val extraArgs: List<String> = emptyList()
 )

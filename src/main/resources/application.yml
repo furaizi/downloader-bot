@@ -32,7 +32,6 @@ downloader:
       video: 50MB
   yt-dlp:
     bin: yt-dlp
-    format: best
     extra-args:
   gallery-dl:
     bin: gallery-dl

@@ -16,8 +16,11 @@ class YtDlp(
 ) : AbstractCliTool(config.bin) {
 
     suspend fun download(url: String, outputPathTemplate: String) {
-        val args = listOf("-f", config.format,
-            "-o", outputPathTemplate) +
+        val formatArgs = if (config.format.isNotEmpty())
+            listOf("-f", config.format)
+        else emptyList()
+        val args = listOf("-o", outputPathTemplate) +
+            formatArgs +
             config.extraArgs
         execute(url, args)
     }
