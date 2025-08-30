@@ -28,10 +28,12 @@ downloader:
   media:
     base-dir: /downloads
   yt-dlp:
+    enabled: true
     bin: yt-dlp
     format: best
     extra-args:
   gallery-dl:
+    enabled: false
     bin: gallery-dl
     extra-args:
   cache:
