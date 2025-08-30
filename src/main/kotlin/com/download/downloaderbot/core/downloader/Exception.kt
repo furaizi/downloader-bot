@@ -3,7 +3,7 @@ package com.download.downloaderbot.core.downloader
 import com.download.downloaderbot.core.domain.MediaType
 
 private const val bytesInMB = 1024 * 1024
-private fun Long.toMB() = this / bytesInMB
+fun Long.toMB() = this / bytesInMB
 
 class MediaTooLargeException(
     val actualSize: Long,

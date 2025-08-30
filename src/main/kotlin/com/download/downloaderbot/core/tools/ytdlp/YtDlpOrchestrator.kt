@@ -5,6 +5,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloader
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.core.downloader.toMB
 import com.download.downloaderbot.core.tools.ForYtDlp
 import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
@@ -28,6 +29,8 @@ class YtDlpOrchestrator(
         val (basePrefix, outputPathTemplate) = pathGenerator.generate(url)
 
         val ytDlpMedia = ytDlp.probe(url)
+        log.info { "Video size: ${ytDlpMedia.filesize} bytes or ${ytDlpMedia.filesize.toMB()} MB" }
+        log.info { "Video size exceeds limit? ${ytDlpMedia.exceeds(videoMaxSize)}" }
         if (ytDlpMedia.exceeds(videoMaxSize))
             throw MediaTooLargeException(
                 actualSize = ytDlpMedia.filesize,
