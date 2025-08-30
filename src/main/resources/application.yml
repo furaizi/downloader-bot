@@ -29,7 +29,6 @@ downloader:
     base-dir: /downloads
   yt-dlp:
     bin: yt-dlp
-    format: best
     extra-args:
   gallery-dl:
     bin: gallery-dl
