@@ -5,9 +5,16 @@ import com.download.downloaderbot.core.tools.AbstractCliTool
 import com.download.downloaderbot.core.tools.ForGalleryDl
 import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.nio.file.Paths
 
+@ConditionalOnProperty(
+    prefix = "downloader.gallery-dl",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = false
+)
 @Service
 class GalleryDl(
     val config: GalleryDlProperties
