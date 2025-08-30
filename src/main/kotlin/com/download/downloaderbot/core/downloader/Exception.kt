@@ -11,5 +11,5 @@ class MediaTooLargeException(
     val mediaType: MediaType
 ) : RuntimeException(
     "Media file of type $mediaType exceeds the size limit. " +
-            "Actual size: ${actualSize.toMB()} MB, Limit: ${limit.toMB()} bytes"
+            "Actual size: ${actualSize.toMB()} MB, Limit: ${limit.toMB()} MB"
 )
