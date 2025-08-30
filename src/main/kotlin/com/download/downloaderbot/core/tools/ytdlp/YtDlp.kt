@@ -32,6 +32,11 @@ class YtDlp(
         return mapJsonToInnerMedia(json, url)
     }
 
+    private fun getJson(raw: String): String =
+        raw.lineSequence()
+            .map { it.trim() }
+            .firstOrNull { it.startsWith("{") && it.endsWith("}") }
+            ?: throw MediaDownloadException("yt-dlp produced no JSON", exitCode = 0, output = raw)
 
     private fun mapJsonToInnerMedia(json: String, url: String): YtDlpMedia = try {
         mapper.readValue(json, YtDlpMedia::class.java)
@@ -39,11 +44,4 @@ class YtDlp(
         log.error(e) { "Failed to parse yt-dlp json for url=$url" }
         throw RuntimeException("Failed to parse yt-dlp output", e)
     }
-
-    private fun getJson(raw: String): String =
-        raw.lineSequence()
-            .map { it.trim() }
-            .firstOrNull { it.startsWith("{") && it.endsWith("}") }
-            ?: throw MediaDownloadException("yt-dlp produced no JSON", exitCode = 0, output = raw)
-
 }

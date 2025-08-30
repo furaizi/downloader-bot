@@ -25,7 +25,7 @@ class GalleryDlOrchestrator(
         val (folderName, outputPath) = pathGenerator.generate(url)
 
         val galleryDlMedia = galleryDl.probe(url)
-        galleryDl.download(url, outputPath)
+        galleryDl.download(url, outputPath, props.maxSize.photo)
 
         return fileFinder.find(folderName, props.basePath)
             .onEachIndexed { i, path -> log.info { "[$i] gallery-dl download finished: $url -> $path" } }
