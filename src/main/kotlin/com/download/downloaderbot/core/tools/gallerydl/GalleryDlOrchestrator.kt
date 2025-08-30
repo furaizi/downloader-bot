@@ -8,11 +8,18 @@ import com.download.downloaderbot.core.tools.ForGalleryDl
 import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
 import mu.KotlinLogging
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.nio.file.Path
 
 private val log = KotlinLogging.logger {}
 
+@ConditionalOnProperty(
+    prefix = "downloader.gallery-dl",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = false
+)
 @Component
 class GalleryDlOrchestrator(
     val props: MediaProperties,
