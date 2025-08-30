@@ -46,8 +46,8 @@ class YtDlpOrchestrator(
     }
 
     private fun YtDlpMedia.exceeds(limit: DataSize): Boolean {
-        if (filesize <= 0) return true // size unknown
-        return filesize > limit.toBytes()
+        if (filesize <= 0 && approximateFileSize <= 0) return true // size unknown
+        return filesize > limit.toBytes() || approximateFileSize > limit.toBytes()
     }
 
     private fun YtDlpMedia.toMedia(filePath: String, sourceUrl: String) = Media(

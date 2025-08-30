@@ -11,7 +11,9 @@ data class YtDlpMedia(
     val duration: Long, // in seconds
     val width: Int,
     val height: Int,
-    val filesize: Long, // in bytes
+    val filesize: Long = 0, // in bytes
+    @JsonProperty("filesize_approx")
+    val approximateFileSize: Long = 0,
     val extractor: String,
     val uploader: String,
     @JsonProperty("_type") val type: String,
