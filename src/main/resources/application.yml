@@ -27,10 +27,12 @@ telegram:
 downloader:
   media:
     base-dir: /downloads
+    max-size:
+      photo: 10MB
+      video: 50MB
   yt-dlp:
     enabled: true
     bin: yt-dlp
-    format: best
     extra-args:
   gallery-dl:
     enabled: false
