@@ -1,7 +1,7 @@
 package com.download.downloaderbot.core.tools.ytdlp
 
 import com.download.downloaderbot.core.config.properties.YtDlpProperties
-import com.download.downloaderbot.core.downloader.MediaDownloadException
+import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
 import com.download.downloaderbot.core.tools.AbstractCliTool
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
@@ -36,7 +36,7 @@ class YtDlp(
         raw.lineSequence()
             .map { it.trim() }
             .firstOrNull { it.startsWith("{") && it.endsWith("}") }
-            ?: throw MediaDownloadException("yt-dlp produced no JSON", exitCode = 0, output = raw)
+            ?: throw MediaDownloaderToolException("yt-dlp produced no JSON", exitCode = 0, output = raw)
 
     private fun mapJsonToInnerMedia(json: String, url: String): YtDlpMedia = try {
         mapper.readValue(json, YtDlpMedia::class.java)
