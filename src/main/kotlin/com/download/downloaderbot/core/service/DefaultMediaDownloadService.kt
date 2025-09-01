@@ -2,6 +2,7 @@ package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaDownloader
+import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
@@ -13,14 +14,10 @@ class DefaultMediaDownloadService(
 ) : MediaDownloadService {
 
     override suspend fun download(url: String): List<Media> {
-        downloaders.forEach { downloader ->
-            runCatching {
-                return downloader.download(url)
-            }
-            .onFailure {
-                log.warn(it) { "Downloader ${downloader::class.simpleName} failed for URL: $url" }
-            }
-        }
-        error("No downloader succeeded for URL: $url")
+        // temp solution because we have only one downloader now
+        return downloaders.firstOrNull { it.supports(url) }
+            ?.download(url)
+            ?: throw UnsupportedSourceException(url)
+
     }
 }
