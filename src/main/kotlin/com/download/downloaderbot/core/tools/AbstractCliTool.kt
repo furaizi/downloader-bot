@@ -1,6 +1,6 @@
 package com.download.downloaderbot.core.tools
 
-import com.download.downloaderbot.core.downloader.MediaDownloadException
+import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +74,7 @@ abstract class AbstractCliTool(
     private fun handleExitCode(exitCode: Int, output: String) {
         if (exitCode != 0) {
             log.error { "$bin failed (code=$exitCode). Output:\n$output" }
-            throw MediaDownloadException(
+            throw MediaDownloaderToolException(
                 message = "$bin failed with exit code $exitCode",
                 exitCode = exitCode,
                 output = output
