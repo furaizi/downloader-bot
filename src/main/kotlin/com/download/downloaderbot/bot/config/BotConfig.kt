@@ -5,6 +5,7 @@ import com.download.downloaderbot.bot.commands.CommandHandler
 import com.download.downloaderbot.bot.commands.TelegramGateway
 import com.download.downloaderbot.bot.commands.chatId
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.handler.GlobalTelegramExceptionHandler
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
@@ -23,6 +24,7 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val commands: List<CommandHandler>,
+    val exceptionHandler: GlobalTelegramExceptionHandler
 ) {
 
     private val defaultCommand = commands.first { it.name == "download" }
@@ -50,15 +52,8 @@ class BotConfig(
     private suspend fun CommandHandler.safeHandle(ctx: CommandContext) {
         try {
             handle(ctx)
-        } catch (e: RuntimeException) {
-            val errId = UUID.randomUUID().toString().take(8)
-            log.error(e) { "Unhandled error id=$errId in /${name}" }
-            runCatching {
-                gateway.replyText(
-                    ctx.chatId,
-                    "An error occurred while handling a command (id=$errId). Check log for a detailed message."
-                )
-            }
+        } catch (e: Exception) {
+            exceptionHandler.handle(e, ctx)
         }
     }
 }

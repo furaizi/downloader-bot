@@ -5,14 +5,16 @@ private const val bytesInMB = 1024 * 1024
 fun Long.toMB() = this / bytesInMB
 
 
-open class MediaDownloaderToolException(message: String)
+open class MediaDownloaderToolException(
+    message: String,
+    val output: String = "")
     : RuntimeException(message)
 
 class ToolExecutionException(
     val tool: String,
     val exitCode: Int,
-    val output: String
-) : MediaDownloaderToolException("$tool failed (code=$exitCode): $output")
+    output: String
+) : MediaDownloaderToolException("$tool failed (code=$exitCode): $output", output)
 
 
 open class MediaDownloaderException(

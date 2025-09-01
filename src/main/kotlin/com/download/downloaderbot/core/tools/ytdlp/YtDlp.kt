@@ -36,7 +36,7 @@ class YtDlp(
         raw.lineSequence()
             .map { it.trim() }
             .firstOrNull { it.startsWith("{") && it.endsWith("}") }
-            ?: throw MediaDownloaderToolException("yt-dlp produced no JSON", exitCode = 0, output = raw)
+            ?: throw MediaDownloaderToolException("${config.bin} produced no JSON", output = raw)
 
     private fun mapJsonToInnerMedia(json: String, url: String): YtDlpMedia = try {
         mapper.readValue(json, YtDlpMedia::class.java)

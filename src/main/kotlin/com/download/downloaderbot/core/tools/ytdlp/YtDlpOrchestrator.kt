@@ -35,6 +35,8 @@ class YtDlpOrchestrator(
         return resolveDownloadedMedia(basePrefix, url, metaData)
     }
 
+    override fun supports(url: String) = true
+
     private fun requireNotExceedsLimit(meta: YtDlpMedia, url: String) {
         if (meta.exceeds(videoMaxSize)) {
             throw MediaTooLargeException(
