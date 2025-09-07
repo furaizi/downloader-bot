@@ -30,9 +30,14 @@ downloader:
     max-size:
       photo: 10MB
       video: 50MB
+  sources:
+    allow:
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+(?:/|(?:\?.*)?)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+(?:/|(?:\?.*)?)?$
+      - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
   yt-dlp:
     enabled: true
-    format: 137+140/136+140/135+140/134+140/18
+    format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
     bin: yt-dlp
   gallery-dl:
     enabled: false
