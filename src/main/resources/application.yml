@@ -32,12 +32,11 @@ downloader:
       video: 50MB
   yt-dlp:
     enabled: true
+    format: 137+140/136+140/135+140/134+140/18
     bin: yt-dlp
-    extra-args:
   gallery-dl:
     enabled: false
     bin: gallery-dl
-    extra-args:
   cache:
     media-ttl: 7d
     lock-ttl: 60s
