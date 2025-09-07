@@ -1,11 +1,13 @@
-package com.download.downloaderbot.core.cache.util
+package com.download.downloaderbot.core.net
 
+import org.springframework.stereotype.Component
 import java.net.URI
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-object UrlNormalizer {
+@Component
+class UrlNormalizer {
     private val DROP_EXACT = setOf("fbclid", "gclid", "msclkid", "dclid", "igshid")
     private fun isNoise(name: String) =
         name.startsWith("utm_", ignoreCase = true) || name.lowercase() in DROP_EXACT

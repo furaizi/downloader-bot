@@ -1,15 +1,18 @@
 package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.net.UrlNormalizer
 import com.download.downloaderbot.core.config.properties.CacheProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
+import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.lock.UrlLockManager
+import com.download.downloaderbot.core.net.UrlResolver
+import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
-import java.time.Duration
 
 private val log = KotlinLogging.logger {}
 
@@ -20,25 +23,34 @@ class CachedMediaDownloadService(
     private val mediaCache: MediaCache,
     private val props: CacheProperties,
     private val urlLock: UrlLockManager,
+    private val urlResolver: UrlResolver,
+    private val urlNormalizer: UrlNormalizer,
+    private val allowlist: UrlAllowlist
 ) : MediaDownloadService {
 
     override suspend fun download(url: String): List<Media> {
-        getCachedOrNull(url)?.let { return it }
+        val resolvedUrl = urlResolver.finalUrl(url)
+        val normalizedUrl = urlNormalizer.normalize(resolvedUrl)
 
-        var token = urlLock.tryAcquire(url, props.lockTtl)
+        if (!allowlist.isAllowed(normalizedUrl))
+            throw UnsupportedSourceException(normalizedUrl)
+
+        getCachedOrNull(normalizedUrl)?.let { return it }
+
+        var token = urlLock.tryAcquire(normalizedUrl, props.lockTtl)
         if (token == null) {
-            waitForCache(url)?.let { return it }
-            token = urlLock.tryAcquire(url, props.lockTtl)
-                ?: throw DownloadInProgressException(url)
+            waitForCache(normalizedUrl)?.let { return it }
+            token = urlLock.tryAcquire(normalizedUrl, props.lockTtl)
+                ?: throw DownloadInProgressException(normalizedUrl)
         }
 
         try {
-            getCachedOrNull(url, afterLock = true)?.let { return it }
-            val result = delegate.download(url)
+            getCachedOrNull(normalizedUrl, afterLock = true)?.let { return it }
+            val result = delegate.download(normalizedUrl)
             mediaCache.put(result, props.mediaTtl)
             return result
         } finally {
-            urlLock.release(url, token)
+            urlLock.release(normalizedUrl, token)
         }
     }
 

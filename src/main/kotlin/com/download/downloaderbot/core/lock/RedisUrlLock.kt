@@ -1,6 +1,5 @@
 package com.download.downloaderbot.core.lock
 
-import com.download.downloaderbot.core.cache.util.UrlNormalizer
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate
@@ -15,7 +14,7 @@ class RedisUrlLock(
     private val redis: ReactiveStringRedisTemplate
 ) : UrlLockManager {
 
-    private fun key(url: String) = "lock:url:${UrlNormalizer.normalize(url)}"
+    private fun key(url: String) = "lock:url:$url"
 
     override suspend fun tryAcquire(url: String, ttl: Duration): String? {
         val token = UUID.randomUUID().toString()
