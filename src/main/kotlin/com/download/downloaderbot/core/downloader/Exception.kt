@@ -36,3 +36,6 @@ class MediaNotFoundException(url: String)
 
 class UnsupportedSourceException(url: String)
     : MediaDownloaderException(url, "No downloader supports the URL: $url")
+
+class DownloadInProgressException(url: String) :
+    MediaDownloaderException(url, "Download already in progress for url=$url")
