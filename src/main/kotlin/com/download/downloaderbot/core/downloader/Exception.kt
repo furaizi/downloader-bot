@@ -1,15 +1,38 @@
 package com.download.downloaderbot.core.downloader
 
-import com.download.downloaderbot.core.domain.MediaType
 
 private const val bytesInMB = 1024 * 1024
 fun Long.toMB() = this / bytesInMB
 
+
+open class MediaDownloaderToolException(
+    message: String,
+    val output: String = "")
+    : RuntimeException(message)
+
+class ToolExecutionException(
+    val tool: String,
+    val exitCode: Int,
+    output: String
+) : MediaDownloaderToolException("$tool failed (code=$exitCode): $output", output)
+
+
+open class MediaDownloaderException(
+    val url: String,
+    message: String
+) : RuntimeException(message)
+
 class MediaTooLargeException(
+    url: String,
     val actualSize: Long,
     val limit: Long,
-    val mediaType: MediaType
-) : RuntimeException(
-    "Media file of type $mediaType exceeds the size limit. " +
+) : MediaDownloaderException(url,
+    "Media file by URL $url exceeds the size limit. " +
             "Actual size: ${actualSize.toMB()} MB, Limit: ${limit.toMB()} MB"
 )
+
+class MediaNotFoundException(url: String)
+    : MediaDownloaderException(url, "No media found at URL: $url")
+
+class UnsupportedSourceException(url: String)
+    : MediaDownloaderException(url, "No downloader supports the URL: $url")

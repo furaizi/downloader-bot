@@ -1,6 +1,7 @@
 package com.download.downloaderbot.core.tools
 
-import com.download.downloaderbot.core.downloader.MediaDownloadException
+import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
+import com.download.downloaderbot.core.downloader.ToolExecutionException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,7 @@ abstract class AbstractCliTool(
     ) = try {
         val exitCode = awaitExitCode(process)
         readerJob.join()
-        handleExitCode(exitCode, output.toString())
+        handleExitCode(exitCode, url, output.toString())
     } catch (ce: CancellationException) {
         log.info { "Cancelling download process for $url" }
         if (process.isAlive) process.destroyForcibly()
@@ -65,21 +66,17 @@ abstract class AbstractCliTool(
     }
 
     private suspend fun awaitExitCode(process: Process) = try {
-        process.onExit().await().exitValue()
+        process.onExit()
+            .await()
+            .exitValue()
     } catch (t: Throwable) {
         if (process.isAlive) process.destroyForcibly()
         throw t
     }
 
-    private fun handleExitCode(exitCode: Int, output: String) {
-        if (exitCode != 0) {
-            log.error { "$bin failed (code=$exitCode). Output:\n$output" }
-            throw MediaDownloadException(
-                message = "$bin failed with exit code $exitCode",
-                exitCode = exitCode,
-                output = output
-            )
-        }
+    private fun handleExitCode(exitCode: Int, url: String, output: String) {
+        if (exitCode != 0)
+            throw ToolExecutionException(url, exitCode, output)
     }
 
     private fun buildCommand(url: String, args: List<String> = emptyList()): List<String> {
