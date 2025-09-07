@@ -39,4 +39,7 @@ downloader:
     bin: gallery-dl
     extra-args:
   cache:
-    ttl: 7
+    media-ttl: 7d
+    lock-ttl: 60s
+    wait-timeout: 60s
+    wait-poll: 1s
