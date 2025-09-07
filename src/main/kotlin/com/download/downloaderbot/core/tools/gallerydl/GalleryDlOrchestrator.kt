@@ -39,6 +39,8 @@ class GalleryDlOrchestrator(
             .map { path -> galleryDlMedia.toMedia(path, url) }
     }
 
+    override fun supports(url: String) = false
+
     private fun GalleryDlMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
         type = MediaType.IMAGE,
         fileUrl = filePath.toAbsolutePath().toString(),
