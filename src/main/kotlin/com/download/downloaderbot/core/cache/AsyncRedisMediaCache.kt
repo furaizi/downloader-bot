@@ -1,6 +1,5 @@
 package com.download.downloaderbot.core.cache
 
-import com.download.downloaderbot.core.cache.util.UrlNormalizer
 import com.download.downloaderbot.core.domain.Media
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.redis.core.ReactiveRedisTemplate
@@ -12,7 +11,7 @@ class AsyncRedisMediaCache(
     private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>
 ) : MediaCache {
 
-    private fun key(url: String) = "media:url:${UrlNormalizer.normalize(url)}"
+    private fun key(url: String) = "media:url:$url"
 
     override suspend fun get(sourceUrl: String): List<Media>? =
         mediaTemplate.opsForValue()
