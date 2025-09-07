@@ -10,6 +10,7 @@ import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.downloader.toMB
+import kotlinx.coroutines.CancellationException
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 
@@ -19,7 +20,9 @@ private val log = KotlinLogging.logger {}
 class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
 
     suspend fun handle(e: Exception, ctx: CommandContext) {
-        logAtProperLevel(e)
+        if (e is CancellationException)
+            throw e // very important for coroutines
+        logAtProperLevel(e, ctx.chatId)
         gateway.replyText(ctx.chatId, e.toUserMessage())
     }
 
@@ -34,13 +37,27 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
         else -> "An unexpected error occurred."
     }
 
-    private fun logAtProperLevel(e: Exception) = when (e) {
-        is UnsupportedSourceException -> { log.info { e.message } }
-        is MediaTooLargeException -> { log.info { e.message } }
-        is MediaNotFoundException -> { log.info { e.message } }
-        is ToolExecutionException -> { log.warn { e.message } }
-        is MediaDownloaderToolException -> { log.warn { e.message } }
-        is MediaDownloaderException -> { log.warn { e.message } }
-        else -> { log.error(e) { e.message ?: "No message" } }
+    private fun logAtProperLevel(e: Exception, chatId: Long) {
+        val msg = e.message ?: e::class.simpleName ?: "No message"
+        val base = "[chatId=$chatId] $msg"
+
+        when (e) {
+            is UnsupportedSourceException,
+            is MediaTooLargeException,
+            is MediaNotFoundException -> {
+                log.info { base }
+                log.debug(e) { base }
+            }
+
+            is ToolExecutionException,
+            is MediaDownloaderToolException,
+            is MediaDownloaderException -> {
+                log.warn(e) { base }
+            }
+
+            else -> {
+                log.error(e) { base }
+            }
+        }
     }
 }
