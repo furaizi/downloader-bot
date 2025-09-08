@@ -1,5 +1,6 @@
 package com.download.downloaderbot.core.queue
 
+import com.download.downloaderbot.core.domain.MediaType
 import java.time.Instant
 import java.util.UUID
 
@@ -12,8 +13,10 @@ data class DownloadJob(
     val chatId: Long,
     val url: String,
     val createdAt: Instant = Instant.now(),
-    val updatedAt: Instant = Instant.now(),
+    val startedAt: Instant? = null,
+    val finishedAt: Instant? = null,
     val status: JobStatus = JobStatus.QUEUED,
     val error: String? = null,
-    val outputPath: String? = null
+    val resultCount: Int? = null,
+    val firstMediaType: MediaType? = null
 )

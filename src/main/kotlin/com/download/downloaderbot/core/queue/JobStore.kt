@@ -21,7 +21,7 @@ class InMemoryJobStore : JobStore {
 
     override fun update(id: UUID, mutator: (DownloadJob) -> DownloadJob): DownloadJob? {
         return store.computeIfPresent(id) { _, old ->
-            mutator(old).copy(updatedAt = Instant.now())
+            mutator(old).copy()
         }
     }
 
