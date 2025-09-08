@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.cache
+package com.download.downloaderbot.core.cache.media
 
 import com.download.downloaderbot.core.domain.Media
 import java.time.Duration

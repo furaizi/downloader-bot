@@ -1,12 +1,12 @@
 package com.download.downloaderbot.core.service
 
-import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.cache.media.MediaCache
 import com.download.downloaderbot.core.net.UrlNormalizer
 import com.download.downloaderbot.core.config.properties.CacheProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
-import com.download.downloaderbot.core.lock.UrlLockManager
+import com.download.downloaderbot.core.cache.lock.UrlLockManager
 import com.download.downloaderbot.core.net.UrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.delay

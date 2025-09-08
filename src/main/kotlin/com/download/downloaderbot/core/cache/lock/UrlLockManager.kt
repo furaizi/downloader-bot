@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.lock
+package com.download.downloaderbot.core.cache.lock
 
 import java.time.Duration
 

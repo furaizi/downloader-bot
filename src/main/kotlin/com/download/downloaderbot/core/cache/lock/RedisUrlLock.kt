@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.lock
+package com.download.downloaderbot.core.cache.lock
 
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.core.io.ByteArrayResource
