@@ -2,6 +2,7 @@ package com.download.downloaderbot.bot.commands
 
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.ParseMode
 import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
@@ -19,6 +20,10 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
 
     suspend fun replyText(chatId: Long, text: String) {
         bot.sendMessage(ChatId.fromId(chatId), text)
+    }
+
+    suspend fun replyMarkdown(chatId: Long, text: String) {
+        bot.sendMessage(ChatId.fromId(chatId), text, parseMode = ParseMode.MARKDOWN)
     }
 
     suspend fun sendVideo(
