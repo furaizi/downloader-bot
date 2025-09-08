@@ -1,6 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.core.domain.MediaType
+import com.download.downloaderbot.core.queue.DownloadQueueService
 import com.download.downloaderbot.core.service.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,38 +13,22 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class DownloadCommand(
-    private val mediaDownloadService: MediaDownloadService,
+    private val queue: DownloadQueueService,
     gateway: TelegramGateway
 ) : CommandHandler(gateway) {
     override val name = "download"
 
     override suspend fun handle(ctx: CommandContext) {
-        val url = ctx.args.first()
-
-        val mediaList = withContext(Dispatchers.IO) {
-            mediaDownloadService.download(url)
-        }
-        val firstMedia = mediaList.first()
-
-        if (firstMedia.type == MediaType.IMAGE && mediaList.size in 2..10) {
-            val files = mediaList.map { File(it.fileUrl) }
-            gateway.sendPhotosAlbum(ctx.chatId, files)
-        }
-        else if (firstMedia.type == MediaType.IMAGE && mediaList.size > 10) {
-            val files = mediaList.map { File(it.fileUrl) }
-            gateway.sendPhotosAlbumChunked(ctx.chatId, files)
-        }
-        else {
-            mediaList.forEach {
-                val file = File(it.fileUrl)
-                when (it.type) {
-                    MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file)
-                    MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file)
-                    MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file)
-                }
-            }
+        val url = ctx.args.firstOrNull()
+        if (url.isNullOrBlank()) {
+            gateway.replyText(ctx.chatId, "Usage: /download <url>")
+            return
         }
 
-        log.info { "Downloaded: ${mediaList.map { it.title }} (${mediaList.map { it.fileUrl }})" }
+        val res = queue.enqueue(ctx.chatId, url)
+        gateway.replyMarkdown(
+            ctx.chatId,
+            "Queued ✅\njobId: `${res.jobId}`\nCheck: `/status ${res.jobId}`"
+        )
     }
 }

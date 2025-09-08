@@ -1,5 +1,6 @@
 package com.download.downloaderbot.core.queue
 
+import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import java.time.Instant
 import java.util.UUID
@@ -20,3 +21,6 @@ data class DownloadJob(
     val resultCount: Int? = null,
     val firstMediaType: MediaType? = null
 )
+
+data class JobSucceededEvent(val job: DownloadJob, val media: List<Media>)
+data class JobFailedEvent(val job: DownloadJob, val error: String)
