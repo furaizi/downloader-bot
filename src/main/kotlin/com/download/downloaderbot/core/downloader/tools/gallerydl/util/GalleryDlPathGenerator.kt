@@ -1,10 +1,10 @@
-package com.download.downloaderbot.core.tools.gallerydl.util
+package com.download.downloaderbot.core.downloader.tools.gallerydl.util
 
 import com.download.downloaderbot.core.config.properties.MediaProperties
-import com.download.downloaderbot.core.tools.ForGalleryDl
-import com.download.downloaderbot.core.tools.util.baseprefix.BasePrefixGenerator
-import com.download.downloaderbot.core.tools.util.pathgenerator.DownloadPath
-import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.core.downloader.tools.ForGalleryDl
+import com.download.downloaderbot.core.downloader.tools.util.baseprefix.BasePrefixGenerator
+import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.DownloadPath
+import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.PathTemplateGenerator
 import org.springframework.stereotype.Component
 
 @Component

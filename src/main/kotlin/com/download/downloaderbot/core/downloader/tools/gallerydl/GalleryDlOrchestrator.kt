@@ -1,12 +1,12 @@
-package com.download.downloaderbot.core.tools.gallerydl
+package com.download.downloaderbot.core.downloader.tools.gallerydl
 
 import com.download.downloaderbot.core.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloader
-import com.download.downloaderbot.core.tools.ForGalleryDl
-import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.core.downloader.tools.ForGalleryDl
+import com.download.downloaderbot.core.downloader.tools.util.filefinder.FilesByPrefixFinder
+import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.PathTemplateGenerator
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component

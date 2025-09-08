@@ -1,13 +1,13 @@
-package com.download.downloaderbot.core.tools.ytdlp
+package com.download.downloaderbot.core.downloader.tools.ytdlp
 
 import com.download.downloaderbot.core.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaDownloader
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
-import com.download.downloaderbot.core.tools.ForYtDlp
-import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.core.downloader.tools.ForYtDlp
+import com.download.downloaderbot.core.downloader.tools.util.filefinder.FilesByPrefixFinder
+import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.PathTemplateGenerator
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.util.unit.DataSize

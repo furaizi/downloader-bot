@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.tools.util.filefinder
+package com.download.downloaderbot.core.downloader.tools.util.filefinder
 
 import java.nio.file.Path
 

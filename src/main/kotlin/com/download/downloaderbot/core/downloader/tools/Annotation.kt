@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.tools
+package com.download.downloaderbot.core.downloader.tools
 
 import org.springframework.beans.factory.annotation.Qualifier
 

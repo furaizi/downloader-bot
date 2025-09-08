@@ -1,8 +1,8 @@
-package com.download.downloaderbot.core.tools.ytdlp
+package com.download.downloaderbot.core.downloader.tools.ytdlp
 
 import com.download.downloaderbot.core.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
-import com.download.downloaderbot.core.tools.AbstractCliTool
+import com.download.downloaderbot.core.downloader.tools.AbstractCliTool
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import org.springframework.stereotype.Service

@@ -1,6 +1,6 @@
-package com.download.downloaderbot.core.tools.util.filefinder
+package com.download.downloaderbot.core.downloader.tools.util.filefinder
 
-import com.download.downloaderbot.core.tools.ForGalleryDl
+import com.download.downloaderbot.core.downloader.tools.ForGalleryDl
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.nio.file.Files

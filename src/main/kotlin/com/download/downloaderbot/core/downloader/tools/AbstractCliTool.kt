@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.tools
+package com.download.downloaderbot.core.downloader.tools
 
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import kotlinx.coroutines.CancellationException

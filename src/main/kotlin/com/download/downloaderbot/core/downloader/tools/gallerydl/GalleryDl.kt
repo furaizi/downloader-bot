@@ -1,13 +1,9 @@
-package com.download.downloaderbot.core.tools.gallerydl
+package com.download.downloaderbot.core.downloader.tools.gallerydl
 
 import com.download.downloaderbot.core.config.properties.GalleryDlProperties
-import com.download.downloaderbot.core.tools.AbstractCliTool
-import com.download.downloaderbot.core.tools.ForGalleryDl
-import com.download.downloaderbot.core.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.core.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.core.downloader.tools.AbstractCliTool
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
-import java.nio.file.Paths
 
 @ConditionalOnProperty(
     prefix = "downloader.gallery-dl",
