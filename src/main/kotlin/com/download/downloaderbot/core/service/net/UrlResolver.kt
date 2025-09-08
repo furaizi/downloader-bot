@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.net
+package com.download.downloaderbot.core.service.net
 
 import okhttp3.OkHttpClient
 import okhttp3.Request

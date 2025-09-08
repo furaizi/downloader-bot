@@ -1,4 +1,4 @@
-package com.download.downloaderbot.core.security
+package com.download.downloaderbot.core.service.security
 
 import com.download.downloaderbot.core.config.properties.SourceAllowProperties
 import org.springframework.stereotype.Component
