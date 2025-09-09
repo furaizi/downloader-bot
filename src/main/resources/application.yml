@@ -9,6 +9,9 @@ spring:
       fail-on-unknown-properties: false
     mapper:
       accept-case-insensitive-enums: true
+  docker:
+    compose:
+      enabled: false
 
 logging:
   level:
