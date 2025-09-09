@@ -21,26 +21,26 @@ repositories {
 }
 
 dependencies {
-//    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.3.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.3.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+    testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation(kotlin("test"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
