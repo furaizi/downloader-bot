@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: dev
+  docker:
+    compose:
+      enabled: true
 
 management:
   endpoints:

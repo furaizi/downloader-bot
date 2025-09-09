@@ -18,7 +18,10 @@ class DownloadCommand(
     override val name = "download"
 
     override suspend fun handle(ctx: CommandContext) {
-        val url = ctx.args.first()
+        val url = ctx.args.firstOrNull() ?: run {
+            gateway.replyText(ctx.chatId, "Please provide a URL to download.")
+            return
+        }
 
         val mediaList = withContext(Dispatchers.IO) {
             mediaDownloadService.download(url)

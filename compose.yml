@@ -1,0 +1,37 @@
+name: downloader-bot
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  app:
+    depends_on:
+      - redis
+      - fix-perms
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+    volumes:
+      - downloads:/downloads
+
+  fix-perms:
+    image: busybox:1.36
+    command: [ "sh","-c","mkdir -p /downloads && chown -R 65532:65532 /downloads && chmod 755 /downloads" ]
+    volumes:
+      - downloads:/downloads
+    restart: "no"
+
+
+volumes:
+  downloads:
+  redis-data:
