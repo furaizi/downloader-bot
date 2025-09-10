@@ -20,6 +20,8 @@ services:
     env_file:
       - .env
     environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?set TELEGRAM_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:?set TELEGRAM_BOT_USERNAME}
       SPRING_DATA_REDIS_HOST: redis
     volumes:
       - downloads:/downloads
