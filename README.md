@@ -23,7 +23,6 @@ The only thing you need is `Docker` and `Docker Compose`.
 1. Set up environment variables:
 ```bash
 export TELEGRAM_BOT_TOKEN=
-export TELEGRAM_BOT_USERNAME=
 ```
 2. Start up the application:
 ```bash
