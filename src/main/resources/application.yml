@@ -19,7 +19,7 @@ logging:
 
 telegram:
   bot:
-    token: ${DOWNLOADER_BOT_TOKEN}
+    token: ${TELEGRAM_BOT_TOKEN}
 
 downloader:
   media:
