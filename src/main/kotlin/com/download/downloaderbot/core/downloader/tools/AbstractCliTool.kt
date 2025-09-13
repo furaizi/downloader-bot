@@ -32,7 +32,8 @@ abstract class AbstractCliTool(
             output
         } catch (ce: CancellationException) {
             log.info { "Cancelling download process for $url" }
-            if (process.isAlive) process.destroyForcibly()
+            if (process.isAlive)
+                process.destroyForcibly()
             throw ce
         } finally {
             withContext(NonCancellable) {
@@ -55,7 +56,7 @@ abstract class AbstractCliTool(
             .start()
     }
 
-    private suspend fun CoroutineScope.collectProcessOutputAsync(process: Process) =
+    private fun CoroutineScope.collectProcessOutputAsync(process: Process) =
         async(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
         process.inputStream.bufferedReader(Charsets.UTF_8).useLines { lines ->
             buildString {
