@@ -3,27 +3,52 @@ package com.download.downloaderbot.core.downloader.tools
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
 abstract class AbstractCliTool(
-    val bin: String
+    private val bin: String
 ) {
 
-    protected suspend fun execute(url: String, args: List<String>) = coroutineScope {
+    protected suspend fun execute(url: String, args: List<String> = emptyList()): String = coroutineScope {
         val cmd = buildCommand(url, args)
         val process = startProcess(cmd)
-        val (readerJob, output) = startReaderJob(process)
-        awaitProcessCompletion(process, readerJob, url, output)
-        output.toString()
+        val outputDeferred = collectProcessOutputAsync(process)
+
+        try {
+            val exitCode = process.awaitExitCode()
+            val output = outputDeferred.await()
+            handleExitCode(exitCode, output)
+            output
+        } catch (ce: CancellationException) {
+            log.info { "Cancelling download process for $url" }
+            if (process.isAlive)
+                process.destroyForcibly()
+            throw ce
+        } finally {
+            withContext(NonCancellable) {
+                process.closeStreams()
+                stopTasks(process, outputDeferred)
+            }
+        }
     }
+
+    private fun buildCommand(url: String, args: List<String>): List<String> =
+        buildList {
+            add(bin)
+            addAll(args)
+            add(url)
+        }
 
     private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {
         ProcessBuilder(cmd)
@@ -31,45 +56,25 @@ abstract class AbstractCliTool(
             .start()
     }
 
-    private fun CoroutineScope.startReaderJob(process: Process): Pair<Job, StringBuilder> {
-        val output = StringBuilder()
-        val readerJob = launch(Dispatchers.IO) {
-            process.inputStream.bufferedReader().useLines { lines ->
+    private fun CoroutineScope.collectProcessOutputAsync(process: Process) =
+        async(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
+        process.inputStream.bufferedReader(Charsets.UTF_8).useLines { lines ->
+            buildString {
                 lines.forEach { line ->
                     log.debug { line }
-                    output.appendLine(line)
+                    appendLine(line)
                 }
             }
         }
-        return readerJob to output
     }
 
-    private suspend fun awaitProcessCompletion(
-        process: Process,
-        readerJob: Job,
-        url: String,
-        output: StringBuilder
-    ) = try {
-        val exitCode = awaitExitCode(process)
-        readerJob.join()
-        handleExitCode(exitCode, output.toString())
-    } catch (ce: CancellationException) {
-        log.info { "Cancelling download process for $url" }
-        if (process.isAlive) process.destroyForcibly()
-        throw ce
-    } finally {
-        runCatching { process.inputStream.close() }
-        runCatching { process.errorStream.close() }
-        runCatching { process.outputStream.close() }
-        readerJob.cancel()
-    }
-
-    private suspend fun awaitExitCode(process: Process) = try {
-        process.onExit()
+    private suspend fun Process.awaitExitCode(): Int = try {
+        onExit()
             .await()
             .exitValue()
     } catch (t: Throwable) {
-        if (process.isAlive) process.destroyForcibly()
+        if (isAlive)
+            destroyForcibly()
         throw t
     }
 
@@ -78,10 +83,14 @@ abstract class AbstractCliTool(
             throw ToolExecutionException(bin, exitCode, output)
     }
 
-    private fun buildCommand(url: String, args: List<String> = emptyList()): List<String> {
-        val command = mutableListOf(bin)
-        command.addAll(args)
-        command.add(url)
-        return command
+    private fun Process.closeStreams() {
+        runCatching { inputStream.close() }
+        runCatching { errorStream.close() }
+        runCatching { outputStream.close() }
+    }
+
+    private suspend fun <T> stopTasks(process: Process, deferred: Deferred<T>) {
+        runCatching { deferred.cancelAndJoin() }
+        runCatching { process.onExit().await() }
     }
 }
