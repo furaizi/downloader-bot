@@ -37,11 +37,13 @@ class ConcurrencyConfig(
             if (exception is CancellationException) return
 
             notifyScope.launch {
-                runCatching {
+                try {
                     val castException = exception as? Exception ?: Exception(exception)
                     delegate.handle(castException, botCtx.commandContext)
-                }.onFailure { ex ->
-                    log.error(ex) { "Failed to notify user about exception: ${exception.message}" }
+                } catch (ce: CancellationException) {
+                    throw ce
+                } catch (e: Exception) {
+                    log.error(e) { "Failed to notify user about exception: ${exception.message}" }
                 }
             }
         }
