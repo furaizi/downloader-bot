@@ -23,6 +23,7 @@ private val log = KotlinLogging.logger {}
 @Configuration
 class BotConfig(
     val botProperties: BotProperties,
+    val scope: CoroutineScope,
     val commands: List<CommandHandler>,
     val exceptionHandler: GlobalTelegramExceptionHandler
 ) {
@@ -37,14 +38,18 @@ class BotConfig(
             commands.forEach { handler ->
                 command(handler.name) {
                     log.info { "Executing command /${handler.name} with args: $args" }
-                    handler.safeHandle(CommandContext(update, args))
                     update.consume()
+                    scope.launch {
+                        handler.safeHandle(CommandContext(update, args))
+                    }
                 }
             }
 
             text {
                 log.info { "Executing default command with text: '${text}'" }
-                defaultCommand.safeHandle(CommandContext(update, listOf(text)))
+                scope.launch {
+                    defaultCommand.safeHandle(CommandContext(update, listOf(text)))
+                }
             }
         }
     }
