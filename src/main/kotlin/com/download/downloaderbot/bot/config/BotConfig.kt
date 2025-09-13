@@ -9,8 +9,10 @@ import com.download.downloaderbot.bot.handler.GlobalTelegramExceptionHandler
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
+import com.github.kotlintelegrambot.dispatcher.Dispatcher
 import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.text
+import com.github.kotlintelegrambot.entities.Update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -24,8 +26,7 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val scope: CoroutineScope,
-    val commands: List<CommandHandler>,
-    val exceptionHandler: GlobalTelegramExceptionHandler
+    val commands: List<CommandHandler>
 ) {
 
     private val defaultCommand = commands.first { it.name == "download" }
@@ -38,27 +39,27 @@ class BotConfig(
             commands.forEach { handler ->
                 command(handler.name) {
                     log.info { "Executing command /${handler.name} with args: $args" }
-                    update.consume()
-                    scope.launch {
-                        handler.safeHandle(CommandContext(update, args))
-                    }
+                    scope.launchHandler(update, args, handler)
                 }
             }
 
             text {
                 log.info { "Executing default command with text: '${text}'" }
-                scope.launch {
-                    defaultCommand.safeHandle(CommandContext(update, listOf(text)))
-                }
+                scope.launchHandler(update, listOf(text), defaultCommand)
             }
         }
     }
 
-    private suspend fun CommandHandler.safeHandle(ctx: CommandContext) {
-        try {
-            handle(ctx)
-        } catch (e: Exception) {
-            exceptionHandler.handle(e, ctx)
+    private fun CoroutineScope.launchHandler(
+        update: Update,
+        args: List<String>,
+        handler: CommandHandler
+    ) {
+        val ctx = CommandContext(update, args)
+        update.consume()
+        launch(ConcurrencyConfig.BotContext(ctx)) {
+            handler.handle(ctx)
         }
     }
+
 }

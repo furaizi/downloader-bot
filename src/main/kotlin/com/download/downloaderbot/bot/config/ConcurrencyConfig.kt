@@ -20,7 +20,6 @@ private val log = KotlinLogging.logger {}
 class ConcurrencyConfig(
     private val exceptionHandler: GlobalTelegramExceptionHandler
 ) {
-
     data class BotContext(val commandContext: CommandContext)
         : AbstractCoroutineContextElement(Key) {
         companion object Key : CoroutineContext.Key<BotContext>
