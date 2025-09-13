@@ -1,10 +1,7 @@
-package com.download.downloaderbot.bot.runtime
+package com.download.downloaderbot.bot.lifecycle
 
 import com.github.kotlintelegrambot.Bot
-import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicBoolean

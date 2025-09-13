@@ -1,5 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
+import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.service.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +15,8 @@ private val log = KotlinLogging.logger {}
 @Component
 class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
-    gateway: TelegramGateway
-) : CommandHandler(gateway) {
+    private val gateway: TelegramGateway
+) : BotCommand {
     override val name = "download"
 
     override suspend fun handle(ctx: CommandContext) {

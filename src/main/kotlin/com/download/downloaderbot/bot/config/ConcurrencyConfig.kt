@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.commands.CommandContext
-import com.download.downloaderbot.bot.handler.GlobalTelegramExceptionHandler
+import com.download.downloaderbot.bot.exception.GlobalTelegramExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,13 +1,12 @@
-package com.download.downloaderbot.bot.commands
+package com.download.downloaderbot.bot.gateway
 
+import com.download.downloaderbot.bot.commands.CommandContext
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.TelegramFile
-import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import org.springframework.beans.factory.ObjectProvider
-import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import java.io.File
 import java.nio.file.Path
