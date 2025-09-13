@@ -26,26 +26,24 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val scope: CoroutineScope,
-    val commands: List<CommandHandler>
+    val commands: CommandRegistry
 ) {
-
-    private val defaultCommand = commands.first { it.name == "download" }
 
     @Bean
     fun telegramBot(): Bot = bot {
         token = botProperties.token
 
         dispatch {
-            commands.forEach { handler ->
-                command(handler.name) {
-                    log.info { "Executing command /${handler.name} with args: $args" }
+            commands.byName.forEach { (name, handler) ->
+                command(name) {
+                    log.info { "Executing command /$name with args: $args" }
                     scope.launchHandler(update, args, handler)
                 }
             }
 
             text {
                 log.info { "Executing default command with text: '${text}'" }
-                scope.launchHandler(update, listOf(text), defaultCommand)
+                scope.launchHandler(update, listOf(text), commands.default)
             }
         }
     }
