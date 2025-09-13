@@ -19,6 +19,7 @@ class PollingBotLifecycle(private val bot: Bot) : SmartLifecycle {
 
     override fun isRunning(): Boolean = running.get()
 
+    // Start late (after most beans), stop early on shutdown
     override fun getPhase(): Int = 0
 
     override fun start() {
