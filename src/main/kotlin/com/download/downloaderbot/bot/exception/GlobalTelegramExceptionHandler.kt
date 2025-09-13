@@ -1,8 +1,8 @@
-package com.download.downloaderbot.bot.handler
+package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.CommandContext
-import com.download.downloaderbot.bot.commands.TelegramGateway
-import com.download.downloaderbot.bot.commands.chatId
+import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaDownloaderException
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
@@ -29,14 +29,14 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
 
 
     private fun Exception.toUserMessage(): String = when (this) {
-        is UnsupportedSourceException -> "This source is not supported."
-        is MediaTooLargeException -> "Media is too large. Limit: ${limit.toMB()} MB"
-        is MediaNotFoundException -> "No media found at the provided URL."
-        is ToolExecutionException -> "An internal tool failed to execute (code=$exitCode)."
-        is MediaDownloaderToolException -> "An internal tool error occurred."
-        is DownloadInProgressException -> "This media is already being downloaded, please wait."
-        is MediaDownloaderException -> "An error occurred while processing the media."
-        else -> "An unexpected error occurred."
+        is UnsupportedSourceException ->    "This source is not supported."
+        is MediaTooLargeException ->        "Media is too large. Limit: ${limit.toMB()} MB"
+        is MediaNotFoundException ->        "No media found at the provided URL."
+        is ToolExecutionException ->        "An internal tool failed to execute (code=$exitCode)."
+        is MediaDownloaderToolException ->  "An internal tool error occurred."
+        is DownloadInProgressException ->   "This media is already being downloaded, please wait."
+        is MediaDownloaderException ->      "An error occurred while processing the media."
+        else ->                             "An unexpected error occurred."
     }
 
     private fun logAtProperLevel(e: Exception, chatId: Long) {
@@ -51,16 +51,10 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
                 log.info { base }
                 log.debug(e) { base }
             }
-
             is ToolExecutionException,
             is MediaDownloaderToolException,
-            is MediaDownloaderException -> {
-                log.warn(e) { base }
-            }
-
-            else -> {
-                log.error(e) { base }
-            }
+            is MediaDownloaderException -> log.warn(e) { base }
+            else -> log.error(e) { base }
         }
     }
 }

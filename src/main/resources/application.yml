@@ -20,6 +20,7 @@ logging:
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
+    default-command: download
 
 downloader:
   media:
