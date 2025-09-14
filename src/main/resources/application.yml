@@ -45,3 +45,24 @@ downloader:
     lock-ttl: 60s
     wait-timeout: 60s
     wait-poll: 1s
+  ratelimit:
+    enabled: true
+    namespace: rl
+    global:
+      capacity: 30
+      refill:
+        tokens: 30
+        period: 1s
+        greedy: true
+    chat:
+      capacity: 1
+      refill:
+        tokens: 1
+        period: 1s
+        greedy: true
+    group:
+      capacity: 20
+      refill:
+        tokens: 20
+        period: 1m
+        greedy: true
