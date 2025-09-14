@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.ratelimit
 
 interface RateLimiter {
-    suspend fun allow(chatId: Long): Boolean
+    suspend fun awaitGlobal()
+    suspend fun tryConsumePerChatOrGroup(chatId: Long): Boolean
 }
