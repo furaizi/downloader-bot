@@ -10,6 +10,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import mu.KotlinLogging
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
@@ -17,6 +18,11 @@ import kotlin.math.max
 private val log = KotlinLogging.logger {}
 
 @Component
+@ConditionalOnProperty(
+    prefix = "downloader.ratelimit",
+    name = ["enabled"],
+    havingValue = "true"
+)
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
     private val props: RateLimitProperties

@@ -9,11 +9,17 @@ import io.lettuce.core.codec.ByteArrayCodec
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import jakarta.annotation.PreDestroy
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
+@ConditionalOnProperty(
+    prefix = "downloader.ratelimit",
+    name = ["enabled"],
+    havingValue = "true"
+)
 class Bucket4jConfig(
     private val redisProps: RedisProperties
 ) {

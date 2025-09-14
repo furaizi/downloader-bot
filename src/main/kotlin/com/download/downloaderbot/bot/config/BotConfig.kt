@@ -4,6 +4,7 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.BotCommand
 import com.download.downloaderbot.bot.commands.CommandRegistry
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.ratelimit.DefaultRateLimitGuard
 import com.download.downloaderbot.bot.ratelimit.RateLimitGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
