@@ -27,6 +27,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.3.0")
