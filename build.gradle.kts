@@ -33,6 +33,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.15.0")
+    implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.15.0")
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
