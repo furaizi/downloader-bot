@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.ratelimit
+package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.commands.CommandContext
 

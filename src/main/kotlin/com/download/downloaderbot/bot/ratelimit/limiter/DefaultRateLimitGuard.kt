@@ -1,20 +1,13 @@
-package com.download.downloaderbot.bot.ratelimit
+package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.ratelimit.guard.RateLimiter
 import mu.KotlinLogging
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}
 
-@Component
-@ConditionalOnProperty(
-    prefix = "downloader.ratelimit",
-    name = ["enabled"],
-    havingValue = "true",
-)
 class DefaultRateLimitGuard(
     private val limiter: RateLimiter,
     private val gateway: TelegramGateway
