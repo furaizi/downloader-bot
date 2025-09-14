@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.ratelimit
+package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
 import io.github.bucket4j.Bandwidth
@@ -10,13 +10,11 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import mu.KotlinLogging
-import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 
 private val log = KotlinLogging.logger {}
 
-@Component
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
     private val props: RateLimitProperties

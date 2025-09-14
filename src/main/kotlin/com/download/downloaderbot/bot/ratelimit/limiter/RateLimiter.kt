@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.ratelimit
+package com.download.downloaderbot.bot.ratelimit.limiter
 
 interface RateLimiter {
     suspend fun awaitGlobal()

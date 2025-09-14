@@ -1,19 +1,18 @@
-package com.download.downloaderbot.bot.ratelimit
+package com.download.downloaderbot.bot.ratelimit.guard
 
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import mu.KotlinLogging
-import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}
 
-@Component
-class RateLimitGuard(
+class DefaultRateLimitGuard(
     private val limiter: RateLimiter,
     private val gateway: TelegramGateway
-) {
-    suspend fun runOrReject(ctx: CommandContext, block: suspend () -> Unit) {
+) : RateLimitGuard {
+    override suspend fun runOrReject(ctx: CommandContext, block: suspend () -> Unit) {
         val chatId = ctx.chatId
         val chatType = if (chatId < 0) "group" else "private"
 
