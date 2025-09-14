@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.config
 
-import com.download.downloaderbot.bot.ratelimit.limiter.NoopRateLimitGuard
-import com.download.downloaderbot.bot.ratelimit.limiter.RateLimitGuard
+import com.download.downloaderbot.bot.ratelimit.guard.NoopRateLimitGuard
+import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean

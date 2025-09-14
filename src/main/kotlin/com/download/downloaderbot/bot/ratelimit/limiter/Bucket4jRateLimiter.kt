@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.ratelimit.guard
+package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
 import io.github.bucket4j.Bandwidth

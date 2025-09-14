@@ -2,10 +2,10 @@ package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
 import com.download.downloaderbot.bot.gateway.TelegramGateway
-import com.download.downloaderbot.bot.ratelimit.guard.Bucket4jRateLimiter
-import com.download.downloaderbot.bot.ratelimit.limiter.DefaultRateLimitGuard
-import com.download.downloaderbot.bot.ratelimit.limiter.RateLimitGuard
-import com.download.downloaderbot.bot.ratelimit.guard.RateLimiter
+import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
+import com.download.downloaderbot.bot.ratelimit.guard.DefaultRateLimitGuard
+import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
+import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
 import io.lettuce.core.RedisClient
