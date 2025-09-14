@@ -4,6 +4,7 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.BotCommand
 import com.download.downloaderbot.bot.commands.CommandRegistry
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.ratelimit.RateLimitGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
@@ -22,7 +23,8 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val scope: CoroutineScope,
-    val commands: CommandRegistry
+    val commands: CommandRegistry,
+    val rateLimitGuard: RateLimitGuard
 ) {
 
     @Bean
@@ -52,7 +54,9 @@ class BotConfig(
         val ctx = CommandContext(update, args)
         update.consume()
         launch(ConcurrencyConfig.BotContext(ctx)) {
-            handler.handle(ctx)
+            rateLimitGuard.runOrReject(ctx) {
+                handler.handle(ctx)
+            }
         }
     }
 
