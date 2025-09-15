@@ -6,6 +6,7 @@ import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
 import com.download.downloaderbot.bot.ratelimit.guard.DefaultRateLimitGuard
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
 import io.lettuce.core.RedisClient
@@ -65,8 +66,9 @@ class RedisRateLimitConfiguration {
     @ConditionalOnMissingBean(RateLimiter::class)
     fun rateLimiter(
         proxyManager: ProxyManager<String>,
-        props: RateLimitProperties
-    ): RateLimiter = Bucket4jRateLimiter(proxyManager, props)
+        props: RateLimitProperties,
+        mapper: ObjectMapper
+    ): RateLimiter = Bucket4jRateLimiter(proxyManager, props, mapper)
 
     @Bean
     @ConditionalOnMissingBean(RateLimitGuard::class)
