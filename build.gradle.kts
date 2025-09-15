@@ -36,6 +36,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.bucket4j:bucket4j_jdk17-core:8.15.0")
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.15.0")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
