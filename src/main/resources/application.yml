@@ -45,6 +45,8 @@ downloader:
     lock-ttl: 60s
     wait-timeout: 60s
     wait-poll: 1s
+  concurrency:
+    max-downloads: 5
   ratelimit:
     enabled: true
     namespace: rl
