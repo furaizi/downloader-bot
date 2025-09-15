@@ -42,6 +42,13 @@ Look up `src/main/resources/application.yml` for more details.
 
 Tip: The default allowlist only permits the patterns above. You can extend `downloader.sources.allow` via application config if you build a custom image.
 
+## Metrics
+Prometheus metrics are exposed when running with the `prod` profile.  
+They are available at `localhost:8081/actuator/prometheus`:
+```bash
+curl http://localhost:8081/actuator/prometheus | head
+```
+
 ## Contributing
 Small PRs and issue reports are welcome. Please keep changes focused and include a brief rationale and testing notes.
 
