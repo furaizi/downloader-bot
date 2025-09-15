@@ -1,6 +1,8 @@
 package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
+import com.download.downloaderbot.bot.config.properties.fingerprint
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.BandwidthBuilder
 import io.github.bucket4j.BucketConfiguration
@@ -17,10 +19,15 @@ private val log = KotlinLogging.logger {}
 
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
-    private val props: RateLimitProperties
+    private val props: RateLimitProperties,
+    private val mapper: ObjectMapper
 ) : RateLimiter {
 
     private val async: AsyncProxyManager<String> = proxyManager.asAsync()
+    private val version: String by lazy { props.fingerprint(mapper) }
+    init {
+        log.info { "[rate-limit] config version=$version" }
+    }
 
     override suspend fun awaitGlobal() {
         if (!props.enabled) return
@@ -68,10 +75,9 @@ class Bucket4jRateLimiter(
 
     private fun isGroup(chatId: Long): Boolean = chatId < 0
 
-    private fun keyGlobal(): String = "${props.namespace}:global"
-    private fun keyChat(chatId: Long): String = "${props.namespace}:chat:$chatId"
-    private fun keyGroup(chatId: Long): String = "${props.namespace}:group:$chatId"
-
+    private fun keyGlobal(): String = "${props.namespace}:v$version:global"
+    private fun keyChat(chatId: Long): String = "${props.namespace}:v$version:chat:$chatId"
+    private fun keyGroup(chatId: Long): String = "${props.namespace}:v$version:group:$chatId"
 
     private fun RateLimitProperties.Bucket.toBandwidth(): Bandwidth {
         val builder = BandwidthBuilder.builder()
