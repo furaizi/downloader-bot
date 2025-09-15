@@ -23,6 +23,7 @@ services:
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?set TELEGRAM_BOT_TOKEN}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DATA_REDIS_HOST: redis
     volumes:
       - downloads:/downloads
