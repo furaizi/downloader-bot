@@ -7,6 +7,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.cache.lock.UrlLockManager
+import com.download.downloaderbot.core.concurrency.DownloadSlots
 import com.download.downloaderbot.core.service.net.UrlResolver
 import com.download.downloaderbot.core.service.security.UrlAllowlist
 import kotlinx.coroutines.delay
@@ -25,7 +26,8 @@ class CachedMediaDownloadService(
     private val urlLock: UrlLockManager,
     private val urlResolver: UrlResolver,
     private val urlNormalizer: UrlNormalizer,
-    private val allowlist: UrlAllowlist
+    private val allowlist: UrlAllowlist,
+    private val slots: DownloadSlots
 ) : MediaDownloadService {
 
     override suspend fun download(url: String): List<Media> {
@@ -46,7 +48,9 @@ class CachedMediaDownloadService(
 
         try {
             getCachedOrNull(normalizedUrl, afterLock = true)?.let { return it }
-            val result = delegate.download(normalizedUrl)
+            val result = slots.withSlotOrThrow(url) {
+                delegate.download(normalizedUrl)
+            }
             mediaCache.put(result, props.mediaTtl)
             return result
         } finally {
