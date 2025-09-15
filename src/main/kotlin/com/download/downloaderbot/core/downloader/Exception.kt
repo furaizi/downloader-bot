@@ -39,3 +39,6 @@ class UnsupportedSourceException(url: String)
 
 class DownloadInProgressException(url: String) :
     MediaDownloaderException(url, "Download already in progress for url=$url")
+
+class BusyException(url: String) :
+    MediaDownloaderException(url, "Downloader is busy now, try again later for url=$url")
