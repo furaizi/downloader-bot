@@ -59,7 +59,7 @@ downloader:
       refill:
         tokens: 1
         period: 1s
-        greedy: false
+        greedy: true
     group:
       # max 20
       capacity: 5
