@@ -30,7 +30,7 @@ docker compose up -d
 ```
 
 ## Configuration Reference
-Only the token and the username is required to start. Other settings are optional with sensible defaults.
+Only the token is required to start. Other settings are optional with sensible defaults.
 Look up `src/main/resources/application.yml` for more details.
 
 ## How To Use
@@ -41,6 +41,13 @@ Look up `src/main/resources/application.yml` for more details.
   - YouTube Shorts: `https://www.youtube.com/shorts/abcdefghijk`
 
 Tip: The default allowlist only permits the patterns above. You can extend `downloader.sources.allow` via application config if you build a custom image.
+
+## Metrics
+Prometheus metrics are exposed when running with the `prod` profile.  
+They are available at `localhost:8081/actuator/prometheus`:
+```bash
+curl http://localhost:8081/actuator/prometheus | head
+```
 
 ## Contributing
 Small PRs and issue reports are welcome. Please keep changes focused and include a brief rationale and testing notes.

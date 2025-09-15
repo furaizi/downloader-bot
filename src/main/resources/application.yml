@@ -3,15 +3,14 @@ spring:
     name: downloader-bot
   config:
     import: optional:file:.env[.properties]
+  profiles:
+    default: dev
   jackson:
     property-naming-strategy: SNAKE_CASE
     deserialization:
       fail-on-unknown-properties: false
     mapper:
       accept-case-insensitive-enums: true
-  docker:
-    compose:
-      enabled: false
 
 logging:
   level:
