@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.exception
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.core.downloader.BusyException
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaDownloaderException
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
@@ -35,6 +36,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
         is ToolExecutionException ->        "An internal tool failed to execute (code=$exitCode)."
         is MediaDownloaderToolException ->  "An internal tool error occurred."
         is DownloadInProgressException ->   "This media is already being downloaded, please wait."
+        is BusyException ->                 "The downloader is currently busy, please try again later."
         is MediaDownloaderException ->      "An error occurred while processing the media."
         else ->                             "An unexpected error occurred."
     }
@@ -47,7 +49,8 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
             is UnsupportedSourceException,
             is MediaTooLargeException,
             is MediaNotFoundException,
-            is DownloadInProgressException -> {
+            is DownloadInProgressException,
+            is BusyException -> {
                 log.info { base }
                 log.debug(e) { base }
             }
