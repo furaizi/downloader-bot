@@ -30,7 +30,7 @@ docker compose up -d
 ```
 
 ## Configuration Reference
-Only the token and the username is required to start. Other settings are optional with sensible defaults.
+Only the token is required to start. Other settings are optional with sensible defaults.
 Look up `src/main/resources/application.yml` for more details.
 
 ## How To Use
