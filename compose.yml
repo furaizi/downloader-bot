@@ -13,7 +13,6 @@ services:
   app:
     depends_on:
       - redis
-      - fix-perms
     build: .
     ports:
       - "8080:8080"
@@ -37,7 +36,44 @@ services:
     labels:
       org.springframework.boot.ignore: "true"
 
+  prometheus:
+    image: prom/prometheus:latest
+    profiles:
+      - monitoring
+    ports:
+        - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - app
+
+  redis_exporter:
+    image: oliver006/redis_exporter:latest
+    profiles:
+      - monitoring
+    environment:
+      REDIS_ADDR: redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
+
+  grafana:
+    image: grafana/grafana:latest
+    profiles:
+      - monitoring
+    ports:
+        - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+
 
 volumes:
   downloads:
   redis-data:
+  grafana-data:
