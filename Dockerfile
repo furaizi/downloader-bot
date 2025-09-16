@@ -14,7 +14,7 @@ RUN ./gradlew --no-daemon clean bootJar
 
 FROM debian:bookworm-slim AS tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl xz-utils \
+      ca-certificates curl xz-utils busybox-static \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/bin
 
@@ -48,9 +48,7 @@ RUN mkdir -p /opt/empty
 FROM gcr.io/distroless/java21-debian12 AS runtime
 
 ENV PATH="/usr/local/bin:${PATH}"
-
 ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data"
-
 WORKDIR /app
 
 COPY --from=tools /opt/bin/yt-dlp /usr/local/bin/yt-dlp
@@ -58,6 +56,7 @@ COPY --from=tools /opt/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=tools /opt/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=tools /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
+COPY --from=tools /bin/busybox /usr/local/bin/busybox
 COPY --from=tools --chown=65532:65532 /opt/empty/ /data/Downloads/downloader-bot/
 
 COPY --from=builder /src/build/libs/*.jar /app/app.jar

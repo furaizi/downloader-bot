@@ -4,15 +4,23 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
-    command: ["redis-server", "--appendonly", "yes"]
+    mem_limit: 256m
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 -p 6379 ping | grep PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
   app:
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     build: .
     ports:
       - "8080:8080"
@@ -24,8 +32,26 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DATA_REDIS_HOST: redis
+    mem_limit: 1500m
+    cpus: "1.5"
+    pids_limit: 256
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - downloads:/downloads
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 67108864   # 64 MiB
+          mode: 1777
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/busybox", "wget", "-q", "-O", "/dev/null", "http://localhost:8081/actuator/health/readiness"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 30s
 
   fix-perms:
     image: busybox:1.36
