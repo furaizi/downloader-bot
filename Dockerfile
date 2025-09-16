@@ -45,18 +45,21 @@ RUN set -eux; \
 RUN mkdir -p /opt/empty
 
 
+FROM busybox:1.36 AS bb
+
+
 FROM gcr.io/distroless/java21-debian12 AS runtime
 
 ENV PATH="/usr/local/bin:${PATH}"
-
 ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data"
-
 WORKDIR /app
 
 COPY --from=tools /opt/bin/yt-dlp /usr/local/bin/yt-dlp
 COPY --from=tools /opt/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=tools /opt/bin/ffprobe /usr/local/bin/ffprobe
 COPY --from=tools /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+COPY --from=bb /bin/busybox /usr/local/bin/busybox
 
 COPY --from=tools --chown=65532:65532 /opt/empty/ /data/Downloads/downloader-bot/
 
