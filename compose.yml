@@ -13,7 +13,6 @@ services:
   app:
     depends_on:
       - redis
-      - fix-perms
     build: .
     ports:
       - "8080:8080"
