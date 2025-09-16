@@ -4,6 +4,7 @@ global:
 
 scrape_configs:
   - job_name: downloader-bot
+    metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['app:8081']
   - job_name: redis
