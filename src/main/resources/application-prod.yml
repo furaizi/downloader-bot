@@ -4,16 +4,10 @@ spring:
       enabled: false
 
 management:
-  server:
-    address: 0.0.0.0
-    port: 8081
   endpoints:
     web:
       exposure:
         include: health,prometheus,info
   endpoint:
-    health:
-      probes:
-        enabled: true
     prometheus:
       access: unrestricted

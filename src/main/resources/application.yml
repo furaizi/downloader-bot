@@ -12,6 +12,15 @@ spring:
     mapper:
       accept-case-insensitive-enums: true
 
+management:
+  server:
+    address: 0.0.0.0
+    port: 8081
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 logging:
   level:
     root: INFO
