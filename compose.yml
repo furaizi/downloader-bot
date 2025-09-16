@@ -38,6 +38,8 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
+    profiles:
+      - monitoring
     ports:
         - "9090:9090"
     volumes:
@@ -47,6 +49,8 @@ services:
 
   redis_exporter:
     image: oliver006/redis_exporter:latest
+    profiles:
+      - monitoring
     environment:
       REDIS_ADDR: redis:6379
     ports:
@@ -56,6 +60,8 @@ services:
 
   grafana:
     image: grafana/grafana:latest
+    profiles:
+      - monitoring
     ports:
         - "3000:3000"
     volumes:
