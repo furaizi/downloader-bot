@@ -41,9 +41,11 @@ abstract class AbstractCliTool(
             log.warn { "Timeout waiting for $bin (url=$url). Killing process tree..." }
             process.killTree()
             val partialOutput = runCatching {
-                if (outputDeferred.isCompleted) outputDeferred.getCompleted() else ""
+                if (outputDeferred.isCompleted)
+                    outputDeferred.getCompleted()
+                else ""
             }.getOrDefault("")
-            throw ToolTimeoutException(bin, timeout.toSeconds(), partialOutput)
+            throw ToolTimeoutException(bin, timeout, partialOutput)
         } catch (ce: CancellationException) {
             log.info { "Cancelling download process for $url" }
             process.killTree()

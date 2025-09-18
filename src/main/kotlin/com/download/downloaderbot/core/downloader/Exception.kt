@@ -1,5 +1,7 @@
 package com.download.downloaderbot.core.downloader
 
+import java.time.Duration
+
 
 private const val bytesInMB = 1024 * 1024
 fun Long.toMB() = this / bytesInMB
@@ -45,6 +47,6 @@ class BusyException(url: String) :
 
 class ToolTimeoutException(
     val tool: String,
-    val timeoutSeconds: Long,
+    val timeout: Duration,
     output: String
-) : MediaDownloaderToolException("$tool timed out after ${timeoutSeconds}s", output)
+) : MediaDownloaderToolException("$tool timed out after $timeout", output)
