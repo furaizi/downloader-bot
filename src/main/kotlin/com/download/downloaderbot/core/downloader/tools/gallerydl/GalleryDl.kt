@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class GalleryDl(
     val config: GalleryDlProperties
-) : AbstractCliTool(config.bin) {
+) : AbstractCliTool(config.bin, config.timeout) {
 
     suspend fun download(url: String, outputPath: String) {
         val args = listOf("-D", outputPath,

@@ -13,7 +13,7 @@ private val log = KotlinLogging.logger {}
 class YtDlp(
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
-) : AbstractCliTool(config.bin) {
+) : AbstractCliTool(config.bin, config.timeout) {
 
     suspend fun download(url: String, outputPathTemplate: String) {
         val formatArgs = if (config.format.isNotEmpty())
