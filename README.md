@@ -32,6 +32,7 @@ docker compose up -d
 ## Configuration Reference
 Only the token is required to start. Other settings are optional with sensible defaults.
 Look up `src/main/resources/application.yml` for more details.
+- `downloader.media.cleanup` controls how often the cleanup job runs as well as the max age and total size kept on disk.
 
 ## How To Use
 - DM your bot a supported link. The bot replies with the downloaded media.

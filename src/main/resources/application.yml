@@ -36,6 +36,11 @@ downloader:
     max-size:
       photo: 10MB
       video: 50MB
+    cleanup:
+      max-age: 7d
+      max-total-size: 10GB
+      interval: 1h
+      initial-delay: 5m
   sources:
     allow:
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+(?:/|(?:\?.*)?)?$
