@@ -42,3 +42,9 @@ class DownloadInProgressException(url: String) :
 
 class BusyException(url: String) :
     MediaDownloaderException(url, "Downloader is busy now, try again later for url=$url")
+
+class ToolTimeoutException(
+    val tool: String,
+    val timeoutSeconds: Long,
+    output: String
+) : MediaDownloaderToolException("$tool timed out after ${timeoutSeconds}s", output)
