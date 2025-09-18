@@ -48,11 +48,13 @@ downloader:
       - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
   yt-dlp:
     enabled: true
-    format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
     bin: yt-dlp
+    format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
+    timeout: 2m
   gallery-dl:
     enabled: false
     bin: gallery-dl
+    timeout: 1m
   cache:
     media-ttl: 7d
     lock-ttl: 60s

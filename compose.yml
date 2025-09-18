@@ -21,6 +21,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      fix-perms:
+        condition: service_completed_successfully
     build: .
     ports:
       - "8080:8080"

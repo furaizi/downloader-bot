@@ -10,6 +10,7 @@ import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.core.downloader.ToolExecutionException
+import com.download.downloaderbot.core.downloader.ToolTimeoutException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.downloader.toMB
 import kotlinx.coroutines.CancellationException
@@ -34,6 +35,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
         is MediaTooLargeException ->        "Media is too large. Limit: ${limit.toMB()} MB"
         is MediaNotFoundException ->        "No media found at the provided URL."
         is ToolExecutionException ->        "An internal tool failed to execute (code=$exitCode)."
+        is ToolTimeoutException ->          "An internal tool timed out after $timeout."
         is MediaDownloaderToolException ->  "An internal tool error occurred."
         is DownloadInProgressException ->   "This media is already being downloaded, please wait."
         is BusyException ->                 "The downloader is currently busy, please try again later."
@@ -54,6 +56,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
                 log.info { base }
                 log.debug(e) { base }
             }
+            is ToolTimeoutException,
             is ToolExecutionException,
             is MediaDownloaderToolException,
             is MediaDownloaderException -> log.warn(e) { base }
