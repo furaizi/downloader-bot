@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -25,6 +26,7 @@ abstract class AbstractCliTool(
     private val timeout: Duration
 ) {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     protected suspend fun execute(url: String, args: List<String> = emptyList()): String = coroutineScope {
         val cmd = buildCommand(url, args)
         val process = startProcess(cmd)
