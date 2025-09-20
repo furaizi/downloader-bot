@@ -11,9 +11,9 @@ class HelpCommand(private val gateway: TelegramGateway) : BotCommand {
         gateway.replyText(
             ctx.chatId,
             """
-            /start – приветствие
-            /help – помощь
-            (просто пришли ссылку на видео в ЛС)
+            /start – привітання
+            /help – допомога
+            (просто надішли мені посилання на відео в особисті повідомлення)
             """.trimIndent()
         )
     }

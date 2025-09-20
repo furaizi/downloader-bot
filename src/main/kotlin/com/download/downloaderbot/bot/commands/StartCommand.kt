@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component
 class StartCommand(private val gateway: TelegramGateway) : BotCommand {
     override val name = "start"
     override suspend fun handle(ctx: CommandContext) {
-        gateway.replyText(ctx.chatId, "Привет! Отправь мне ссылку — я скачаю и пришлю видео.")
+        gateway.replyText(ctx.chatId, "Привіт! Надішли мені посилання - я завантажу і відправлю відео.")
     }
 }
