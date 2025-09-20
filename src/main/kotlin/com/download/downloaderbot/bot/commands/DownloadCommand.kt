@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.File
+import java.net.URI
 
 private val log = KotlinLogging.logger {}
 
@@ -29,7 +30,7 @@ class DownloadCommand(
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
         val url = ctx.args.firstOrNull()
-        if (url.isNullOrBlank()) {
+        if (url.isNullOrBlank() || !looksLikeHttpUrl(url)) {
             gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
             return
         }
@@ -54,6 +55,14 @@ class DownloadCommand(
         val urls = mediaList.map { it.fileUrl }
         log.info { "Downloaded: $titles ($urls)" }
     }
+
+    private fun looksLikeHttpUrl(s: String): Boolean =
+        try {
+            val u = URI(s)
+            (u.scheme == "http" || u.scheme == "https") && !u.host.isNullOrBlank()
+        } catch (_: Exception) {
+            false
+        }
 
     private fun isImageAlbum(mediaList: List<Media>) =
         mediaList.first().type == MediaType.IMAGE && mediaList.size >= 2
