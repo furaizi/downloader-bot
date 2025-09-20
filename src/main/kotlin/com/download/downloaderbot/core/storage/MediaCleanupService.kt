@@ -1,6 +1,9 @@
 package com.download.downloaderbot.core.storage
 
+import com.download.downloaderbot.core.cache.media.MediaCache
 import com.download.downloaderbot.core.config.properties.MediaProperties
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.IOException
@@ -8,7 +11,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.streams.asSequence
 
@@ -16,49 +18,44 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class MediaCleanupService(
-    private val mediaProperties: MediaProperties
+    private val mediaProperties: MediaProperties,
+    private val mediaCache: MediaCache
 ) {
 
-    fun cleanup(): MediaCleanupReport {
+    suspend fun cleanup(): MediaCleanupReport {
         val cleanupProps = mediaProperties.cleanup
         val basePath = mediaProperties.basePath
 
-        val now = Instant.now()
         val maxAge = cleanupProps.maxAge
         require(!maxAge.isNegative) { "downloader.media.cleanup.max-age must not be negative: $maxAge" }
 
-        val threshold = if (maxAge.isZero)
-            null
-        else
-            now.minus(maxAge)
+        val threshold: Instant? = if (maxAge.isZero) null
+                                else Instant.now().minus(maxAge)
 
         var deletedFiles = 0
         var freedBytes = 0L
 
-        if (threshold != null) {
-            val candidates = loadFiles(basePath)
-                .filter { it.lastModified.isBefore(threshold) }
+        val remaining = loadFiles(basePath).toMutableList()
 
-            for (file in candidates) {
-                if (deleteFile(file)) {
+        if (threshold != null) {
+            val expired = remaining.filter { it.lastModified.isBefore(threshold) }
+            for (file in expired) {
+                if (deleteAndEvict(file)) {
                     deletedFiles += 1
                     freedBytes += file.size
+                    remaining.remove(file)
                 }
             }
         }
 
-        val filesAfterExpiration = loadFiles(basePath)
-
         val maxBytes = cleanupProps.maxTotalSize.toBytes()
         if (maxBytes > 0) {
-            var totalSize = filesAfterExpiration.sumOf { it.size }
+            var totalSize = remaining.sumOf { it.size }
             if (totalSize > maxBytes) {
-                val orderedByAge = filesAfterExpiration.sortedBy { it.lastModified }
+                val orderedByAge = remaining.sortedBy { it.lastModified }
                 for (file in orderedByAge) {
-                    if (totalSize <= maxBytes) {
-                        break
-                    }
-                    if (deleteFile(file)) {
+                    if (totalSize <= maxBytes) break
+                    if (deleteAndEvict(file)) {
                         deletedFiles += 1
                         freedBytes += file.size
                         totalSize -= file.size
@@ -70,36 +67,52 @@ class MediaCleanupService(
         return MediaCleanupReport(deletedFiles, freedBytes)
     }
 
-    private fun loadFiles(basePath: Path): List<MediaFile> {
-        if (!basePath.exists()) return emptyList()
-        return runCatching {
-            Files.walk(basePath)
-                .use { stream ->
-                    stream.asSequence()
-                        .filter { it.isRegularFile() }
-                        .mapNotNull { path ->
-                            val size = runCatching { Files.size(path) }
-                                .onFailure { log.warn(it) { "Unable to read size of $path" } }
-                                .getOrNull()
-                            val lastModified = runCatching { Files.getLastModifiedTime(path).toInstant() }
-                                .onFailure { log.warn(it) { "Unable to read lastModified of $path" } }
-                                .getOrNull()
-                            if (size == null || lastModified == null) {
-                                null
-                            } else {
-                                MediaFile(path, size, lastModified)
-                            }
-                        }
-                        .toList()
-                }
-        }.getOrElse { ex ->
+    private suspend fun deleteAndEvict(file: MediaFile): Boolean {
+        val deleted = deleteFile(file)
+        if (deleted) {
+            evictCacheFor(file.path)
+        }
+        return deleted
+    }
+
+    private suspend fun evictCacheFor(path: Path) {
+        mediaCache.evictByPath(path)
+        log.debug { "Evicted cache entries by path=$path" }
+    }
+
+    private suspend fun loadFiles(basePath: Path): List<MediaFile> = withContext(Dispatchers.IO) {
+        if (!basePath.exists()) return@withContext emptyList()
+        try {
+            Files.walk(basePath).use { stream ->
+                stream.asSequence()
+                    .filter { it.isRegularFile() }
+                    .mapNotNull { toMediaFile(it) }
+                    .toList()
+            }
+        } catch (ex: Exception) {
             log.warn(ex) { "Failed to enumerate media files in $basePath" }
             emptyList()
         }
     }
 
-    private fun deleteFile(file: MediaFile): Boolean {
-        return try {
+    private fun toMediaFile(path: Path): MediaFile? {
+        val size = try {
+            Files.size(path)
+        } catch (t: Exception) {
+            log.warn(t) { "Unable to read size of $path" }
+            return null
+        }
+        val lastModified = try {
+            Files.getLastModifiedTime(path).toInstant()
+        } catch (t: Exception) {
+            log.warn(t) { "Unable to read lastModified of $path" }
+            return null
+        }
+        return MediaFile(path, size, lastModified)
+    }
+
+    private suspend fun deleteFile(file: MediaFile): Boolean = withContext(Dispatchers.IO) {
+        try {
             Files.deleteIfExists(file.path).also { deleted ->
                 if (deleted) {
                     log.info { "Deleted media file ${file.path} (freed ${file.size} bytes)" }
