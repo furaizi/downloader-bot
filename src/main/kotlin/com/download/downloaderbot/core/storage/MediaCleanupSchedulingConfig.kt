@@ -29,22 +29,27 @@ class MediaCleanupSchedulingConfig(
 
         registrar.addTriggerTask({
             maintenanceScope.launch {
-                if (!running.compareAndSet(false, true)) {
-                    log.debug { "Media cleanup skipped: previous run is still in progress" }
-                    return@launch
-                }
-                try {
-                    val report = service.cleanup()
-                    if (report.deletedFiles > 0)
-                        log.info { "Media cleanup removed ${report.deletedFiles} files and freed ${report.freedBytes} bytes" }
-                    else
-                        log.debug { "Media cleanup run completed without deletions" }
-                } catch (t: Throwable) {
-                    log.warn(t) { "Media cleanup failed" }
-                } finally {
-                    running.set(false)
-                }
+                runCleanupGuarded()
             }
         }, trigger)
+    }
+
+    private suspend fun runCleanupGuarded() {
+        if (!running.compareAndSet(false, true)) {
+            log.debug { "Media cleanup skipped: previous run is still in progress" }
+            return
+        }
+        try {
+            val report = service.cleanup()
+            if (report.deletedFiles > 0) {
+                log.info { "Media cleanup removed ${report.deletedFiles} files and freed ${report.freedBytes} bytes" }
+            } else {
+                log.debug { "Media cleanup run completed without deletions" }
+            }
+        } catch (t: Throwable) {
+            log.warn(t) { "Media cleanup failed" }
+        } finally {
+            running.set(false)
+        }
     }
 }
