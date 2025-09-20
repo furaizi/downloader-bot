@@ -2,22 +2,28 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.gateway.isGroupChat
+import com.download.downloaderbot.bot.gateway.isPrivateChat
 import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
+import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.core.service.MediaDownloadService
+import com.download.downloaderbot.core.service.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.File
+import java.net.URI
 
 private val log = KotlinLogging.logger {}
 
 @Component
 class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
-    private val gateway: TelegramGateway
+    private val gateway: TelegramGateway,
+    private val allowlist: UrlAllowlist
 ) : BotCommand {
 
     private companion object {
@@ -28,17 +34,28 @@ class DownloadCommand(
 
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
-        val url = ctx.args.firstOrNull()
-        if (url.isNullOrBlank()) {
-            gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
+        val rawUrl = ctx.args.firstOrNull()?.trim()
+
+        val isValid = when {
+            ctx.isPrivateChat ->
+                !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
+            ctx.isGroupChat ->
+                !rawUrl.isNullOrBlank() && allowlist.isAllowed(rawUrl)
+            else -> false
+        }
+
+        if (!isValid) {
+            if (ctx.isPrivateChat)
+                gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
             return
         }
 
-        val mediaList = withContext(Dispatchers.IO) { mediaDownloadService.download(url) }
-        if (mediaList.isEmpty()) {
-            gateway.replyText(ctx.chatId, "Нічого не знайдено за цим URL.", replyTo)
-            return
+        val url = rawUrl!!
+        val mediaList = withContext(Dispatchers.IO) {
+            mediaDownloadService.download(url)
         }
+        if (mediaList.isEmpty())
+            throw MediaNotFoundException(url)
 
         when {
             isImageAlbum(mediaList) && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
@@ -54,6 +71,14 @@ class DownloadCommand(
         val urls = mediaList.map { it.fileUrl }
         log.info { "Downloaded: $titles ($urls)" }
     }
+
+    private fun looksLikeHttpUrl(s: String): Boolean =
+        try {
+            val u = URI(s)
+            (u.scheme == "http" || u.scheme == "https") && !u.host.isNullOrBlank()
+        } catch (_: Exception) {
+            false
+        }
 
     private fun isImageAlbum(mediaList: List<Media>) =
         mediaList.first().type == MediaType.IMAGE && mediaList.size >= 2
