@@ -34,7 +34,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
     private fun Exception.toUserMessage(): String = when (this) {
         is UnsupportedSourceException ->    "Це джерело не підтримується."
         is MediaTooLargeException ->        "Медіафайл занадто великий. Обмеження: ${limit.toMB()} МБ."
-        is MediaNotFoundException ->        "За вказаною адресою не знайдено медіа."
+        is MediaNotFoundException ->        "Нічого не знайдено за цим URL."
         is ToolExecutionException ->        "Внутрішній інструмент не зміг виконатися (код=$exitCode)."
         is ToolTimeoutException ->          "Внутрішній інструмент перевищив час очікування: $timeout."
         is MediaDownloaderToolException ->  "Сталася внутрішня помилка інструменту."

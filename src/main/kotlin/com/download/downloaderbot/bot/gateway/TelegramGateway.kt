@@ -3,13 +3,13 @@ package com.download.downloaderbot.bot.gateway
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.InlineQuery
 import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
 import java.io.File
-import java.nio.file.Path
 
 @Component
 class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
@@ -137,3 +137,14 @@ val CommandContext.chatId: Long
 val CommandContext.replyToMessageId: Long?
     get() = update.message?.messageId
         ?: update.callbackQuery?.message?.messageId
+
+val CommandContext.chatType: String
+    get() = update.message?.chat?.type
+        ?: update.callbackQuery?.message?.chat?.type
+        ?: error("No chat type in update")
+
+val CommandContext.isPrivateChat: Boolean
+    get() = chatType == "private"
+
+val CommandContext.isGroupChat: Boolean
+    get() = chatType == "group" || chatType == "supergroup"
