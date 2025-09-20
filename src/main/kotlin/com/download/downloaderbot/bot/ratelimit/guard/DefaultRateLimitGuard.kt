@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.ratelimit.guard
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import mu.KotlinLogging
 
@@ -19,7 +20,7 @@ class DefaultRateLimitGuard(
         val ok = limiter.tryConsumePerChatOrGroup(ctx.chatId)
         if (!ok) {
             log.info { "[rate-limit] REJECT chatId=$chatId type=$chatType -> tell user" }
-            gateway.replyText(ctx.chatId, "Too many requests. Please try again later.")
+            gateway.replyText(ctx.chatId, "Too many requests. Please try again later.", ctx.replyToMessageId)
             return
         }
         log.debug { "[rate-limit] local PASSED chatId=$chatId type=$chatType -> await global" }

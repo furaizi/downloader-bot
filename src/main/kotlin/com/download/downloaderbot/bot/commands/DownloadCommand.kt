@@ -2,6 +2,7 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.service.MediaDownloadService
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +21,9 @@ class DownloadCommand(
     override val name = "download"
 
     override suspend fun handle(ctx: CommandContext) {
+        val replyTo = ctx.replyToMessageId
         val url = ctx.args.firstOrNull() ?: run {
-            gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.")
+            gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
             return
         }
 
@@ -32,19 +34,19 @@ class DownloadCommand(
 
         if (firstMedia.type == MediaType.IMAGE && mediaList.size in 2..10) {
             val files = mediaList.map { File(it.fileUrl) }
-            gateway.sendPhotosAlbum(ctx.chatId, files)
+            gateway.sendPhotosAlbum(ctx.chatId, files, replyToMessageId = replyTo)
         }
         else if (firstMedia.type == MediaType.IMAGE && mediaList.size > 10) {
             val files = mediaList.map { File(it.fileUrl) }
-            gateway.sendPhotosAlbumChunked(ctx.chatId, files)
+            gateway.sendPhotosAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
         }
         else {
             mediaList.forEach {
                 val file = File(it.fileUrl)
                 when (it.type) {
-                    MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file)
-                    MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file)
-                    MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file)
+                    MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
+                    MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
+                    MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
                 }
             }
         }

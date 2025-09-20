@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.exception
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.core.downloader.BusyException
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaDownloaderException
@@ -26,7 +27,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
         if (e is CancellationException)
             throw e // very important for coroutines
         logAtProperLevel(e, ctx.chatId)
-        gateway.replyText(ctx.chatId, e.toUserMessage())
+        gateway.replyText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
     }
 
 
