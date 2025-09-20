@@ -31,16 +31,16 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
 
 
     private fun Exception.toUserMessage(): String = when (this) {
-        is UnsupportedSourceException ->    "This source is not supported."
-        is MediaTooLargeException ->        "Media is too large. Limit: ${limit.toMB()} MB"
-        is MediaNotFoundException ->        "No media found at the provided URL."
-        is ToolExecutionException ->        "An internal tool failed to execute (code=$exitCode)."
-        is ToolTimeoutException ->          "An internal tool timed out after $timeout."
-        is MediaDownloaderToolException ->  "An internal tool error occurred."
-        is DownloadInProgressException ->   "This media is already being downloaded, please wait."
-        is BusyException ->                 "The downloader is currently busy, please try again later."
-        is MediaDownloaderException ->      "An error occurred while processing the media."
-        else ->                             "An unexpected error occurred."
+        is UnsupportedSourceException ->    "Це джерело не підтримується."
+        is MediaTooLargeException ->        "Медіафайл занадто великий. Обмеження: ${limit.toMB()} МБ."
+        is MediaNotFoundException ->        "За вказаною адресою не знайдено медіа."
+        is ToolExecutionException ->        "Внутрішній інструмент не зміг виконатися (код=$exitCode)."
+        is ToolTimeoutException ->          "Внутрішній інструмент перевищив час очікування: $timeout."
+        is MediaDownloaderToolException ->  "Сталася внутрішня помилка інструменту."
+        is DownloadInProgressException ->   "Цей медіафайл уже завантажується, будь ласка, зачекайте."
+        is BusyException ->                 "Завантажувач зараз зайнятий, спробуйте пізніше."
+        is MediaDownloaderException ->      "Сталася помилка під час обробки медіафайлу."
+        else ->                             "Сталася непередбачена помилка."
     }
 
     private fun logAtProperLevel(e: Exception, chatId: Long) {
