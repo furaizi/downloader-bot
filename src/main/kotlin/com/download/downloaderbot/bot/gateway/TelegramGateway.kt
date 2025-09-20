@@ -44,16 +44,6 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendVideo(
-        chatId: Long,
-        path: Path,
-        caption: String? = null,
-        durationSeconds: Int? = null,
-        width: Int? = null,
-        height: Int? = null,
-        replyToMessageId: Long? = null
-    ) = sendVideo(chatId, path.toFile(), caption, durationSeconds, width, height, replyToMessageId)
-
     suspend fun sendPhoto(
         chatId: Long,
         file: File,
@@ -67,14 +57,6 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
             replyToMessageId = replyToMessageId
         )
     }
-
-    suspend fun sendPhoto(
-        chatId: Long,
-        path: Path,
-        caption: String? = null,
-        replyToMessageId: Long? = null
-    ) = sendPhoto(chatId, path.toFile(), caption, replyToMessageId)
-
 
     suspend fun sendPhotosAlbum(
         chatId: Long,
@@ -113,22 +95,6 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         }
     }
 
-    // Compiler doesn't allow to have both List<File> and List<Path> overloads
-    // due to type erasure
-    suspend fun sendPhotosAlbumFromPaths(
-        chatId: Long,
-        paths: List<Path>,
-        caption: String? = null,
-        replyToMessageId: Long? = null
-    ) = sendPhotosAlbum(chatId, paths.map { it.toFile() }, caption, replyToMessageId)
-
-    suspend fun sendPhotosAlbumChunkedFromPaths(
-        chatId: Long,
-        paths: List<Path>,
-        caption: String? = null,
-        replyToMessageId: Long? = null
-    ) = sendPhotosAlbumChunked(chatId, paths.map { it.toFile() }, caption, replyToMessageId)
-
     suspend fun sendAudio(
         chatId: Long,
         file: File,
@@ -147,15 +113,6 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendAudio(
-        chatId: Long,
-        path: Path,
-        durationSeconds: Int? = null,
-        performer: String? = null,
-        title: String? = null,
-        replyToMessageId: Long? = null
-    ) = sendAudio(chatId, path.toFile(), durationSeconds, performer, title, replyToMessageId)
-
     suspend fun sendDocument(
         chatId: Long,
         file: File,
@@ -170,12 +127,6 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendDocument(
-        chatId: Long,
-        path: Path,
-        caption: String? = null,
-        replyToMessageId: Long? = null
-    ) = sendDocument(chatId, path.toFile(), caption, replyToMessageId)
 }
 
 val CommandContext.chatId: Long
