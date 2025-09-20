@@ -2,7 +2,9 @@ package com.download.downloaderbot.core.storage
 
 import com.download.downloaderbot.core.cache.media.MediaCache
 import com.download.downloaderbot.core.config.properties.MediaProperties
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.IOException
@@ -22,7 +24,7 @@ class MediaCleanupService(
     private val mediaCache: MediaCache
 ) {
 
-    fun cleanup(): MediaCleanupReport {
+    suspend fun cleanup(): MediaCleanupReport {
         val cleanupProps = mediaProperties.cleanup
         val basePath = mediaProperties.basePath
 
@@ -75,16 +77,15 @@ class MediaCleanupService(
         return MediaCleanupReport(deletedFiles, freedBytes)
     }
 
-    private fun evictCacheFor(path: Path) = runBlocking {
+    private suspend fun evictCacheFor(path: Path) {
         mediaCache.evictByPath(path)
         log.debug { "Evicted cache entries by path=$path" }
     }
 
-    private fun loadFiles(basePath: Path): List<MediaFile> {
-        if (!basePath.exists()) return emptyList()
-        return runCatching {
-            Files.walk(basePath)
-                .use { stream ->
+    private suspend fun loadFiles(basePath: Path): List<MediaFile> = withContext(Dispatchers.IO) {
+            if (!basePath.exists()) return@withContext emptyList()
+            runCatching {
+                Files.walk(basePath).use { stream ->
                     stream.asSequence()
                         .filter { it.isRegularFile() }
                         .mapNotNull { path ->
@@ -94,32 +95,30 @@ class MediaCleanupService(
                             val lastModified = runCatching { Files.getLastModifiedTime(path).toInstant() }
                                 .onFailure { log.warn(it) { "Unable to read lastModified of $path" } }
                                 .getOrNull()
-                            if (size == null || lastModified == null) {
-                                null
-                            } else {
-                                MediaFile(path, size, lastModified)
-                            }
+                            if (size == null || lastModified == null) null
+                            else MediaFile(path, size, lastModified)
                         }
                         .toList()
                 }
-        }.getOrElse { ex ->
-            log.warn(ex) { "Failed to enumerate media files in $basePath" }
-            emptyList()
-        }
-    }
-
-    private fun deleteFile(file: MediaFile): Boolean {
-        return try {
-            Files.deleteIfExists(file.path).also { deleted ->
-                if (deleted) {
-                    log.info { "Deleted media file ${file.path} (freed ${file.size} bytes)" }
-                }
+            }.getOrElse { ex ->
+                log.warn(ex) { "Failed to enumerate media files in $basePath" }
+                emptyList()
             }
-        } catch (ex: IOException) {
-            log.warn(ex) { "Failed to delete media file ${file.path}" }
-            false
         }
-    }
+
+
+    private suspend fun deleteFile(file: MediaFile): Boolean = withContext(Dispatchers.IO) {
+            try {
+                Files.deleteIfExists(file.path).also { deleted ->
+                    if (deleted) {
+                        log.info { "Deleted media file ${file.path} (freed ${file.size} bytes)" }
+                    }
+                }
+            } catch (ex: IOException) {
+                log.warn(ex) { "Failed to delete media file ${file.path}" }
+                false
+            }
+        }
 
     private data class MediaFile(
         val path: Path,

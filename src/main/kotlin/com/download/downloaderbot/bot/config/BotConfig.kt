@@ -22,7 +22,7 @@ private val log = KotlinLogging.logger {}
 @Configuration
 class BotConfig(
     val botProperties: BotProperties,
-    val scope: CoroutineScope,
+    val botScope: CoroutineScope,
     val commands: CommandRegistry,
     val rateLimitGuard: RateLimitGuard
 ) {
@@ -35,13 +35,13 @@ class BotConfig(
             commands.byName.forEach { (name, handler) ->
                 command(name) {
                     log.info { "Executing command /$name with args: $args" }
-                    scope.launchHandler(update, args, handler)
+                    botScope.launchHandler(update, args, handler)
                 }
             }
 
             text {
                 log.info { "Executing default command with text: '${text}'" }
-                scope.launchHandler(update, listOf(text), commands.default)
+                botScope.launchHandler(update, listOf(text), commands.default)
             }
         }
     }

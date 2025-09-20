@@ -54,4 +54,7 @@ class ConcurrencyConfig(
         return CoroutineScope(SupervisorJob() + Dispatchers.Default + handler)
     }
 
+    @Bean
+    fun maintenanceScope() = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
 }
