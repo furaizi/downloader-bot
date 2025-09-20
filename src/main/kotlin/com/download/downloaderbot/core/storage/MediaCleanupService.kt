@@ -1,6 +1,8 @@
 package com.download.downloaderbot.core.storage
 
+import com.download.downloaderbot.core.cache.media.MediaCache
 import com.download.downloaderbot.core.config.properties.MediaProperties
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.IOException
@@ -16,7 +18,8 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class MediaCleanupService(
-    private val mediaProperties: MediaProperties
+    private val mediaProperties: MediaProperties,
+    private val mediaCache: MediaCache
 ) {
 
     fun cleanup(): MediaCleanupReport {
@@ -43,6 +46,7 @@ class MediaCleanupService(
                 if (deleteFile(file)) {
                     deletedFiles += 1
                     freedBytes += file.size
+                    evictCacheFor(file.path)
                 }
             }
         }
@@ -62,12 +66,18 @@ class MediaCleanupService(
                         deletedFiles += 1
                         freedBytes += file.size
                         totalSize -= file.size
+                        evictCacheFor(file.path)
                     }
                 }
             }
         }
 
         return MediaCleanupReport(deletedFiles, freedBytes)
+    }
+
+    private fun evictCacheFor(path: Path) = runBlocking {
+        mediaCache.evictByPath(path)
+        log.debug { "Evicted cache entries by path=$path" }
     }
 
     private fun loadFiles(basePath: Path): List<MediaFile> {
