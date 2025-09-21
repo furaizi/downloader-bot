@@ -10,6 +10,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.core.service.MediaDownloadService
+import com.download.downloaderbot.core.service.net.UrlResolver
 import com.download.downloaderbot.core.service.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,7 +26,8 @@ class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
     private val gateway: TelegramGateway,
     private val allowlist: UrlAllowlist,
-    private val rateLimitGuard: RateLimitGuard
+    private val rateLimitGuard: RateLimitGuard,
+    private val urlResolver: UrlResolver
 ) : BotCommand {
 
     private companion object {
@@ -42,7 +44,7 @@ class DownloadCommand(
             ctx.isPrivateChat ->
                 !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
             ctx.isGroupChat ->
-                !rawUrl.isNullOrBlank() && allowlist.isAllowed(rawUrl)
+                !rawUrl.isNullOrBlank() && allowlist.isAllowed(urlResolver.finalUrl(rawUrl))
             else -> false
         }
 
