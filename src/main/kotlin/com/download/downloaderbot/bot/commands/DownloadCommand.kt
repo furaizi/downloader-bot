@@ -40,11 +40,10 @@ class DownloadCommand(
         val replyTo = ctx.replyToMessageId
         val rawUrl = ctx.args.firstOrNull()?.trim()
 
+        val isUrl = !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
         val isValid = when {
-            ctx.isPrivateChat ->
-                !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
-            ctx.isGroupChat ->
-                !rawUrl.isNullOrBlank() && allowlist.isAllowed(urlResolver.finalUrl(rawUrl))
+            ctx.isPrivateChat -> isUrl
+            ctx.isGroupChat -> isUrl && allowlist.isAllowed(urlResolver.finalUrl(rawUrl!!))
             else -> false
         }
 
