@@ -10,6 +10,7 @@ import com.download.downloaderbot.core.downloader.MediaDownloaderException
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.core.downloader.TooManyRequestsException
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.ToolTimeoutException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
@@ -40,6 +41,7 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
         is MediaDownloaderToolException ->  "Сталася внутрішня помилка інструменту."
         is DownloadInProgressException ->   "Цей медіафайл уже завантажується, будь ласка, зачекайте."
         is BusyException ->                 "Завантажувач зараз зайнятий, спробуйте пізніше."
+        is TooManyRequestsException ->      "Занадто багато запитів, спробуйте пізніше."
         is MediaDownloaderException ->      "Сталася помилка під час обробки медіафайлу."
         else ->                             "Сталася непередбачена помилка."
     }
@@ -53,7 +55,8 @@ class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
             is MediaTooLargeException,
             is MediaNotFoundException,
             is DownloadInProgressException,
-            is BusyException -> {
+            is BusyException,
+            is TooManyRequestsException -> {
                 log.info { base }
                 log.debug(e) { base }
             }

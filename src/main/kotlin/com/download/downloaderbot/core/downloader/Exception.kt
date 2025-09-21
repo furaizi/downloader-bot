@@ -45,6 +45,12 @@ class DownloadInProgressException(url: String) :
 class BusyException(url: String) :
     MediaDownloaderException(url, "Downloader is busy now, try again later for url=$url")
 
+class TooManyRequestsException(
+    val chatType: String,
+    val chatId: Long
+) :
+    MediaDownloaderException("", "Too many requests, try again later for $chatType chat: $chatId")
+
 class ToolTimeoutException(
     val tool: String,
     val timeout: Duration,
