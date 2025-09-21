@@ -73,7 +73,6 @@ class RedisRateLimitConfiguration {
     @Bean
     @ConditionalOnMissingBean(RateLimitGuard::class)
     fun rateLimitGuard(
-        limiter: RateLimiter,
-        gateway: TelegramGateway
-    ): RateLimitGuard = DefaultRateLimitGuard(limiter, gateway)
+        limiter: RateLimiter
+    ): RateLimitGuard = DefaultRateLimitGuard(limiter)
 }
