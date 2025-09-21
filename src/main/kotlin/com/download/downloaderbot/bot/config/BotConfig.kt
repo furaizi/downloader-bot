@@ -23,8 +23,7 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val botScope: CoroutineScope,
-    val commands: CommandRegistry,
-    val rateLimitGuard: RateLimitGuard
+    val commands: CommandRegistry
 ) {
 
     @Bean
@@ -54,9 +53,7 @@ class BotConfig(
         val ctx = CommandContext(update, args)
         update.consume()
         launch(ConcurrencyConfig.BotContext(ctx)) {
-            rateLimitGuard.runOrReject(ctx) {
-                handler.handle(ctx)
-            }
+            handler.handle(ctx)
         }
     }
 

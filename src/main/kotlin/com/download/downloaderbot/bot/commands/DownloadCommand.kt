@@ -5,6 +5,7 @@ import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.bot.gateway.isGroupChat
 import com.download.downloaderbot.bot.gateway.isPrivateChat
 import com.download.downloaderbot.bot.gateway.replyToMessageId
+import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
@@ -23,7 +24,8 @@ private val log = KotlinLogging.logger {}
 class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
     private val gateway: TelegramGateway,
-    private val allowlist: UrlAllowlist
+    private val allowlist: UrlAllowlist,
+    private val rateLimitGuard: RateLimitGuard
 ) : BotCommand {
 
     private companion object {
@@ -46,13 +48,17 @@ class DownloadCommand(
 
         if (!isValid) {
             if (ctx.isPrivateChat)
-                gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
+                rateLimitGuard.runOrReject(ctx) {
+                    gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
+                }
             return
         }
 
         val url = rawUrl!!
         val mediaList = withContext(Dispatchers.IO) {
-            mediaDownloadService.download(url)
+            rateLimitGuard.runOrReject(ctx) {
+                mediaDownloadService.download(url)
+            }
         }
         if (mediaList.isEmpty())
             throw MediaNotFoundException(url)
