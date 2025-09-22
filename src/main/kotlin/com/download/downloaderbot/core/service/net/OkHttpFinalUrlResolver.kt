@@ -5,8 +5,8 @@ import okhttp3.Request
 import org.springframework.stereotype.Component
 
 @Component
-class UrlResolver(private val client: OkHttpClient) {
-    fun finalUrl(url: String): String {
+class OkHttpFinalUrlResolver(private val client: OkHttpClient) : FinalUrlResolver {
+    override suspend fun resolve(url: String): String {
         val req = Request.Builder()
             .url(url)
             .get()
