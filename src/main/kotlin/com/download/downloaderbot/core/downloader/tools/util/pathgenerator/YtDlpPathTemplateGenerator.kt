@@ -1,10 +1,8 @@
-package com.download.downloaderbot.core.downloader.tools.ytdlp.util
+package com.download.downloaderbot.core.downloader.tools.util.pathgenerator
 
 import com.download.downloaderbot.core.config.properties.MediaProperties
 import com.download.downloaderbot.core.downloader.tools.ForYtDlp
 import com.download.downloaderbot.core.downloader.tools.util.baseprefix.BasePrefixGenerator
-import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.DownloadPath
-import com.download.downloaderbot.core.downloader.tools.util.pathgenerator.PathTemplateGenerator
 import org.springframework.stereotype.Component
 
 @Component
