@@ -1,19 +1,19 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import org.springframework.stereotype.Component
 
 @Component
 class HelpCommand(
-    private val gateway: TelegramGateway,
+    private val botPort: BotPort,
     private val rateLimitGuard: RateLimitGuard
 ) : BotCommand {
     override val name = "help"
     override suspend fun handle(ctx: CommandContext) {
         rateLimitGuard.runOrReject(ctx) {
-            gateway.replyText(
+            botPort.sendText(
                 ctx.chatId,
                 """
             /start – привітання

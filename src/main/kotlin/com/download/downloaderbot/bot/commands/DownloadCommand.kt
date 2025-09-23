@@ -1,6 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.bot.gateway.isGroupChat
 import com.download.downloaderbot.bot.gateway.isPrivateChat
@@ -24,7 +24,7 @@ private val log = KotlinLogging.logger {}
 @Component
 class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
-    private val gateway: TelegramGateway,
+    private val botPort: BotPort,
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
     private val urlResolver: FinalUrlResolver
@@ -50,7 +50,7 @@ class DownloadCommand(
         if (!isValid) {
             if (ctx.isPrivateChat)
                 rateLimitGuard.runOrReject(ctx) {
-                    gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
+                    botPort.sendText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
                 }
             return
         }
@@ -96,7 +96,7 @@ class DownloadCommand(
         replyTo: Long?
     ) {
         val files = mediaList.map { File(it.fileUrl) }
-        gateway.sendPhotosAlbum(ctx.chatId, files, replyToMessageId = replyTo)
+        botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
     private suspend fun sendImagesAsAlbumChunked(
@@ -105,7 +105,7 @@ class DownloadCommand(
         replyTo: Long?
     ) {
         val files = mediaList.map { File(it.fileUrl) }
-        gateway.sendPhotosAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
+        botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
     private suspend fun sendIndividually(
@@ -116,9 +116,9 @@ class DownloadCommand(
         mediaList.forEach { media ->
             val file = File(media.fileUrl)
             when (media.type) {
-                MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.VIDEO -> botPort.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.AUDIO -> botPort.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.IMAGE -> botPort.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
             }
         }
     }

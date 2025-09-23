@@ -1,9 +1,7 @@
 package com.download.downloaderbot.bot.ratelimit.guard
 
 import com.download.downloaderbot.bot.commands.CommandContext
-import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.gateway.chatId
-import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import com.download.downloaderbot.core.downloader.TooManyRequestsException
 import mu.KotlinLogging

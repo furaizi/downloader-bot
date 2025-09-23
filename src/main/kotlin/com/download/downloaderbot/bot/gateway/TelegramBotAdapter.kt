@@ -3,7 +3,6 @@ package com.download.downloaderbot.bot.gateway
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
-import com.github.kotlintelegrambot.entities.InlineQuery
 import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
@@ -12,11 +11,17 @@ import org.springframework.stereotype.Component
 import java.io.File
 
 @Component
-class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
+class TelegramBotAdapter(
+    private val botProvider: ObjectProvider<Bot>
+) : BotPort {
 
     private val bot: Bot by lazy { botProvider.getObject() }
 
-    suspend fun replyText(chatId: Long, text: String, replyToMessageId: Long? = null) {
+    override suspend fun sendText(
+        chatId: Long,
+        text: String,
+        replyToMessageId: Long?
+    ) {
         bot.sendMessage(
             chatId = ChatId.fromId(chatId),
             text = text,
@@ -24,14 +29,14 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendVideo(
+    override suspend fun sendVideo(
         chatId: Long,
         file: File,
-        caption: String? = null,
-        durationSeconds: Int? = null,
-        width: Int? = null,
-        height: Int? = null,
-        replyToMessageId: Long? = null
+        caption: String?,
+        durationSeconds: Int?,
+        width: Int?,
+        height: Int?,
+        replyToMessageId: Long?
     ) {
         bot.sendVideo(
             chatId = ChatId.fromId(chatId),
@@ -44,11 +49,11 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendPhoto(
+    override suspend fun sendPhoto(
         chatId: Long,
         file: File,
-        caption: String? = null,
-        replyToMessageId: Long? = null
+        caption: String?,
+        replyToMessageId: Long?
     ) {
         bot.sendPhoto(
             chatId = ChatId.fromId(chatId),
@@ -58,11 +63,11 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendPhotosAlbum(
+    override suspend fun sendPhotoAlbum(
         chatId: Long,
         files: List<File>,
-        caption: String? = null,
-        replyToMessageId: Long? = null
+        caption: String?,
+        replyToMessageId: Long?
     ) {
         val media = files.mapIndexed { index, file ->
             InputMediaPhoto(
@@ -78,30 +83,13 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendPhotosAlbumChunked(
-        chatId: Long,
-        files: List<File>,
-        caption: String? = null,
-        replyToMessageId: Long? = null
-    ) {
-        files.chunked(10).forEachIndexed { idx, chunk ->
-            val shouldCaption = idx == 0
-            sendPhotosAlbum(
-                chatId = chatId,
-                files = chunk,
-                caption = caption.takeIf { shouldCaption },
-                replyToMessageId = replyToMessageId
-            )
-        }
-    }
-
-    suspend fun sendAudio(
+    override suspend fun sendAudio(
         chatId: Long,
         file: File,
-        durationSeconds: Int? = null,
-        performer: String? = null,
-        title: String? = null,
-        replyToMessageId: Long? = null
+        durationSeconds: Int?,
+        performer: String?,
+        title: String?,
+        replyToMessageId: Long?
     ) {
         bot.sendAudio(
             chatId = ChatId.fromId(chatId),
@@ -113,11 +101,11 @@ class TelegramGateway(private val botProvider: ObjectProvider<Bot>) {
         )
     }
 
-    suspend fun sendDocument(
+    override suspend fun sendDocument(
         chatId: Long,
         file: File,
-        caption: String? = null,
-        replyToMessageId: Long? = null
+        caption: String?,
+        replyToMessageId: Long?
     ) {
         bot.sendDocument(
             chatId = ChatId.fromId(chatId),
