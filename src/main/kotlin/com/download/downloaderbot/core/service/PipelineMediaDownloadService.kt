@@ -1,7 +1,6 @@
-package com.download.downloaderbot.core.service.interceptor
+package com.download.downloaderbot.core.service
 
 import com.download.downloaderbot.core.domain.Media
-import com.download.downloaderbot.core.service.MediaDownloadService
 
 typealias Handler = suspend (String) -> List<Media>
 
