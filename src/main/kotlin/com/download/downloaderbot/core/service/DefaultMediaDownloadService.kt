@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 
 private val log = KotlinLogging.logger {}
 
-@Service
 class DefaultMediaDownloadService(
     private val downloaders: List<MediaDownloader>
 ) : MediaDownloadService {

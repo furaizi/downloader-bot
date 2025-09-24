@@ -1,7 +1,6 @@
 package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
-import com.download.downloaderbot.bot.gateway.TelegramGateway
 import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
 import com.download.downloaderbot.bot.ratelimit.guard.DefaultRateLimitGuard
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard

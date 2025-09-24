@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.CommandContext
-import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.bot.gateway.replyToMessageId
 import com.download.downloaderbot.core.downloader.BusyException
@@ -22,13 +22,13 @@ import org.springframework.stereotype.Component
 private val log = KotlinLogging.logger {}
 
 @Component
-class GlobalTelegramExceptionHandler(val gateway: TelegramGateway) {
+class GlobalTelegramExceptionHandler(val botPort: BotPort) {
 
     suspend fun handle(e: Exception, ctx: CommandContext) {
         if (e is CancellationException)
             throw e // very important for coroutines
         logAtProperLevel(e, ctx.chatId)
-        gateway.replyText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
+        botPort.sendText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
     }
 
 

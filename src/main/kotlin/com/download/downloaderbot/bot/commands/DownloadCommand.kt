@@ -1,6 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.bot.gateway.TelegramGateway
+import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.chatId
 import com.download.downloaderbot.bot.gateway.isGroupChat
 import com.download.downloaderbot.bot.gateway.isPrivateChat
@@ -10,7 +10,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.core.service.MediaDownloadService
-import com.download.downloaderbot.core.service.net.UrlResolver
+import com.download.downloaderbot.core.service.net.FinalUrlResolver
 import com.download.downloaderbot.core.service.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,10 +24,10 @@ private val log = KotlinLogging.logger {}
 @Component
 class DownloadCommand(
     private val mediaDownloadService: MediaDownloadService,
-    private val gateway: TelegramGateway,
+    private val botPort: BotPort,
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
-    private val urlResolver: UrlResolver
+    private val urlResolver: FinalUrlResolver
 ) : BotCommand {
 
     private companion object {
@@ -43,14 +43,14 @@ class DownloadCommand(
         val isUrl = !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
         val isValid = when {
             ctx.isPrivateChat -> isUrl
-            ctx.isGroupChat -> isUrl && allowlist.isAllowed(urlResolver.finalUrl(rawUrl!!))
+            ctx.isGroupChat -> isUrl && allowlist.isAllowed(urlResolver.resolve(rawUrl!!))
             else -> false
         }
 
         if (!isValid) {
             if (ctx.isPrivateChat)
                 rateLimitGuard.runOrReject(ctx) {
-                    gateway.replyText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
+                    botPort.sendText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
                 }
             return
         }
@@ -96,7 +96,7 @@ class DownloadCommand(
         replyTo: Long?
     ) {
         val files = mediaList.map { File(it.fileUrl) }
-        gateway.sendPhotosAlbum(ctx.chatId, files, replyToMessageId = replyTo)
+        botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
     private suspend fun sendImagesAsAlbumChunked(
@@ -105,7 +105,7 @@ class DownloadCommand(
         replyTo: Long?
     ) {
         val files = mediaList.map { File(it.fileUrl) }
-        gateway.sendPhotosAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
+        botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
     private suspend fun sendIndividually(
@@ -116,9 +116,9 @@ class DownloadCommand(
         mediaList.forEach { media ->
             val file = File(media.fileUrl)
             when (media.type) {
-                MediaType.VIDEO -> gateway.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.AUDIO -> gateway.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.IMAGE -> gateway.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.VIDEO -> botPort.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.AUDIO -> botPort.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
+                MediaType.IMAGE -> botPort.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
             }
         }
     }
