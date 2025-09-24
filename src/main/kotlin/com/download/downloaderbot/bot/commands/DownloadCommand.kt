@@ -9,9 +9,9 @@ import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
-import com.download.downloaderbot.core.service.MediaDownloadService
-import com.download.downloaderbot.core.service.net.FinalUrlResolver
-import com.download.downloaderbot.core.service.security.UrlAllowlist
+import com.download.downloaderbot.app.download.MediaDownloadService
+import com.download.downloaderbot.core.net.FinalUrlResolver
+import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
