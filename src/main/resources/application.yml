@@ -55,6 +55,9 @@ downloader:
     enabled: false
     bin: gallery-dl
     timeout: 1m
+  instaloader:
+    bin: instaloader
+    timeout: 2m
   cache:
     media-ttl: 7d
     lock-ttl: 60s
