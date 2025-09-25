@@ -1,5 +1,6 @@
 package com.download.downloaderbot.infra.process.tools.util.filefinder
 
+import com.download.downloaderbot.infra.process.tools.ForInstaloader
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +17,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 @ForYtDlp // temporary, can be reused later
+@ForInstaloader
 class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
 
     override suspend fun find(prefix: String, dir: Path): List<Path> {

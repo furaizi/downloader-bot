@@ -2,7 +2,6 @@ package com.download.downloaderbot.infra.process.tools.instaloader
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
 import com.download.downloaderbot.infra.process.tools.AbstractCliTool
-import com.download.downloaderbot.infra.process.tools.ytdlp.YtDlpMedia
 import com.fasterxml.jackson.databind.ObjectMapper
 import okio.Path.Companion.toPath
 import org.springframework.stereotype.Service
@@ -44,8 +43,12 @@ class Instaloader(
             throw IllegalArgumentException("Invalid Instagram URL: $url")
     }
 
-    private suspend fun readJson(outputPath: String): String =
-        File("$outputPath.json").readText()
+    private suspend fun readJson(outputPath: String): String {
+        val file = File("$outputPath.json")
+        val json = file.readText()
+        file.delete()
+        return json
+    }
 
     private fun mapJsonToInnerMedia(json: String, url: String): InstaloaderMedia = try {
         mapper.readValue(json, InstaloaderMedia::class.java)

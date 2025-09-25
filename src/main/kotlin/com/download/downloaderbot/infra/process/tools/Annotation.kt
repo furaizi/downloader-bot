@@ -9,3 +9,7 @@ annotation class ForYtDlp
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ForGalleryDl
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ForInstaloader
