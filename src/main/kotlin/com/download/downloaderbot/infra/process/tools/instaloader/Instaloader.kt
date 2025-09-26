@@ -16,7 +16,10 @@ class Instaloader(
 
     suspend fun download(url: String, outputPath: String) {
         val path = outputPath.toPath()
-        val args = listOf("--no-pictures", "--no-captions", "--no-compress-json", "--no-metadata-json",
+        val sessionArgs = config.sessionFile?.let { listOf("--sessionfile", it) } ?: emptyList()
+        val userAgentArgs = config.userAgent?.let { listOf("--user-agent", it) } ?: emptyList()
+        val args = sessionArgs + userAgentArgs +
+            listOf("--no-pictures", "--no-captions", "--no-compress-json", "--no-metadata-json",
             "--dirname-pattern", path.parent.toString(),
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}") +
@@ -26,7 +29,10 @@ class Instaloader(
 
     suspend fun probe(url: String, outputPath: String): InstaloaderMedia {
         val path = outputPath.toPath()
-        val args = listOf("--no-pictures", "--no-videos", "--no-video-thumbnails",
+        val sessionArgs = config.sessionFile?.let { listOf("--sessionfile", it) } ?: emptyList()
+        val userAgentArgs = config.userAgent?.let { listOf("--user-agent", it) } ?: emptyList()
+        val args = sessionArgs + userAgentArgs +
+            listOf("--no-pictures", "--no-videos", "--no-video-thumbnails",
             "--no-captions", "--no-compress-json",
             "--dirname-pattern", path.parent.toString(),
             "--filename-pattern", path.name,
