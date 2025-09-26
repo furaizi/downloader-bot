@@ -64,7 +64,7 @@ abstract class AbstractCliTool(
         buildList {
             add(bin)
             addAll(args)
-            add(url)
+            if (url.isNotBlank()) add(url)
         }
 
     private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {

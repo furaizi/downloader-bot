@@ -16,7 +16,7 @@ class Instaloader(
 
     suspend fun download(url: String, outputPath: String) {
         val path = outputPath.toPath()
-        val args = listOf("--no-pictures", "--no-captions", "--no-compress-json",
+        val args = listOf("--no-pictures", "--no-captions", "--no-compress-json", "--no-metadata-json",
             "--dirname-pattern", path.parent.toString(),
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}") +
@@ -38,7 +38,7 @@ class Instaloader(
     }
 
     private fun extractShortcode(url: String): String {
-        val regex = Regex("""/(?:reel|p|tv)/([A-Za-z0-9_-]{5,})""")
+        val regex = Regex("""/(?:reels?|p|tv)/([A-Za-z0-9_-]{5,})(?:[/?#]|$)""")
         return regex.find(url)?.groupValues?.get(1) ?:
             throw IllegalArgumentException("Invalid Instagram URL: $url")
     }
