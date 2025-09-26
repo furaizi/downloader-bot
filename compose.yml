@@ -34,6 +34,11 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DATA_REDIS_HOST: redis
+      INSTALOADER_SESSION_FILE: /run/secrets/instaloader_session
+    secrets:
+      - source: instaloader_session
+        target: instaloader_session
+        mode: 0444
     mem_limit: 1500m
     cpus: "1.5"
     pids_limit: 256
@@ -105,3 +110,7 @@ volumes:
   downloads:
   redis-data:
   grafana-data:
+
+secrets:
+  instaloader_session:
+    file: ./secrets/session-instaloader

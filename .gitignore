@@ -8,6 +8,7 @@ downloads/
 
 ### Sensitive data
 .env
+secrets/
 
 ### STS ###
 .apt_generated

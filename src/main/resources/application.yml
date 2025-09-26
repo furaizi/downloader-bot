@@ -59,6 +59,8 @@ downloader:
   instaloader:
     bin: instaloader
     timeout: 2m
+    session-file: ${INSTALOADER_SESSION_FILE:}
+    user-agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile'
   cache:
     media-ttl: 7d
     lock-ttl: 60s
