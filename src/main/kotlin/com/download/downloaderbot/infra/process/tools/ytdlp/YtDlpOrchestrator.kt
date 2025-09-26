@@ -35,7 +35,7 @@ class YtDlpOrchestrator(
         return resolveDownloadedMedia(basePrefix, url, metaData)
     }
 
-    override fun supports(url: String) = true
+    override fun supports(url: String) = url.contains("tiktok.com")
 
     private fun requireNotExceedsLimit(meta: YtDlpMedia, url: String) {
         if (meta.exceeds(videoMaxSize)) {
