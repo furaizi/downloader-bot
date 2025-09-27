@@ -1,6 +1,6 @@
-package com.download.downloaderbot.infra.process.tools.temp.parser
+package com.download.downloaderbot.infra.process.cli.common.parser
 
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonParser
+import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 

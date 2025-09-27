@@ -1,7 +1,7 @@
-package com.download.downloaderbot.infra.process.tools.temp.builder
+package com.download.downloaderbot.infra.process.cli.ytdlp
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 
 private val JSON_ONLY_ARGS = listOf(
     "--dump-json",

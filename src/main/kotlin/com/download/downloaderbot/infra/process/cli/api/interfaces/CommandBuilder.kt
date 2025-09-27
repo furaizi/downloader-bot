@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.temp.interfaces
+package com.download.downloaderbot.infra.process.cli.api.interfaces
 
 interface CommandBuilder {
     fun downloadCommand(url: String, output: String): List<String>

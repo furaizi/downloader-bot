@@ -1,8 +1,8 @@
-package com.download.downloaderbot.infra.process.tools.temp.builder
+package com.download.downloaderbot.infra.process.cli.instaloader
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
-import com.download.downloaderbot.infra.process.tools.temp.builder.InstagramUtils.instagramShortcode
+import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.cli.util.InstagramUtils.instagramShortcode
 import okio.Path.Companion.toPath
 
 private val VIDEO_ONLY_ARGS = listOf(

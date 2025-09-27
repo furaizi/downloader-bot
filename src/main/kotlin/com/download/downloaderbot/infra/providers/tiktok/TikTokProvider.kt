@@ -1,13 +1,15 @@
-package com.download.downloaderbot.infra.process.tools.ytdlp
+package com.download.downloaderbot.infra.providers.tiktok
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.infra.process.tools.ytdlp.YtDlp
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.util.unit.DataSize
@@ -16,7 +18,7 @@ import java.nio.file.Path
 private val log = KotlinLogging.logger {}
 
 @Component
-class YtDlpOrchestrator(
+class TikTokProvider(
     val props: MediaProperties,
     val ytDlp: YtDlp,
     @ForYtDlp val pathGenerator: PathTemplateGenerator,

@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.ytdlp
+package com.download.downloaderbot.infra.process.cli.ytdlp
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

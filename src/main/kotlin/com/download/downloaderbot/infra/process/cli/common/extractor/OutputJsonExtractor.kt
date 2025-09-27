@@ -1,7 +1,7 @@
-package com.download.downloaderbot.infra.process.tools.temp.extractor
+package com.download.downloaderbot.infra.process.cli.common.extractor
 
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonExtractor
+import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
 
 class OutputJsonExtractor(
     private val toolName: String

@@ -1,10 +1,12 @@
-package com.download.downloaderbot.infra.process.tools.gallerydl
+package com.download.downloaderbot.infra.providers.gallery
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
+import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
 import com.download.downloaderbot.infra.process.tools.ForGalleryDl
+import com.download.downloaderbot.infra.process.tools.gallerydl.GalleryDl
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
 import mu.KotlinLogging
@@ -21,7 +23,7 @@ private val log = KotlinLogging.logger {}
     matchIfMissing = false
 )
 @Component
-class GalleryDlOrchestrator(
+class GalleryProvider(
     val props: MediaProperties,
     val galleryDl: GalleryDl,
     @ForGalleryDl val pathGenerator: PathTemplateGenerator,

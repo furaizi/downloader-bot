@@ -1,11 +1,12 @@
-package com.download.downloaderbot.infra.process.tools.temp
+package com.download.downloaderbot.infra.process.cli.base
 
-import com.download.downloaderbot.infra.process.tools.ProcessRunner
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonExtractor
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonParser
+import com.download.downloaderbot.infra.process.cli.api.CliTool
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
+import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
+import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonParser
 
-abstract class AbstractCliTool<META>(
+class BaseCliTool<META>(
     val exec: ProcessRunner,
     val cmdBuilder: CommandBuilder,
     val jsonExtractor: JsonExtractor,

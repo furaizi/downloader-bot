@@ -1,7 +1,8 @@
 package com.download.downloaderbot.infra.process.tools.instaloader
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
-import com.download.downloaderbot.infra.process.tools.ProcessRunner
+import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.fasterxml.jackson.databind.ObjectMapper
 import okio.Path.Companion.toPath
 import org.springframework.stereotype.Service

@@ -1,7 +1,7 @@
-package com.download.downloaderbot.infra.process.tools.temp.builder
+package com.download.downloaderbot.infra.process.cli.gallerydl
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 
 class GalleryDlCommandBuilder(
     val props: GalleryDlProperties

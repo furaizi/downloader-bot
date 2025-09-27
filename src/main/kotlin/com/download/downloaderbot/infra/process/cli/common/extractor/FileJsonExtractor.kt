@@ -1,7 +1,7 @@
-package com.download.downloaderbot.infra.process.tools.temp.extractor
+package com.download.downloaderbot.infra.process.cli.common.extractor
 
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
-import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonExtractor
+import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

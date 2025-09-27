@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.temp
+package com.download.downloaderbot.infra.process.cli.api
 
 interface CliTool<META> {
     suspend fun download(url: String, output: String)

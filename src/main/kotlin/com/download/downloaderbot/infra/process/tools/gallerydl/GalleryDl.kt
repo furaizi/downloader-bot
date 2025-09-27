@@ -1,7 +1,8 @@
 package com.download.downloaderbot.infra.process.tools.gallerydl
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
-import com.download.downloaderbot.infra.process.tools.ProcessRunner
+import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 

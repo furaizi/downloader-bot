@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.temp.builder
+package com.download.downloaderbot.infra.process.cli.util
 
 object InstagramUtils {
     private val SHORTCODE_REGEX = Regex("""/(?:reels?|p|tv)/([A-Za-z0-9_-]{5,})(?:[/?#]|$)""")

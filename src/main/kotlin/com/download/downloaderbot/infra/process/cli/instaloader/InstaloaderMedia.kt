@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.instaloader
+package com.download.downloaderbot.infra.process.cli.instaloader
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
