@@ -21,13 +21,13 @@ import java.time.Duration
 
 private val log = KotlinLogging.logger {}
 
-abstract class AbstractCliTool(
+abstract class ProcessExecutor(
     private val bin: String,
     private val timeout: Duration
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    protected suspend fun execute(args: List<String>, url: String): String = coroutineScope {
+    protected suspend fun run(args: List<String>, url: String): String = coroutineScope {
         val cmd = buildCommand(args)
         val process = startProcess(cmd)
         val outputDeferred = collectProcessOutputAsync(process)

@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.process.tools.instaloader
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
-import com.download.downloaderbot.infra.process.tools.AbstractCliTool
+import com.download.downloaderbot.infra.process.tools.ProcessExecutor
 import com.fasterxml.jackson.databind.ObjectMapper
 import okio.Path.Companion.toPath
 import org.springframework.stereotype.Service
@@ -11,7 +11,7 @@ import java.io.File
 class Instaloader(
     val config: InstaloaderProperties,
     val mapper: ObjectMapper
-) : AbstractCliTool(config.bin, config.timeout) {
+) : ProcessExecutor(config.bin, config.timeout) {
 
 
     suspend fun download(url: String, outputPath: String) {
@@ -24,7 +24,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}") +
             config.extraArgs
-        execute(args, url)
+        run(args, url)
     }
 
     suspend fun probe(url: String, outputPath: String): InstaloaderMedia {
@@ -38,7 +38,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}")
 
-        execute(args, url)
+        run(args, url)
         val json = readJson(outputPath)
         return mapJsonToInnerMedia(json, url)
     }

@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.process.tools.gallerydl
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
-import com.download.downloaderbot.infra.process.tools.AbstractCliTool
+import com.download.downloaderbot.infra.process.tools.ProcessExecutor
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service
 @Service
 class GalleryDl(
     val config: GalleryDlProperties
-) : AbstractCliTool(config.bin, config.timeout) {
+) : ProcessExecutor(config.bin, config.timeout) {
 
     suspend fun download(url: String, outputPath: String) {
         val args = listOf("-D", outputPath,
             "-f", "{num}.{extension}",
             "--filter", "type == 'image'", url) +
             config.extraArgs
-        execute(args, url)
+        run(args, url)
     }
 
     suspend fun probe(url: String): GalleryDlMedia = GalleryDlMedia()
