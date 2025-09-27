@@ -1,7 +1,6 @@
 package com.download.downloaderbot.infra.config
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
-import com.download.downloaderbot.app.config.properties.YtDlpProperties
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
@@ -9,12 +8,10 @@ import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
 import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonParser
 import com.download.downloaderbot.infra.process.cli.base.BaseCliTool
 import com.download.downloaderbot.infra.process.cli.common.extractor.FileJsonExtractor
-import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonParser
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderCommandBuilder
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -46,5 +43,5 @@ class InstaloaderConfig(val props: InstaloaderProperties) {
 
     @Bean
     fun instaloaderJsonParser(mapper: ObjectMapper): JsonParser<InstaloaderMedia> =
-        DefaultJsonParser(mapper, object : TypeReference<InstaloaderMedia>() {})
+        jsonParser(mapper)
 }
