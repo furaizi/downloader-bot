@@ -14,10 +14,12 @@ import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
+@ConditionalOnProperty(prefix = "downloader.yt-dlp", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class YtDlpConfig(val props: YtDlpProperties) {
 
     @Bean
