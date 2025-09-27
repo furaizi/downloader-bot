@@ -4,6 +4,7 @@ import com.download.downloaderbot.app.config.properties.InstaloaderProperties
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 import com.download.downloaderbot.infra.process.cli.util.InstagramUtils.instagramShortcode
 import okio.Path.Companion.toPath
+import org.springframework.stereotype.Component
 
 private val VIDEO_ONLY_ARGS = listOf(
     "--no-pictures",

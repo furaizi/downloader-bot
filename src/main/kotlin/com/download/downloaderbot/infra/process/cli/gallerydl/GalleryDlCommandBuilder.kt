@@ -2,6 +2,7 @@ package com.download.downloaderbot.infra.process.cli.gallerydl
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
+import org.springframework.stereotype.Component
 
 class GalleryDlCommandBuilder(
     val props: GalleryDlProperties

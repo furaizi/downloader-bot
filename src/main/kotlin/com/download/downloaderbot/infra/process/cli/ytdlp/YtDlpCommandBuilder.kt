@@ -2,6 +2,7 @@ package com.download.downloaderbot.infra.process.cli.ytdlp
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
+import org.springframework.stereotype.Component
 
 private val JSON_ONLY_ARGS = listOf(
     "--dump-json",
