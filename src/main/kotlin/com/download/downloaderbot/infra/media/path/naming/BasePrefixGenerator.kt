@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.providers.util
+package com.download.downloaderbot.infra.media.path.naming
 
 import java.net.URI
 import java.time.Instant

@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.config
+package com.download.downloaderbot.infra.config.tools
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
 import com.download.downloaderbot.infra.process.cli.api.CliTool

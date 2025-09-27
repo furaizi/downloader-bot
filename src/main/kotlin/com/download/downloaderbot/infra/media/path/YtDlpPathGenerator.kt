@@ -1,9 +1,7 @@
-package com.download.downloaderbot.infra.providers.common.pathgenerator
+package com.download.downloaderbot.infra.media.path
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
-import com.download.downloaderbot.infra.providers.interfaces.DownloadPath
-import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
-import com.download.downloaderbot.infra.providers.util.BasePrefixGenerator
+import com.download.downloaderbot.infra.media.path.naming.BasePrefixGenerator
 import org.springframework.stereotype.Component
 
 @Component

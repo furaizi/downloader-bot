@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.providers.interfaces
+package com.download.downloaderbot.infra.media.files
 
 import java.nio.file.Path
 

@@ -2,7 +2,7 @@ package com.download.downloaderbot.infra.process.cli.instaloader
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
-import com.download.downloaderbot.infra.process.cli.util.InstagramUtils.instagramShortcode
+import com.download.downloaderbot.infra.process.cli.common.utils.InstagramUtils.instagramShortcode
 import okio.Path.Companion.toPath
 import org.springframework.stereotype.Component
 

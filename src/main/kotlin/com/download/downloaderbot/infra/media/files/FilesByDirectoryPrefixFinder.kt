@@ -1,8 +1,6 @@
-package com.download.downloaderbot.infra.providers.common.filefinder
+package com.download.downloaderbot.infra.media.files
 
 import com.download.downloaderbot.infra.di.ForGalleryDl
-import com.download.downloaderbot.infra.providers.interfaces.FilesByDirectoryPrefixNotFoundException
-import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.nio.file.Files

@@ -1,20 +1,21 @@
-package com.download.downloaderbot.infra.config
+package com.download.downloaderbot.infra.config.providers
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.downloader.MediaProvider
+import com.download.downloaderbot.infra.config.containsAll
+import com.download.downloaderbot.infra.di.ForGalleryDl
+import com.download.downloaderbot.infra.di.ForYtDlp
+import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
+import com.download.downloaderbot.infra.media.path.PathGenerator
+import com.download.downloaderbot.infra.media.provider.BaseMediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
-import com.download.downloaderbot.infra.di.ForGalleryDl
-import com.download.downloaderbot.infra.di.ForYtDlp
-import com.download.downloaderbot.infra.providers.base.BaseMediaProvider
-import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
-import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class ProvidersConfig(
+class TikTokProvidersConfig(
     val props: MediaProperties
 ) {
 

@@ -1,6 +1,7 @@
-package com.download.downloaderbot.infra.config
+package com.download.downloaderbot.infra.config.tools
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
+import com.download.downloaderbot.infra.config.jsonParser
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder

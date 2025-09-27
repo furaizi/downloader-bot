@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.providers.interfaces
+package com.download.downloaderbot.infra.media.path
 
 data class DownloadPath(
     val prefix: String,

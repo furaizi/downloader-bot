@@ -1,13 +1,13 @@
-package com.download.downloaderbot.infra.providers.base
+package com.download.downloaderbot.infra.media.provider
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
-import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
-import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
-import com.download.downloaderbot.infra.providers.interfaces.ProbeValidator
+import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
+import com.download.downloaderbot.infra.media.path.PathGenerator
+import com.download.downloaderbot.infra.media.validation.ProbeValidator
 
 class BaseMediaProvider(
     val props: MediaProperties,
