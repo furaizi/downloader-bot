@@ -9,17 +9,17 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class ProcessExecutorConfig {
+class ProcessRunnerConfig {
 
     @Bean
-    fun ytDlpExecutor(props: YtDlpProperties): ProcessRunner =
+    fun ytDlpRunner(props: YtDlpProperties): ProcessRunner =
         DefaultProcessRunner(props.bin, props.timeout)
 
     @Bean
-    fun instaloaderExecutor(props: InstaloaderProperties): ProcessRunner =
+    fun instaloaderRunner(props: InstaloaderProperties): ProcessRunner =
         DefaultProcessRunner(props.bin, props.timeout)
 
     @Bean
-    fun galleryDlExecutor(props: GalleryDlProperties): ProcessRunner =
+    fun galleryDlRunner(props: GalleryDlProperties): ProcessRunner =
         DefaultProcessRunner(props.bin, props.timeout)
 }
