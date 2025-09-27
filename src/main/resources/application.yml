@@ -45,6 +45,8 @@ downloader:
     allow:
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+(?:/|(?:\?.*)?)?$
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+(?:/|(?:\?.*)?)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+(?:/|(?:\?.*)?)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+(?:/|(?:\?.*)?)?$
 #      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
 #      - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
   yt-dlp:
@@ -53,10 +55,11 @@ downloader:
     format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
     timeout: 2m
   gallery-dl:
-    enabled: false
+    enabled: true
     bin: gallery-dl
     timeout: 1m
   instaloader:
+    enabled: false
     bin: instaloader
     timeout: 2m
     session-file: ${INSTALOADER_SESSION_FILE:}
