@@ -4,22 +4,34 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
+import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
 import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
+import com.download.downloaderbot.infra.providers.interfaces.ProbeValidator
 
 class BaseMediaProvider(
     val props: MediaProperties,
-    val tool: CliTool<in Any>,
+    val tool: CliTool<MediaConvertible>,
     val pathGenerator: PathGenerator,
-    val fileFinder: FilesByPrefixFinder
+    val fileFinder: FilesByPrefixFinder,
+    val validators: List<ProbeValidator<MediaConvertible>> = emptyList(),
+    val urlPredicate: (String) -> Boolean
 ) : MediaProvider {
 
-
-    override fun supports(url: String): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun supports(url: String): Boolean = urlPredicate(url)
 
     override suspend fun download(url: String): List<Media> {
-        TODO("Not yet implemented")
+        val (basePrefix, outputPath) = pathGenerator.generate(url)
+        val metaData = tool.probe(url, outputPath)
+        validators.forEach { it.validate(url, metaData) }
+        tool.download(url, outputPath)
+        return resolveDownloadedMedia(basePrefix, url, metaData)
     }
+
+    private suspend fun resolveDownloadedMedia(
+        basePrefix: String, sourceUrl: String, metaData: MediaConvertible
+    ): List<Media> =
+        fileFinder.find(basePrefix, props.basePath)
+            .onEach { path -> println("download finished: $sourceUrl -> $path") }
+            .map { path -> metaData.toMedia(path, sourceUrl) }
 }
