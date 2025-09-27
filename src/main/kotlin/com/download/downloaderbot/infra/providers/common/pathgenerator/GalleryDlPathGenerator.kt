@@ -8,7 +8,6 @@ import com.download.downloaderbot.infra.providers.util.BasePrefixGenerator
 import org.springframework.stereotype.Component
 
 @Component
-@ForGalleryDl
 class GalleryDlPathGenerator(
     val props: MediaProperties
 ) : PathGenerator {

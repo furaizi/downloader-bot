@@ -45,7 +45,7 @@ downloader:
     allow:
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+(?:/|(?:\?.*)?)?$
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+(?:/|(?:\?.*)?)?$
-      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
+#      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
 #      - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
   yt-dlp:
     enabled: true

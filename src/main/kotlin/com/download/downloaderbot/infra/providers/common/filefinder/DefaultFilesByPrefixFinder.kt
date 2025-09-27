@@ -18,7 +18,7 @@ import kotlin.use
 private val log = KotlinLogging.logger {}
 
 @Component
-@ForYtDlp // temporary, can be reused later
+@ForYtDlp
 @ForInstaloader
 class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
 

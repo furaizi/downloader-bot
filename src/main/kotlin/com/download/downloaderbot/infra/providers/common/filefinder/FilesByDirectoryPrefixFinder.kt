@@ -13,7 +13,7 @@ import kotlin.streams.asSequence
 private val log = KotlinLogging.logger {}
 
 @Component
-@ForGalleryDl // temporary, can be reused later
+@ForGalleryDl
 class FilesByDirectoryPrefixFinder : FilesByPrefixFinder {
 
     override suspend fun find(prefix: String, dir: Path): List<Path> {

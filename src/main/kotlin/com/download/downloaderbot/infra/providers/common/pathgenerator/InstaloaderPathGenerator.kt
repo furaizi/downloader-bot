@@ -8,7 +8,6 @@ import com.download.downloaderbot.infra.providers.util.BasePrefixGenerator
 import org.springframework.stereotype.Component
 
 @Component
-@ForInstaloader
 class InstaloaderPathGenerator(
     val props: MediaProperties
 ) : PathGenerator {

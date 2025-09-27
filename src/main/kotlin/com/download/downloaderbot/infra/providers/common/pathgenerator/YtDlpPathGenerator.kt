@@ -8,7 +8,6 @@ import com.download.downloaderbot.infra.providers.util.BasePrefixGenerator
 import org.springframework.stereotype.Component
 
 @Component
-@ForYtDlp
 class YtDlpPathGenerator(
     val props: MediaProperties
 ) : PathGenerator {
