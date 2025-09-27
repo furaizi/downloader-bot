@@ -2,6 +2,7 @@ package com.download.downloaderbot.infra.process.tools.ytdlp
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
+import com.download.downloaderbot.infra.process.tools.DefaultProcessExecutor
 import com.download.downloaderbot.infra.process.tools.ProcessExecutor
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
@@ -11,9 +12,10 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class YtDlp(
+    val ytDlpExecutor: ProcessExecutor,
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
-) : ProcessExecutor(config.bin, config.timeout) {
+) {
 
     suspend fun download(url: String, outputPathTemplate: String) {
         val formatArgs = if (config.format.isNotEmpty())
@@ -23,12 +25,12 @@ class YtDlp(
                 formatArgs +
                 config.extraArgs +
                 url
-        run(args, url)
+        ytDlpExecutor.run(args, url)
     }
 
     suspend fun probe(url: String): YtDlpMedia {
         val args = listOf("--dump-json", "--no-warnings", "--skip-download", url)
-        val raw = run(args, url)
+        val raw = ytDlpExecutor.run(args, url)
         val json = getJson(raw)
         return mapJsonToInnerMedia(json, url)
     }

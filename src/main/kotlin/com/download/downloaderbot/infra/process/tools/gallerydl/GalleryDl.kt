@@ -13,15 +13,16 @@ import org.springframework.stereotype.Service
 )
 @Service
 class GalleryDl(
+    val galleryDlExecutor: ProcessExecutor,
     val config: GalleryDlProperties
-) : ProcessExecutor(config.bin, config.timeout) {
+) {
 
     suspend fun download(url: String, outputPath: String) {
         val args = listOf("-D", outputPath,
             "-f", "{num}.{extension}",
             "--filter", "type == 'image'", url) +
             config.extraArgs
-        run(args, url)
+        galleryDlExecutor.run(args, url)
     }
 
     suspend fun probe(url: String): GalleryDlMedia = GalleryDlMedia()

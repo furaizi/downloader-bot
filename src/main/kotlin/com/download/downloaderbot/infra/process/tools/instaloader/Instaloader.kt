@@ -9,10 +9,10 @@ import java.io.File
 
 @Service
 class Instaloader(
+    val instaloaderExecutor: ProcessExecutor,
     val config: InstaloaderProperties,
     val mapper: ObjectMapper
-) : ProcessExecutor(config.bin, config.timeout) {
-
+) {
 
     suspend fun download(url: String, outputPath: String) {
         val path = outputPath.toPath()
@@ -24,7 +24,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}") +
             config.extraArgs
-        run(args, url)
+        instaloaderExecutor.run(args, url)
     }
 
     suspend fun probe(url: String, outputPath: String): InstaloaderMedia {
@@ -38,7 +38,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}")
 
-        run(args, url)
+        instaloaderExecutor.run(args, url)
         val json = readJson(outputPath)
         return mapJsonToInnerMedia(json, url)
     }
