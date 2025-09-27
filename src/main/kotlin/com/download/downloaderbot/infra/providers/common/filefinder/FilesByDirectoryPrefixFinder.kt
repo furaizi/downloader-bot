@@ -1,6 +1,6 @@
 package com.download.downloaderbot.infra.providers.common.filefinder
 
-import com.download.downloaderbot.infra.process.tools.ForGalleryDl
+import com.download.downloaderbot.infra.di.ForGalleryDl
 import com.download.downloaderbot.infra.providers.interfaces.FilesByDirectoryPrefixNotFoundException
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
 import mu.KotlinLogging

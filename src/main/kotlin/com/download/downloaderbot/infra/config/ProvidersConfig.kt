@@ -5,8 +5,8 @@ import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
-import com.download.downloaderbot.infra.process.tools.ForGalleryDl
-import com.download.downloaderbot.infra.process.tools.ForYtDlp
+import com.download.downloaderbot.infra.di.ForGalleryDl
+import com.download.downloaderbot.infra.di.ForYtDlp
 import com.download.downloaderbot.infra.providers.base.BaseMediaProvider
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
 import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
