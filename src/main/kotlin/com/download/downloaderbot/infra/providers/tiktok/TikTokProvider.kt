@@ -5,11 +5,13 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
 import com.download.downloaderbot.infra.process.tools.ytdlp.YtDlp
+import com.download.downloaderbot.infra.providers.util.toMedia
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.util.unit.DataSize
@@ -20,7 +22,7 @@ private val log = KotlinLogging.logger {}
 @Component
 class TikTokProvider(
     val props: MediaProperties,
-    val ytDlp: YtDlp,
+    val ytDlp: CliTool<YtDlpMedia>,
     @ForYtDlp val pathGenerator: PathTemplateGenerator,
     @ForYtDlp val fileFinder: FilesByPrefixFinder
 ) : MediaProvider {
@@ -60,10 +62,4 @@ class TikTokProvider(
         return filesize > limit.toBytes() || approximateFileSize > limit.toBytes()
     }
 
-    private fun YtDlpMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
-        type = MediaType.fromString(this.type),
-        fileUrl = filePath.toString(),
-        sourceUrl = sourceUrl,
-        title = this.title
-    )
 }

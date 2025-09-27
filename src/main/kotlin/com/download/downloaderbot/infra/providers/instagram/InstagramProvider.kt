@@ -4,18 +4,20 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
+import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.tools.ForInstaloader
 import com.download.downloaderbot.infra.process.tools.instaloader.Instaloader
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.util.toMedia
 import org.springframework.stereotype.Component
 import java.nio.file.Path
 
 @Component
 class InstagramProvider(
     val props: MediaProperties,
-    val instaloader: Instaloader,
+    val instaloader: CliTool<InstaloaderMedia>,
     @ForInstaloader val pathGenerator: PathTemplateGenerator,
     @ForInstaloader val fileFinder: FilesByPrefixFinder
 ) : MediaProvider {
@@ -37,10 +39,4 @@ class InstagramProvider(
             .map { it.toAbsolutePath() }
             .map { path -> metaData.toMedia(path, sourceUrl) }
 
-    private fun InstaloaderMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
-        type = MediaType.VIDEO,
-        fileUrl = filePath.toString(),
-        sourceUrl = sourceUrl,
-        title = this.node.title,
-    )
 }
