@@ -1,13 +1,13 @@
 package com.download.downloaderbot.infra.process.tools.temp.builder
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
-import com.download.downloaderbot.infra.process.tools.temp.CommandBuilder
+import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
 
 class GalleryDlCommandBuilder(
     val props: GalleryDlProperties
 ) : CommandBuilder {
 
-    override fun buildDownloadCommand(url: String, output: String) = buildList {
+    override fun downloadCommand(url: String, output: String) = buildList {
         add(props.bin)
         addAll(buildOutputDirectoryArgs(output))
         addAll(buildOutputFilenameArgs())
@@ -16,7 +16,7 @@ class GalleryDlCommandBuilder(
         add(url)
     }
 
-    override fun buildProbeCommand(url: String, output: String?) = emptyList<String>()
+    override fun probeCommand(url: String, output: String?) = emptyList<String>()
 
     private fun buildOutputDirectoryArgs(outputDirectory: String) = listOf("-D", outputDirectory)
     private fun buildOutputFilenameArgs() = listOf("-f", "{num}.{extension}")

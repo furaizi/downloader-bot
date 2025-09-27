@@ -27,8 +27,7 @@ class DefaultProcessExecutor(
 ) : ProcessExecutor {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun run(args: List<String>, url: String): String = coroutineScope {
-        val cmd = buildCommand(args)
+    override suspend fun run(cmd: List<String>, url: String): String = coroutineScope {
         val process = startProcess(cmd)
         val outputDeferred = collectProcessOutputAsync(process)
 
@@ -59,12 +58,6 @@ class DefaultProcessExecutor(
             }
         }
     }
-
-    private fun buildCommand(args: List<String>): List<String> =
-        buildList {
-            add(bin)
-            addAll(args)
-        }
 
     private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {
         ProcessBuilder(cmd)

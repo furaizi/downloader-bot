@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.process.tools.temp.builder
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
-import com.download.downloaderbot.infra.process.tools.temp.CommandBuilder
+import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
 
 private val JSON_ONLY_ARGS = listOf(
     "--dump-json",
@@ -13,7 +13,7 @@ class YtDlpCommandBuilder(
     val props: YtDlpProperties
 ) : CommandBuilder {
 
-    override fun buildDownloadCommand(url: String, output: String) = buildList {
+    override fun downloadCommand(url: String, output: String) = buildList {
         add(props.bin)
         addAll(buildOutputArgs(output))
         addAll(buildFormatArgs())
@@ -21,7 +21,7 @@ class YtDlpCommandBuilder(
         add(url)
     }
 
-    override fun buildProbeCommand(url: String, output: String?) = buildList {
+    override fun probeCommand(url: String, output: String?) = buildList {
         add(props.bin)
         addAll(JSON_ONLY_ARGS)
         add(url)

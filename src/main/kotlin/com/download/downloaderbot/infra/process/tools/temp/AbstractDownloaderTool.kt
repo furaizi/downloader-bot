@@ -1,4 +1,26 @@
 package com.download.downloaderbot.infra.process.tools.temp
 
-abstract class AbstractDownloaderTool<META> : DownloaderTool<META> {
+import com.download.downloaderbot.infra.process.tools.ProcessExecutor
+import com.download.downloaderbot.infra.process.tools.temp.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonExtractor
+import com.download.downloaderbot.infra.process.tools.temp.interfaces.JsonParser
+
+abstract class AbstractDownloaderTool<META>(
+    val exec: ProcessExecutor,
+    val cmdBuilder: CommandBuilder,
+    val jsonExtractor: JsonExtractor,
+    val jsonParser: JsonParser<META>
+) : DownloaderTool<META> {
+
+    override suspend fun download(url: String, output: String) {
+        val cmd = cmdBuilder.downloadCommand(url, output)
+        exec.run(cmd, url)
+    }
+
+    override suspend fun probe(url: String, output: String?): META {
+        val cmd = cmdBuilder.probeCommand(url, output)
+        val result = exec.run(cmd, url)
+        val json = jsonExtractor.extract(result)
+        return jsonParser.parse(json)
+    }
 }
