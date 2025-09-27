@@ -19,9 +19,9 @@ class GalleryDl(
     suspend fun download(url: String, outputPath: String) {
         val args = listOf("-D", outputPath,
             "-f", "{num}.{extension}",
-            "--filter", "type == 'image'") +
+            "--filter", "type == 'image'", url) +
             config.extraArgs
-        execute(url, args)
+        execute(args, url)
     }
 
     suspend fun probe(url: String): GalleryDlMedia = GalleryDlMedia()

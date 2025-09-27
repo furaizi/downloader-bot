@@ -21,13 +21,14 @@ class YtDlp(
         else emptyList()
         val args = listOf("-o", outputPathTemplate) +
                 formatArgs +
-                config.extraArgs
-        execute(url, args)
+                config.extraArgs +
+                url
+        execute(args, url)
     }
 
     suspend fun probe(url: String): YtDlpMedia {
-        val args = listOf("--dump-json", "--no-warnings", "--skip-download")
-        val raw = execute(url, args)
+        val args = listOf("--dump-json", "--no-warnings", "--skip-download", url)
+        val raw = execute(args, url)
         val json = getJson(raw)
         return mapJsonToInnerMedia(json, url)
     }

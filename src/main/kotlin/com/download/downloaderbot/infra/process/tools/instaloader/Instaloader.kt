@@ -24,7 +24,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}") +
             config.extraArgs
-        execute("", args)
+        execute(args, url)
     }
 
     suspend fun probe(url: String, outputPath: String): InstaloaderMedia {
@@ -38,7 +38,7 @@ class Instaloader(
             "--filename-pattern", path.name,
             "--", "-${extractShortcode(url)}")
 
-        execute("", args)
+        execute(args, url)
         val json = readJson(outputPath)
         return mapJsonToInnerMedia(json, url)
     }

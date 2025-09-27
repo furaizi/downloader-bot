@@ -27,8 +27,8 @@ abstract class AbstractCliTool(
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    protected suspend fun execute(url: String, args: List<String> = emptyList()): String = coroutineScope {
-        val cmd = buildCommand(url, args)
+    protected suspend fun execute(args: List<String>, url: String): String = coroutineScope {
+        val cmd = buildCommand(args)
         val process = startProcess(cmd)
         val outputDeferred = collectProcessOutputAsync(process)
 
@@ -60,11 +60,10 @@ abstract class AbstractCliTool(
         }
     }
 
-    private fun buildCommand(url: String, args: List<String>): List<String> =
+    private fun buildCommand(args: List<String>): List<String> =
         buildList {
             add(bin)
             addAll(args)
-            if (url.isNotBlank()) add(url)
         }
 
     private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {
