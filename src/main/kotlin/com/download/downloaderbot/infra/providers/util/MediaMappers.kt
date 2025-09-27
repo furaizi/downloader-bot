@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 fun YtDlpMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
     type = MediaType.fromString(this.type),
-    fileUrl = filePath.toString(),
+    fileUrl = filePath.toAbsolutePath().toString(),
     sourceUrl = sourceUrl,
     title = this.title
 )
@@ -23,7 +23,7 @@ fun GalleryDlMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
 
 fun InstaloaderMedia.toMedia(filePath: Path, sourceUrl: String) = Media(
     type = MediaType.VIDEO,
-    fileUrl = filePath.toString(),
+    fileUrl = filePath.toAbsolutePath().toString(),
     sourceUrl = sourceUrl,
     title = this.node.title,
 )

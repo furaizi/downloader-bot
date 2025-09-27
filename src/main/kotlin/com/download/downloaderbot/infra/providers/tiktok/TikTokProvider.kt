@@ -54,7 +54,6 @@ class TikTokProvider(
     private suspend fun resolveDownloadedMedia(basePrefix: String, sourceUrl: String, metaData: YtDlpMedia) =
         fileFinder.find(basePrefix, props.basePath)
             .onEach { path -> log.info { "yt-dlp download finished: $sourceUrl -> $path" } }
-            .map { it.toAbsolutePath() }
             .map { path -> metaData.toMedia(path, sourceUrl) }
 
     private fun YtDlpMedia.exceeds(limit: DataSize): Boolean {

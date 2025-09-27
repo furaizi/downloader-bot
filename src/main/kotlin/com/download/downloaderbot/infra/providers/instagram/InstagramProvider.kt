@@ -36,7 +36,6 @@ class InstagramProvider(
     private suspend fun resolveDownloadedMedia(basePrefix: String, sourceUrl: String, metaData: InstaloaderMedia) =
         fileFinder.find(basePrefix, props.basePath)
             .onEach { path -> println("instaloader download finished: $sourceUrl -> $path") }
-            .map { it.toAbsolutePath() }
             .map { path -> metaData.toMedia(path, sourceUrl) }
 
 }
