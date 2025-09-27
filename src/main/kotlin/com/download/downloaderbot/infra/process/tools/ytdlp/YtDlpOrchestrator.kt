@@ -3,7 +3,7 @@ package com.download.downloaderbot.infra.process.tools.ytdlp
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
-import com.download.downloaderbot.core.downloader.MediaDownloader
+import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
@@ -21,7 +21,7 @@ class YtDlpOrchestrator(
     val ytDlp: YtDlp,
     @ForYtDlp val pathGenerator: PathTemplateGenerator,
     @ForYtDlp val fileFinder: FilesByPrefixFinder
-) : MediaDownloader {
+) : MediaProvider {
 
     private val videoMaxSize = props.maxSize.video
 

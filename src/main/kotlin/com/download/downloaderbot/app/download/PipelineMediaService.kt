@@ -8,10 +8,10 @@ fun interface MediaInterceptor {
     suspend fun invoke(url: String, next: Handler): List<Media>
 }
 
-class PipelineMediaDownloadService(
-    private val core: MediaDownloadService,
+class PipelineMediaService(
+    private val core: MediaService,
     interceptors: List<MediaInterceptor>
-) : MediaDownloadService {
+) : MediaService {
 
     private val chain: Handler = interceptors
         .reversed()

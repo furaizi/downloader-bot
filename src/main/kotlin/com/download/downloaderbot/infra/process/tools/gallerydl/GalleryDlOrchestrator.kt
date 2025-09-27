@@ -3,7 +3,7 @@ package com.download.downloaderbot.infra.process.tools.gallerydl
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
-import com.download.downloaderbot.core.downloader.MediaDownloader
+import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.tools.ForGalleryDl
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
@@ -26,7 +26,7 @@ class GalleryDlOrchestrator(
     val galleryDl: GalleryDl,
     @ForGalleryDl val pathGenerator: PathTemplateGenerator,
     @ForGalleryDl val fileFinder: FilesByPrefixFinder
-) : MediaDownloader {
+) : MediaProvider {
 
     override suspend fun download(url: String): List<Media> {
         val (folderName, outputPath) = pathGenerator.generate(url)

@@ -2,6 +2,6 @@ package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.core.domain.Media
 
-interface MediaDownloadService {
+interface MediaService {
     suspend fun download(url: String): List<Media>
 }

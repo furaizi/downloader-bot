@@ -1,10 +1,10 @@
 package com.download.downloaderbot.app.config
 
-import com.download.downloaderbot.core.downloader.MediaDownloader
-import com.download.downloaderbot.app.download.DefaultMediaDownloadService
-import com.download.downloaderbot.app.download.MediaDownloadService
+import com.download.downloaderbot.core.downloader.MediaProvider
+import com.download.downloaderbot.app.download.DefaultMediaService
+import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.app.download.MediaInterceptor
-import com.download.downloaderbot.app.download.PipelineMediaDownloadService
+import com.download.downloaderbot.app.download.PipelineMediaService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -13,14 +13,14 @@ import org.springframework.context.annotation.Primary
 class MediaDownloadServiceConfig {
 
     @Bean
-    fun mediaDownloadService(downloaders: List<MediaDownloader>): MediaDownloadService =
-        DefaultMediaDownloadService(downloaders)
+    fun mediaDownloadService(downloaders: List<MediaProvider>): MediaService =
+        DefaultMediaService(downloaders)
 
     @Primary
     @Bean
     fun pipelineMediaDownloadService(
-        core: MediaDownloadService,
+        core: MediaService,
         interceptors: List<MediaInterceptor>
-    ): MediaDownloadService =
-        PipelineMediaDownloadService(core, interceptors)
+    ): MediaService =
+        PipelineMediaService(core, interceptors)
 }

@@ -2,8 +2,7 @@ package com.download.downloaderbot.infra.process.tools.ytdlp
 
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
 import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
-import com.download.downloaderbot.infra.process.tools.DefaultProcessExecutor
-import com.download.downloaderbot.infra.process.tools.ProcessExecutor
+import com.download.downloaderbot.infra.process.tools.ProcessRunner
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -12,7 +11,7 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class YtDlp(
-    val ytDlpExecutor: ProcessExecutor,
+    val ytDlpExecutor: ProcessRunner,
     val config: YtDlpProperties,
     val mapper: ObjectMapper,
 ) {

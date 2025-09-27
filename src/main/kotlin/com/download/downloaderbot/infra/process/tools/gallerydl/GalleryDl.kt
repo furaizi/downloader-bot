@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.process.tools.gallerydl
 
 import com.download.downloaderbot.app.config.properties.GalleryDlProperties
-import com.download.downloaderbot.infra.process.tools.ProcessExecutor
+import com.download.downloaderbot.infra.process.tools.ProcessRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 )
 @Service
 class GalleryDl(
-    val galleryDlExecutor: ProcessExecutor,
+    val galleryDlExecutor: ProcessRunner,
     val config: GalleryDlProperties
 ) {
 

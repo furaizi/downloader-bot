@@ -21,10 +21,10 @@ import java.time.Duration
 
 private val log = KotlinLogging.logger {}
 
-class DefaultProcessExecutor(
+class DefaultProcessRunner(
     private val bin: String,
     private val timeout: Duration
-) : ProcessExecutor {
+) : ProcessRunner {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun run(cmd: List<String>, url: String): String = coroutineScope {

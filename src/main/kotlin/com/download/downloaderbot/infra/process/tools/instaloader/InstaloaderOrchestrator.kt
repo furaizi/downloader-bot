@@ -3,7 +3,7 @@ package com.download.downloaderbot.infra.process.tools.instaloader
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
-import com.download.downloaderbot.core.downloader.MediaDownloader
+import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.tools.ForInstaloader
 import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
 import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
@@ -16,7 +16,7 @@ class InstaloaderOrchestrator(
     val instaloader: Instaloader,
     @ForInstaloader val pathGenerator: PathTemplateGenerator,
     @ForInstaloader val fileFinder: FilesByPrefixFinder
-) : MediaDownloader {
+) : MediaProvider {
 
     override fun supports(url: String): Boolean {
         return url.contains("instagram.com") || url.contains("instagr.am")

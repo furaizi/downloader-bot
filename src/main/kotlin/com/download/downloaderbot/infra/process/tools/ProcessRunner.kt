@@ -1,5 +1,5 @@
 package com.download.downloaderbot.infra.process.tools
 
-interface ProcessExecutor {
+interface ProcessRunner {
     suspend fun run(args: List<String>, url: String): String
 }
