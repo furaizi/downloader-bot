@@ -2,19 +2,16 @@ package com.download.downloaderbot.infra.providers.gallery
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
-import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
 import com.download.downloaderbot.infra.process.tools.ForGalleryDl
-import com.download.downloaderbot.infra.process.tools.gallerydl.GalleryDl
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
-import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
 import com.download.downloaderbot.infra.providers.util.toMedia
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
-import java.nio.file.Path
 
 private val log = KotlinLogging.logger {}
 
@@ -28,7 +25,7 @@ private val log = KotlinLogging.logger {}
 class GalleryProvider(
     val props: MediaProperties,
     val galleryDl: CliTool<GalleryDlMedia>,
-    @ForGalleryDl val pathGenerator: PathTemplateGenerator,
+    @ForGalleryDl val pathGenerator: PathGenerator,
     @ForGalleryDl val fileFinder: FilesByPrefixFinder
 ) : MediaProvider {
 

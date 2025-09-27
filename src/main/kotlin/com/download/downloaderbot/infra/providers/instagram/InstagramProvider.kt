@@ -2,23 +2,20 @@ package com.download.downloaderbot.infra.providers.instagram
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
-import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.tools.ForInstaloader
-import com.download.downloaderbot.infra.process.tools.instaloader.Instaloader
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
-import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
 import com.download.downloaderbot.infra.providers.util.toMedia
 import org.springframework.stereotype.Component
-import java.nio.file.Path
 
 @Component
 class InstagramProvider(
     val props: MediaProperties,
     val instaloader: CliTool<InstaloaderMedia>,
-    @ForInstaloader val pathGenerator: PathTemplateGenerator,
+    @ForInstaloader val pathGenerator: PathGenerator,
     @ForInstaloader val fileFinder: FilesByPrefixFinder
 ) : MediaProvider {
 

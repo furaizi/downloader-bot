@@ -5,12 +5,12 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
-import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
 
 class BaseMediaProvider(
     val props: MediaProperties,
     val tool: CliTool<in Any>,
-    val pathGenerator: PathTemplateGenerator,
+    val pathGenerator: PathGenerator,
     val fileFinder: FilesByPrefixFinder
 ) : MediaProvider {
 

@@ -3,15 +3,15 @@ package com.download.downloaderbot.infra.providers.common.pathgenerator
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
 import com.download.downloaderbot.infra.providers.interfaces.DownloadPath
-import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.PathGenerator
 import com.download.downloaderbot.infra.providers.util.BasePrefixGenerator
 import org.springframework.stereotype.Component
 
 @Component
 @ForYtDlp
-class YtDlpPathTemplateGenerator(
+class YtDlpPathGenerator(
     val props: MediaProperties
-) : PathTemplateGenerator {
+) : PathGenerator {
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)
         val outputTemplate = props.basePath.resolve("$basePrefix.%(ext)s")
