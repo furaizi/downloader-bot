@@ -8,7 +8,7 @@ import com.download.downloaderbot.infra.process.runner.ProcessRunner
 class DownloadOnlyCliTool<T>(
     val runner: ProcessRunner,
     val cmdBuilder: CommandBuilder,
-    val toolId: ToolId
+    override val toolId: ToolId
 ): CliTool<T> {
 
     override suspend fun download(url: String, output: String) {

@@ -8,8 +8,8 @@ import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
-import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
+import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
 import com.download.downloaderbot.infra.process.tools.ytdlp.YtDlp
 import com.download.downloaderbot.infra.providers.util.toMedia
 import mu.KotlinLogging

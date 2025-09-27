@@ -12,7 +12,7 @@ class BaseCliTool<META>(
     val cmdBuilder: CommandBuilder,
     val jsonExtractor: JsonExtractor,
     val jsonParser: JsonParser<META>,
-    val toolId: ToolId
+    override val toolId: ToolId
 ) : CliTool<META> {
 
     override suspend fun download(url: String, output: String) {

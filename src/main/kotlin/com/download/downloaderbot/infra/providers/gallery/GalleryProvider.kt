@@ -8,8 +8,8 @@ import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlMedia
 import com.download.downloaderbot.infra.process.tools.ForGalleryDl
 import com.download.downloaderbot.infra.process.tools.gallerydl.GalleryDl
-import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
+import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
 import com.download.downloaderbot.infra.providers.util.toMedia
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

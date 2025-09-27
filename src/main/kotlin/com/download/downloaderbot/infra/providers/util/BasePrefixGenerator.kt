@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.tools.util.baseprefix
+package com.download.downloaderbot.infra.providers.util
 
 import java.net.URI
 import java.time.Instant

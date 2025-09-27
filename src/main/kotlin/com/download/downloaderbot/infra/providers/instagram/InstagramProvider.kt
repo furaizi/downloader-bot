@@ -8,8 +8,8 @@ import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.tools.ForInstaloader
 import com.download.downloaderbot.infra.process.tools.instaloader.Instaloader
-import com.download.downloaderbot.infra.process.tools.util.filefinder.FilesByPrefixFinder
-import com.download.downloaderbot.infra.process.tools.util.pathgenerator.PathTemplateGenerator
+import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
+import com.download.downloaderbot.infra.providers.interfaces.PathTemplateGenerator
 import com.download.downloaderbot.infra.providers.util.toMedia
 import org.springframework.stereotype.Component
 import java.nio.file.Path

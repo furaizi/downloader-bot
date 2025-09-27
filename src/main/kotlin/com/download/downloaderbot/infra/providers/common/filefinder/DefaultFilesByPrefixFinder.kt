@@ -1,7 +1,9 @@
-package com.download.downloaderbot.infra.process.tools.util.filefinder
+package com.download.downloaderbot.infra.providers.common.filefinder
 
 import com.download.downloaderbot.infra.process.tools.ForInstaloader
 import com.download.downloaderbot.infra.process.tools.ForYtDlp
+import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixFinder
+import com.download.downloaderbot.infra.providers.interfaces.FilesByPrefixNotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
