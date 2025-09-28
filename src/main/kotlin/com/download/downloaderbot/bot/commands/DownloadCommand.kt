@@ -9,7 +9,7 @@ import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
-import com.download.downloaderbot.app.download.MediaDownloadService
+import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class DownloadCommand(
-    private val mediaDownloadService: MediaDownloadService,
+    private val service: MediaService,
     private val botPort: BotPort,
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
@@ -58,7 +58,7 @@ class DownloadCommand(
         val url = rawUrl!!
         val mediaList = withContext(Dispatchers.IO) {
             rateLimitGuard.runOrReject(ctx) {
-                mediaDownloadService.download(url)
+                service.download(url)
             }
         }
         if (mediaList.isEmpty())

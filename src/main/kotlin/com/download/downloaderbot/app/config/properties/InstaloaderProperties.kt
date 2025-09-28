@@ -6,8 +6,8 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "downloader.instaloader")
 data class InstaloaderProperties(
     val bin: String,
-    val sessionFile: String? = null,
-    val userAgent: String? = null,
+    val sessionFile: String = "",
+    val userAgent: String = "",
     val extraArgs: List<String> = emptyList(),
     val timeout: Duration = Duration.ofMinutes(2),
 )
