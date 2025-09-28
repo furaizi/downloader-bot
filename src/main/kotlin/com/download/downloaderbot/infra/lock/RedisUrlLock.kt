@@ -34,7 +34,7 @@ class RedisUrlLock(
             end
         """.trimIndent()
         val script: RedisScript<Long> = RedisScript.of(
-            ByteArrayResource(lua.toByteArray(StandardCharsets.UTF_8)),
+            lua,
             Long::class.java
         )
 

@@ -8,6 +8,7 @@ import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.media.validation.ProbeValidator
+import com.download.downloaderbot.infra.process.cli.common.EmptyMedia
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
@@ -25,7 +26,8 @@ class BaseMediaProvider(
 
     override suspend fun download(url: String): List<Media> {
         val (basePrefix, outputPath) = pathGenerator.generate(url)
-        val metaData = tool.probe(url, outputPath)
+        val metaData = runCatching { tool.probe(url, outputPath) }
+            .getOrDefault(EmptyMedia())
         validators.forEach { it.validate(url, metaData) }
         tool.download(url, outputPath)
         return resolveDownloadedMedia(basePrefix, url, metaData)
