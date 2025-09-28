@@ -8,7 +8,7 @@ import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.media.validation.ProbeValidator
-import com.download.downloaderbot.infra.process.cli.common.EmptyMedia
+import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyMedia
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}

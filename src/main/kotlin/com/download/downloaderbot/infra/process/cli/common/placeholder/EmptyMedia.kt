@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.cli.common
+package com.download.downloaderbot.infra.process.cli.common.placeholder
 
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
@@ -7,9 +7,9 @@ import java.nio.file.Path
 
 data class EmptyMedia(val title: String = "") : MediaConvertible {
     override fun toMedia(filePath: Path, sourceUrl: String) = Media(
-    type = MediaType.IMAGE,
-    fileUrl = filePath.toAbsolutePath().toString(),
-    sourceUrl = sourceUrl,
-    title = this.title
+        type = MediaType.IMAGE,
+        fileUrl = filePath.toAbsolutePath().toString(),
+        sourceUrl = sourceUrl,
+        title = this.title
     )
 }
