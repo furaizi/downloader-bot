@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Primary
 class MediaDownloadServiceConfig {
 
     @Bean
-    fun mediaDownloadService(downloaders: List<MediaProvider>): MediaService =
+    fun mediaDownloadService(downloaders: Map<String, MediaProvider>): MediaService =
         DefaultMediaService(downloaders)
 
     @Primary

@@ -2,7 +2,7 @@ package com.download.downloaderbot.infra.process.runner
 
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.ToolTimeoutException
-import com.download.downloaderbot.infra.process.runner.ProcessRunner
+import com.download.downloaderbot.infra.process.cli.common.utils.human
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -19,8 +19,10 @@ import kotlinx.coroutines.time.withTimeout
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.time.Duration
+import kotlin.time.TimeSource
 
 private val log = KotlinLogging.logger {}
+private val clock = TimeSource.Monotonic
 
 class DefaultProcessRunner(
     private val bin: String,
@@ -29,15 +31,22 @@ class DefaultProcessRunner(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun run(cmd: List<String>, url: String): String = coroutineScope {
+        val mark = clock.markNow()
+        log.info { "Starting process: bin=$bin, cmd=$cmd, timeout=${timeout.toSeconds()}s" }
         val process = startProcess(cmd)
-        val outputDeferred = collectProcessOutputAsync(process)
+        val pidInfo = runCatching { process.pid() }
+            .getOrNull()?.let { "(pid=$it)" } ?: ""
+        log.debug { "Process started $pidInfo" }
 
+        val outputDeferred = collectProcessOutputAsync(process)
         try {
-            val exitCode = withTimeout(timeout) {
-                process.awaitExitCode()
-            }
+            val exitCode = withTimeout(timeout) { process.awaitExitCode() }
             val output = outputDeferred.await()
             handleExitCode(exitCode, output)
+            val dur = mark.elapsedNow()
+            dur.toIsoString()
+            log.info { "Process $pidInfo finished successfully: exitCode=$exitCode, duration=${dur.human()}" }
+            log.debug { "Process $pidInfo durationMs=${dur.inWholeMilliseconds}" }
             output
         } catch (te: TimeoutCancellationException) {
             log.warn { "Timeout waiting for $bin (url=$url). Killing process tree..." }

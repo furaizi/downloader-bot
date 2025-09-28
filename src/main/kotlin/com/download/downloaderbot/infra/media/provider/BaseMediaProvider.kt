@@ -22,14 +22,27 @@ class BaseMediaProvider(
     val validators: List<ProbeValidator<MediaConvertible>> = emptyList(),
     val urlPredicate: (String) -> Boolean
 ) : MediaProvider {
+    val toolName = tool.toolId.label
 
     override fun supports(url: String): Boolean = urlPredicate(url)
+        .also { log.debug { "Checking support for URL=$url with tool=${toolName}: $it" } }
 
     override suspend fun download(url: String): List<Media> {
+        log.info { "Starting download: tool=${toolName}, url=$url" }
+
         val (basePrefix, outputPath) = pathGenerator.generate(url)
+        log.debug { "Generated path prefix=$basePrefix, outputPath=$outputPath" }
+
         val metaData = runCatching { tool.probe(url, outputPath) }
+            .onSuccess { log.debug { "Probe succeeded for url=$url" } }
+            .onFailure { log.warn { "Probe failed for url=$url, using EmptyMedia" } }
             .getOrDefault(EmptyMedia())
-        validators.forEach { it.validate(url, metaData) }
+
+        validators.forEach { validator ->
+            log.debug { "Running validator=${validator::class.simpleName} for url=$url" }
+            validator.validate(url, metaData)
+        }
+
         tool.download(url, outputPath)
         return resolveDownloadedMedia(basePrefix, url, metaData)
     }
@@ -44,9 +57,9 @@ class BaseMediaProvider(
 
     private fun logDownloads(url: String, files: List<Path>) {
         when (files.size) {
-            1 -> log.info { "download finished: $url -> ${files.first()}" }
+            1 -> log.info { "Download finished: $url -> ${files.first()}" }
             else -> files.forEachIndexed { i, path ->
-                log.info { "download finished [${i + 1}/${files.size}]: $url -> $path" }
+                log.info { "Download finished [${i + 1}/${files.size}]: $url -> $path" }
             }
         }
     }

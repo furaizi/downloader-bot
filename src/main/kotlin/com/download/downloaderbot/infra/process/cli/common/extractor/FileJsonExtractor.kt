@@ -8,12 +8,10 @@ import java.io.File
 import java.io.IOException
 
 class FileJsonExtractor(
-    val toolName: String
+    private val toolName: String
 ) : JsonExtractor {
-
     override suspend fun extract(source: String): String = withContext(Dispatchers.IO) {
-        val path = if (source.endsWith(".json")) source
-                    else "$source.json"
+        val path = if (source.endsWith(".json")) source else "$source.json"
         val file = File(path)
 
         if (!file.exists())
@@ -22,7 +20,7 @@ class FileJsonExtractor(
         try {
             file.readText()
         } catch (e: IOException) {
-            throw MediaDownloaderToolException("Failed to read JSON produced by $toolName", output = e.message!!)
+            throw MediaDownloaderToolException("Failed to read JSON produced by $toolName", output = e.message ?: "IO error")
         } finally {
             runCatching { file.delete() }
         }
