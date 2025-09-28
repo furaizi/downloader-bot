@@ -16,6 +16,8 @@ class YtDlpCommandBuilder(
 
     override fun downloadCommand(url: String, output: String) = buildList {
         add(props.bin)
+        addAll(buildCookiesArgs())
+        addAll(buildUserAgentArgs())
         addAll(buildOutputArgs(output))
         addAll(buildFormatArgs())
         addAll(props.extraArgs)
@@ -27,6 +29,16 @@ class YtDlpCommandBuilder(
         addAll(JSON_ONLY_ARGS)
         add(url)
     }
+
+    private fun buildCookiesArgs() = if (props.cookiesFile.isNotBlank())
+            listOf("--cookies", props.cookiesFile)
+        else
+            emptyList()
+
+    private fun buildUserAgentArgs() = if (props.userAgent.isNotBlank())
+            listOf("--user-agent", props.userAgent)
+        else
+            emptyList()
 
     private fun buildFormatArgs() = if (props.format.isNotBlank())
             listOf("-f", props.format)
