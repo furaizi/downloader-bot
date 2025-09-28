@@ -10,6 +10,7 @@ import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.media.validation.ProbeValidator
 import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyMedia
 import mu.KotlinLogging
+import java.nio.file.Path
 
 private val log = KotlinLogging.logger {}
 
@@ -35,8 +36,18 @@ class BaseMediaProvider(
 
     private suspend fun resolveDownloadedMedia(
         basePrefix: String, sourceUrl: String, metaData: MediaConvertible
-    ): List<Media> =
-        fileFinder.find(basePrefix, props.basePath)
-            .onEach { path -> log.info("download finished: $sourceUrl -> $path") }
-            .map { path -> metaData.toMedia(path, sourceUrl) }
+    ): List<Media> {
+        val files = fileFinder.find(basePrefix, props.basePath)
+        logDownloads(sourceUrl, files)
+        return files.map { path -> metaData.toMedia(path, sourceUrl) }
+    }
+
+    private fun logDownloads(url: String, files: List<Path>) {
+        when (files.size) {
+            1 -> log.info { "download finished: $url -> ${files.first()}" }
+            else -> files.forEachIndexed { i, path ->
+                log.info { "download finished [${i + 1}/${files.size}]: $url -> $path" }
+            }
+        }
+    }
 }
