@@ -24,6 +24,8 @@ management:
 logging:
   level:
     root: INFO
+    org.springframework: DEBUG
+    org.springframework.boot.autoconfigure.condition: DEBUG
 
 telegram:
   bot:

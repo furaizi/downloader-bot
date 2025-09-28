@@ -8,6 +8,9 @@ import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.media.validation.ProbeValidator
+import mu.KotlinLogging
+
+private val log = KotlinLogging.logger {}
 
 class BaseMediaProvider(
     val props: MediaProperties,
@@ -32,6 +35,6 @@ class BaseMediaProvider(
         basePrefix: String, sourceUrl: String, metaData: MediaConvertible
     ): List<Media> =
         fileFinder.find(basePrefix, props.basePath)
-            .onEach { path -> println("download finished: $sourceUrl -> $path") }
+            .onEach { path -> log.info("download finished: $sourceUrl -> $path") }
             .map { path -> metaData.toMedia(path, sourceUrl) }
 }
