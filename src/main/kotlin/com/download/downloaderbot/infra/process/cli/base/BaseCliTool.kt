@@ -21,7 +21,7 @@ class BaseCliTool<META>(
 ) : CliTool<META> {
 
     override suspend fun download(url: String, output: String) {
-        MDC.put("tool", toolId.name)
+        MDC.put("tool", toolId.label)
         try {
             val cmd = cmdBuilder.downloadCommand(url, output)
             log.debug { "Running download command: ${cmd.joinToString(" ")}" }
@@ -33,7 +33,7 @@ class BaseCliTool<META>(
     }
 
     override suspend fun probe(url: String, output: String?): META {
-        MDC.put("tool", toolId.name)
+        MDC.put("tool", toolId.label)
         try {
             val cmd = cmdBuilder.probeCommand(url, output)
             log.debug { "Running probe command: ${cmd.joinToString(" ")}" }
