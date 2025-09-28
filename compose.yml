@@ -34,15 +34,8 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DATA_REDIS_HOST: redis
-      INSTALOADER_SESSION_FILE: /run/secrets/instaloader_session
-      YTDLP_COOKIES_FILE: /run/secrets/ytdlp_cookies
-    secrets:
-      - source: instaloader_session
-        target: instaloader_session
-        mode: 0444
-      - source: ytdlp_cookies
-        target: ytdlp_cookies
-        mode: 0444
+      INSTALOADER_SESSION_FILE: /app/secrets/instaloader-session
+      YTDLP_COOKIES_FILE: /app/secrets/ytdlp-cookies
     mem_limit: 1500m
     cpus: "1.5"
     pids_limit: 256
@@ -52,6 +45,7 @@ services:
       - no-new-privileges:true
     volumes:
       - downloads:/downloads
+      - ./secrets:/app/secrets
       - type: tmpfs
         target: /tmp
         tmpfs:
@@ -114,9 +108,3 @@ volumes:
   downloads:
   redis-data:
   grafana-data:
-
-secrets:
-  instaloader_session:
-    file: ./secrets/session-instaloader
-  ytdlp_cookies:
-    file: ./secrets/ytdlp-cookies.txt
