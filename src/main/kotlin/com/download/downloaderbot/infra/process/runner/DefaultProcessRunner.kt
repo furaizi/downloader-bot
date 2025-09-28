@@ -2,6 +2,7 @@ package com.download.downloaderbot.infra.process.runner
 
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.ToolTimeoutException
+import com.download.downloaderbot.infra.process.cli.common.utils.human
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -34,7 +35,7 @@ class DefaultProcessRunner(
         log.info { "Starting process: bin=$bin, cmd=$cmd, timeout=${timeout.toSeconds()}s" }
         val process = startProcess(cmd)
         val pidInfo = runCatching { process.pid() }
-            .getOrNull()?.let { "(pid=$it" } ?: ""
+            .getOrNull()?.let { "(pid=$it)" } ?: ""
         log.debug { "Process started $pidInfo" }
 
         val outputDeferred = collectProcessOutputAsync(process)
@@ -43,7 +44,9 @@ class DefaultProcessRunner(
             val output = outputDeferred.await()
             handleExitCode(exitCode, output)
             val dur = mark.elapsedNow()
-            log.info { "Process $pidInfo finished successfully: exitCode=$exitCode, duration=${dur.inWholeMilliseconds}ms" }
+            dur.toIsoString()
+            log.info { "Process $pidInfo finished successfully: exitCode=$exitCode, duration=${dur.human()}" }
+            log.debug { "Process $pidInfo durationMs=${dur.inWholeMilliseconds}" }
             output
         } catch (te: TimeoutCancellationException) {
             log.warn { "Timeout waiting for $bin (url=$url). Killing process tree..." }
