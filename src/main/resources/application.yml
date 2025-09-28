@@ -43,12 +43,13 @@ downloader:
       initial-delay: 5m
   sources:
     allow:
-      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+(?:/|(?:\?.*)?)?$
-      - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+(?:/|(?:\?.*)?)?$
-      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+(?:/|(?:\?.*)?)?$
-      - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+(?:/|(?:\?.*)?)?$
-      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
-#      - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+/?(?:[?#].*)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+/?(?:[?#].*)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+/?(?:[?#].*)?$
+      - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+/?(?:[?#].*)?$
+      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
+#      - ^https?://(?:www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
+#      - ^https?://(?:www\.|m\.)?youtube\.com/@[^/]+/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
   yt-dlp:
     enabled: true
     bin: yt-dlp
