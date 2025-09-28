@@ -23,7 +23,7 @@ class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
     override suspend fun find(prefix: String, dir: Path): List<Path> {
         val file = findFirstMatchingFile(prefix, dir)
             ?: throw FilesByPrefixNotFoundException(prefix, dir)
-        log.info { "File found with prefix '$prefix' in directory '$dir': $file" }
+        log.debug { "File found with prefix '$prefix' in directory '$dir': $file" }
         return listOf(file)
     }
 
