@@ -7,6 +7,8 @@ import java.time.Duration
 data class YtDlpProperties(
     val bin: String,
     val format: String = "",
+    val cookiesFile: String = "",
+    val userAgent: String = "",
+    val timeout: Duration = Duration.ofMinutes(2),
     val extraArgs: List<String> = emptyList(),
-    val timeout: Duration = Duration.ofMinutes(2)
 )

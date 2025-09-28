@@ -47,13 +47,15 @@ downloader:
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+(?:/|(?:\?.*)?)?$
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+(?:/|(?:\?.*)?)?$
       - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+(?:/|(?:\?.*)?)?$
-#      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
+      - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}(?:/|(?:\?.*)?)?$
 #      - ^https?://(www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}(?:\?.*)?$
   yt-dlp:
     enabled: true
     bin: yt-dlp
     format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
     timeout: 2m
+    cookies-file: ${YTDLP_COOKIES_FILE:}
+    user-agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
   gallery-dl:
     enabled: true
     bin: gallery-dl
