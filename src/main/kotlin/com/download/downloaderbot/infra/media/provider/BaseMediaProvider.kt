@@ -8,7 +8,9 @@ import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.media.validation.ProbeValidator
-import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyMedia
+import com.download.downloaderbot.infra.process.cli.api.ToolId
+import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyPhotoMedia
+import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyVideoMedia
 import mu.KotlinLogging
 import java.nio.file.Path
 
@@ -36,7 +38,10 @@ class BaseMediaProvider(
         val metaData = runCatching { tool.probe(url, outputPath) }
             .onSuccess { log.debug { "Probe succeeded for url=$url" } }
             .onFailure { log.warn { "Probe failed for url=$url, using EmptyMedia" } }
-            .getOrDefault(EmptyMedia())
+            .getOrDefault(when (tool.toolId) {
+                ToolId.YT_DLP, ToolId.INSTALOADER -> EmptyVideoMedia()
+                ToolId.GALLERY_DL -> EmptyPhotoMedia()
+            })
 
         validators.forEach { validator ->
             log.debug { "Running validator=${validator::class.simpleName} for url=$url" }
