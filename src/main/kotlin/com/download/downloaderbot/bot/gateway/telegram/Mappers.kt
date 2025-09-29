@@ -1,5 +1,6 @@
-package com.download.downloaderbot.bot.gateway
+package com.download.downloaderbot.bot.gateway.telegram
 
+import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.github.kotlintelegrambot.types.TelegramBotResult
 import com.github.kotlintelegrambot.types.TelegramBotResult.*
 import retrofit2.Response as HttpResponse

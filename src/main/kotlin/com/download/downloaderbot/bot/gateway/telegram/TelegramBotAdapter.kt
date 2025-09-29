@@ -1,6 +1,7 @@
-package com.download.downloaderbot.bot.gateway
+package com.download.downloaderbot.bot.gateway.telegram
 
 import com.download.downloaderbot.bot.commands.CommandContext
+import com.download.downloaderbot.bot.gateway.BotPort
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.TelegramFile
