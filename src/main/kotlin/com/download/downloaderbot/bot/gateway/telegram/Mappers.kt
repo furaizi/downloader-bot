@@ -6,7 +6,7 @@ import com.github.kotlintelegrambot.types.TelegramBotResult.*
 import retrofit2.Response as HttpResponse
 import com.github.kotlintelegrambot.network.Response as TgEnvelope
 
-private fun <T : Any> TelegramBotResult<T>.toGateway(): GatewayResult<T> =
+fun <T : Any> TelegramBotResult<T>.toGateway(): GatewayResult<T> =
     when (this) {
         is Success -> GatewayResult.Ok(this.value)
         is Error.HttpError -> GatewayResult.Err(
@@ -32,7 +32,7 @@ private fun <T : Any> TelegramBotResult<T>.toGateway(): GatewayResult<T> =
     }
 
 
-private fun <T : Any> Pair<HttpResponse<TgEnvelope<T>>?, Exception?>.toGateway(): GatewayResult<T> {
+fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.toGateway(): GatewayResult<T> {
     val (http, ex) = this
     if (ex != null) {
         return GatewayResult.Err(
