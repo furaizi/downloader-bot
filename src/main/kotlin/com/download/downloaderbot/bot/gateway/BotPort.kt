@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.gateway
 
+import com.github.kotlintelegrambot.entities.Message
 import java.io.File
 
 interface BotPort {
@@ -8,14 +9,14 @@ interface BotPort {
         chatId: Long,
         text: String,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<Message>
 
     suspend fun sendPhoto(
         chatId: Long,
         file: File,
         caption: String? = null,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<Message>
 
     suspend fun sendVideo(
         chatId: Long,
@@ -25,7 +26,7 @@ interface BotPort {
         width: Int? = null,
         height: Int? = null,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<Message>
 
     suspend fun sendAudio(
         chatId: Long,
@@ -34,21 +35,21 @@ interface BotPort {
         performer: String? = null,
         title: String? = null,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<Message>
 
     suspend fun sendDocument(
         chatId: Long,
         file: File,
         caption: String? = null,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<Message>
 
     suspend fun sendPhotoAlbum(
         chatId: Long,
         files: List<File>,
         caption: String? = null,
         replyToMessageId: Long? = null
-    )
+    ): GatewayResult<List<Message>>
 
     suspend fun sendPhotoAlbumChunked(
         chatId: Long,
@@ -56,10 +57,17 @@ interface BotPort {
         chunk: Int = 10,
         caption: String? = null,
         replyToMessageId: Long? = null
-    ) {
-        files.chunked(chunk).forEachIndexed { idx, part ->
+    ): GatewayResult<List<Message>> {
+        val all = mutableListOf<Message>()
+
+        for ((idx, part) in files.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
-            sendPhotoAlbum(chatId, part, cap, replyToMessageId)
+            when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
+                is GatewayResult.Ok -> all += res.value
+                is GatewayResult.Err   -> return res
+            }
         }
+
+        return GatewayResult.Ok(all)
     }
 }
