@@ -7,6 +7,8 @@ data class Media(
     val fileUrl: String,
     val sourceUrl: String,
     val title: String?,
+    val fileUniqueId: String? = null,
+    val lastFileId: String? = null,
     val downloadedAt: OffsetDateTime = OffsetDateTime.now()
 )
 

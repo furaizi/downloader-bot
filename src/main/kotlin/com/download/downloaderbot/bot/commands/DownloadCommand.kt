@@ -10,6 +10,8 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.core.cache.CachePort
+import com.download.downloaderbot.core.cache.CachedMedia
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +29,8 @@ class DownloadCommand(
     private val botPort: BotPort,
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
-    private val urlResolver: FinalUrlResolver
+    private val urlResolver: FinalUrlResolver,
+    private val cachePort: CachePort<String, List<Media>>
 ) : BotCommand {
 
     private companion object {
@@ -56,6 +59,7 @@ class DownloadCommand(
         }
 
         val url = rawUrl!!
+
         val mediaList = withContext(Dispatchers.IO) {
             rateLimitGuard.runOrReject(ctx) {
                 service.download(url)
