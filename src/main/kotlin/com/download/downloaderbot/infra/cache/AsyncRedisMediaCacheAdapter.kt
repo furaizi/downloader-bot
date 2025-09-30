@@ -1,6 +1,6 @@
 package com.download.downloaderbot.infra.cache
 
-import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.data.redis.core.ReactiveRedisTemplate
@@ -10,22 +10,22 @@ import java.nio.file.Path
 import java.time.Duration
 
 @Component
-class AsyncRedisMediaCache(
+class AsyncRedisMediaCacheAdapter(
     private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
     private val stringTemplate: ReactiveStringRedisTemplate
-) : MediaCache {
+) : CachePort<String, List<Media>> {
 
     private fun key(url: String) = "media:url:$url"
     private fun fileIndexKey(fileUrl: String) = "media:file:$fileUrl"
 
-    override suspend fun get(sourceUrl: String): List<Media>? =
+    override suspend fun get(id: String): List<Media>? =
         mediaTemplate.opsForValue()
-            .get(key(sourceUrl))
+            .get(key(id))
             .awaitFirstOrNull()
 
-    override suspend fun put(media: List<Media>, ttl: Duration) {
+    override suspend fun put(id: String, values: List<Media>, ttl: Duration) {
+        val (sourceUrl, media) = id to values
         if (media.isEmpty()) return
-        val sourceUrl = media.first().sourceUrl
 
         mediaTemplate.opsForValue()
             .set(key(sourceUrl), media, ttl)
@@ -44,7 +44,8 @@ class AsyncRedisMediaCache(
             }
     }
 
-    override suspend fun evict(sourceUrl: String) {
+    override suspend fun evict(id: String) {
+        val sourceUrl = id
         val cachedMedia = get(sourceUrl).orEmpty()
         val setOps = stringTemplate.opsForSet()
 

@@ -1,14 +1,13 @@
 package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.core.lock.UrlLockManager
-import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.concurrency.DownloadSlots
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.net.FinalUrlResolver
-import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.core.security.UrlAllowlist
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
@@ -45,7 +44,7 @@ class AllowlistInterceptor(
 @Component
 @Order(30)
 class CacheReadBeforeLockInterceptor(
-    private val cache: MediaCache
+    private val cache: CachePort<String, List<Media>>
 ) : MediaInterceptor {
     override suspend fun invoke(url: String, next: Handler): List<Media> {
         cache.getWithLog(url)?.let { return it }
@@ -57,7 +56,7 @@ class CacheReadBeforeLockInterceptor(
 @Order(40)
 class LockWaitInterceptor(
     private val urlLock: UrlLockManager,
-    private val cache: MediaCache,
+    private val cache: CachePort<String, List<Media>>,
     private val props: CacheProperties
 ) : MediaInterceptor {
     override suspend fun invoke(url: String, next: Handler): List<Media> {
@@ -75,7 +74,7 @@ class LockWaitInterceptor(
         }
     }
 
-    private suspend fun MediaCache.awaitGet(url: String): List<Media>? {
+    private suspend fun CachePort<String, List<Media>>.awaitGet(url: String): List<Media>? {
         val end = System.nanoTime() + props.waitTimeout.toNanos()
         val stepMs = props.waitTimeout.toMillis().coerceAtLeast(100)
         while (System.nanoTime() < end) {
@@ -89,12 +88,12 @@ class LockWaitInterceptor(
 @Component
 @Order(50)
 class CacheWriteAfterDownloadInterceptor(
-    private val cache: MediaCache,
+    private val cache: CachePort<String, List<Media>>,
     private val props: CacheProperties
 ) : MediaInterceptor {
     override suspend fun invoke(url: String, next: Handler): List<Media> {
         val res = next(url)
-        cache.put(res, props.mediaTtl)
+        cache.put(url, res, props.mediaTtl)
         return res
     }
 }
@@ -109,7 +108,7 @@ class SlotsInterceptor(private val slots: DownloadSlots) : MediaInterceptor {
 }
 
 
-private suspend fun MediaCache.getWithLog(url: String, afterLock: Boolean = false): List<Media>? {
+private suspend fun CachePort<String, List<Media>>.getWithLog(url: String, afterLock: Boolean = false): List<Media>? {
     return this.get(url)?.also { cached ->
         val stage = if (afterLock) "after lock" else "before lock"
         log.info { "Cache hit $stage for url=$url, returning ${cached.size} media item(s)" }
