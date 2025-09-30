@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.gateway.BotPort
-import com.download.downloaderbot.bot.gateway.chatId
+import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import org.springframework.stereotype.Component
 

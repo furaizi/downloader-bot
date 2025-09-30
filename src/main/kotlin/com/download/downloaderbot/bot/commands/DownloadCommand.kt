@@ -1,10 +1,10 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.gateway.BotPort
-import com.download.downloaderbot.bot.gateway.chatId
-import com.download.downloaderbot.bot.gateway.isGroupChat
-import com.download.downloaderbot.bot.gateway.isPrivateChat
-import com.download.downloaderbot.bot.gateway.replyToMessageId
+import com.download.downloaderbot.bot.gateway.telegram.chatId
+import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
+import com.download.downloaderbot.bot.gateway.telegram.isPrivateChat
+import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType

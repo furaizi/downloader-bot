@@ -2,8 +2,8 @@ package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.BotPort
-import com.download.downloaderbot.bot.gateway.chatId
-import com.download.downloaderbot.bot.gateway.replyToMessageId
+import com.download.downloaderbot.bot.gateway.telegram.chatId
+import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.core.downloader.BusyException
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaDownloaderException
