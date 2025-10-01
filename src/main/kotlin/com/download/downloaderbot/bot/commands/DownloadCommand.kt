@@ -10,6 +10,7 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
@@ -33,6 +34,7 @@ class DownloadCommand(
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
     private val urlResolver: FinalUrlResolver,
+    private val urlNormalizer: UrlNormalizer,
     private val cachePort: CachePort<String, List<Media>>
 ) : BotCommand {
 
@@ -47,11 +49,16 @@ class DownloadCommand(
         val rawUrl = ctx.args.firstOrNull()?.trim()
 
         val isUrl = !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
+        val url = if (isUrl)
+            urlNormalizer.normalize(urlResolver.resolve(rawUrl!!))
+            else null
+
         val isValid = when {
             ctx.isPrivateChat -> isUrl
-            ctx.isGroupChat -> isUrl && allowlist.isAllowed(urlResolver.resolve(rawUrl!!))
+            ctx.isGroupChat -> isUrl && allowlist.isAllowed(url!!)
             else -> false
         }
+        url!!
 
         if (!isValid) {
             if (ctx.isPrivateChat)
@@ -60,8 +67,6 @@ class DownloadCommand(
                 }
             return
         }
-
-        val url = rawUrl!!
 
         val mediaList = withContext(Dispatchers.IO) {
             rateLimitGuard.runOrReject(ctx) {
@@ -125,10 +130,10 @@ class DownloadCommand(
         val allHaveFileId = mediaList.all { it.lastFileId != null }
         return if (allHaveFileId) {
             val fileIds = mediaList.map { it.lastFileId!! }
-            botPort.sendPhotoAlbum(ctx.chatId, fileIds, replyToMessageId = replyTo)
+            botPort.sendPhotoAlbumIds(ctx.chatId, fileIds, replyToMessageId = replyTo)
         } else {
             val files = mediaList.map { File(it.fileUrl) }
-            botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
+            botPort.sendPhotoAlbumFiles(ctx.chatId, files, replyToMessageId = replyTo)
         }
     }
 
@@ -140,10 +145,10 @@ class DownloadCommand(
         val allHaveFileId = mediaList.all { it.lastFileId != null }
         return if (allHaveFileId) {
             val fileIds = mediaList.map { it.lastFileId!! }
-            botPort.sendPhotoAlbumChunked(ctx.chatId, fileIds, replyToMessageId = replyTo)
+            botPort.sendPhotoAlbumChunkedIds(ctx.chatId, fileIds, replyToMessageId = replyTo)
         } else {
             val files = mediaList.map { File(it.fileUrl) }
-            botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
+            botPort.sendPhotoAlbumChunkedFiles(ctx.chatId, files, replyToMessageId = replyTo)
         }
     }
 

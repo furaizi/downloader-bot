@@ -98,7 +98,7 @@ class TelegramBotAdapter(
         ).toGateway(
     )
 
-    override suspend fun sendPhotoAlbum(
+    override suspend fun sendPhotoAlbumFiles(
         chatId: Long,
         files: List<File>,
         caption: String?,
@@ -118,7 +118,7 @@ class TelegramBotAdapter(
         ).toGateway()
     }
 
-    override suspend fun sendPhotoAlbum(
+    override suspend fun sendPhotoAlbumIds(
         chatId: Long,
         fileIds: List<String>,
         caption: String?,

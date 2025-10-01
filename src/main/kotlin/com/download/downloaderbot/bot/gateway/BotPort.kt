@@ -77,21 +77,21 @@ interface BotPort {
         replyToMessageId: Long? = null
     ): GatewayResult<Message>
 
-    suspend fun sendPhotoAlbum(
+    suspend fun sendPhotoAlbumFiles(
         chatId: Long,
         files: List<File>,
         caption: String? = null,
         replyToMessageId: Long? = null
     ): GatewayResult<List<Message>>
 
-    suspend fun sendPhotoAlbum(
+    suspend fun sendPhotoAlbumIds(
         chatId: Long,
         fileIds: List<String>,
         caption: String? = null,
         replyToMessageId: Long? = null
     ): GatewayResult<List<Message>>
 
-    suspend fun sendPhotoAlbumChunked(
+    suspend fun sendPhotoAlbumChunkedFiles(
         chatId: Long,
         files: List<File>,
         chunk: Int = 10,
@@ -102,7 +102,7 @@ interface BotPort {
 
         for ((idx, part) in files.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
-            when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
+            when (val res = sendPhotoAlbumFiles(chatId, part, cap, replyToMessageId)) {
                 is GatewayResult.Ok -> all += res.value
                 is GatewayResult.Err   -> return res
             }
@@ -111,7 +111,7 @@ interface BotPort {
         return GatewayResult.Ok(all)
     }
 
-    suspend fun sendPhotoAlbumChunked(
+    suspend fun sendPhotoAlbumChunkedIds(
         chatId: Long,
         fileIds: List<String>,
         chunk: Int = 10,
@@ -122,7 +122,7 @@ interface BotPort {
 
         for ((idx, part) in fileIds.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
-            when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
+            when (val res = sendPhotoAlbumIds(chatId, part, cap, replyToMessageId)) {
                 is GatewayResult.Ok -> all += res.value
                 is GatewayResult.Err   -> return res
             }
