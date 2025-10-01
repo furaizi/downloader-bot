@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.gateway.telegram
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
+import com.download.downloaderbot.bot.gateway.InputFile
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
@@ -33,9 +34,22 @@ class TelegramBotAdapter(
             replyToMessageId = replyToMessageId
         ).toGateway()
 
+    override suspend fun sendPhoto(
+        chatId: Long,
+        file: InputFile,
+        caption: String?,
+        replyToMessageId: Long?
+    ): GatewayResult<Message> =
+        bot.sendPhoto(
+            chatId = ChatId.fromId(chatId),
+            photo = file.toTelegram(),
+            caption = caption,
+            replyToMessageId = replyToMessageId
+        ).toGateway()
+
     override suspend fun sendVideo(
         chatId: Long,
-        file: File,
+        file: InputFile,
         caption: String?,
         durationSeconds: Int?,
         width: Int?,
@@ -44,7 +58,7 @@ class TelegramBotAdapter(
     ): GatewayResult<Message> =
         bot.sendVideo(
             chatId = ChatId.fromId(chatId),
-            video = TelegramFile.ByFile(file),
+            video = file.toTelegram(),
             caption = caption,
             duration = durationSeconds,
             width = width,
@@ -52,61 +66,45 @@ class TelegramBotAdapter(
             replyToMessageId = replyToMessageId
         ).toGateway()
 
-    override suspend fun sendVideo(
+    override suspend fun sendAudio(
         chatId: Long,
-        fileId: String,
-        caption: String?,
+        file: InputFile,
         durationSeconds: Int?,
-        width: Int?,
-        height: Int?,
+        performer: String?,
+        title: String?,
         replyToMessageId: Long?
     ): GatewayResult<Message> =
-        bot.sendVideo(
+        bot.sendAudio(
             chatId = ChatId.fromId(chatId),
-            video = TelegramFile.ByFileId(fileId),
-            caption = caption,
+            audio = file.toTelegram(),
             duration = durationSeconds,
-            width = width,
-            height = height,
+            performer = performer,
+            title = title,
             replyToMessageId = replyToMessageId
         ).toGateway()
 
-    override suspend fun sendPhoto(
+    override suspend fun sendDocument(
         chatId: Long,
-        file: File,
+        file: InputFile,
         caption: String?,
         replyToMessageId: Long?
     ): GatewayResult<Message> =
-        bot.sendPhoto(
+        bot.sendDocument(
             chatId = ChatId.fromId(chatId),
-            photo = TelegramFile.ByFile(file),
+            document = file.toTelegram(),
             caption = caption,
             replyToMessageId = replyToMessageId
         ).toGateway()
 
-    override suspend fun sendPhoto(
+    override suspend fun sendPhotoAlbum(
         chatId: Long,
-        fileId: String,
-        caption: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<Message> =
-        bot.sendPhoto(
-            chatId = ChatId.fromId(chatId),
-            photo = TelegramFile.ByFileId(fileId),
-            caption = caption,
-            replyToMessageId = replyToMessageId
-        ).toGateway(
-    )
-
-    override suspend fun sendPhotoAlbumFiles(
-        chatId: Long,
-        files: List<File>,
+        files: List<InputFile>,
         caption: String?,
         replyToMessageId: Long?
     ): GatewayResult<List<Message>> {
-        val media = files.mapIndexed { index, file ->
+        val media = files.mapIndexed { index, f ->
             InputMediaPhoto(
-                media = TelegramFile.ByFile(file),
+                media = f.toTelegram(),
                 caption = caption.takeIf { index == 0 }
             )
         }.toTypedArray()
@@ -117,87 +115,6 @@ class TelegramBotAdapter(
             replyToMessageId = replyToMessageId
         ).toGateway()
     }
-
-    override suspend fun sendPhotoAlbumIds(
-        chatId: Long,
-        fileIds: List<String>,
-        caption: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<List<Message>> {
-        val media = fileIds.mapIndexed { index, fileId ->
-            InputMediaPhoto(
-                media = TelegramFile.ByFileId(fileId),
-                caption = caption.takeIf { index == 0 }
-            )
-        }.toTypedArray()
-
-        return bot.sendMediaGroup(
-            chatId = ChatId.fromId(chatId),
-            mediaGroup = MediaGroup.from(*media),
-            replyToMessageId = replyToMessageId
-        ).toGateway()
-    }
-
-    override suspend fun sendAudio(
-        chatId: Long,
-        file: File,
-        durationSeconds: Int?,
-        performer: String?,
-        title: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<Message> =
-        bot.sendAudio(
-            chatId = ChatId.fromId(chatId),
-            audio = TelegramFile.ByFile(file),
-            duration = durationSeconds,
-            performer = performer,
-            title = title,
-            replyToMessageId = replyToMessageId
-        ).toGateway()
-
-    override suspend fun sendAudio(
-        chatId: Long,
-        fileId: String,
-        durationSeconds: Int?,
-        performer: String?,
-        title: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<Message> =
-        bot.sendAudio(
-            chatId = ChatId.fromId(chatId),
-            audio = TelegramFile.ByFileId(fileId),
-            duration = durationSeconds,
-            performer = performer,
-            title = title,
-            replyToMessageId = replyToMessageId
-        ).toGateway()
-
-    override suspend fun sendDocument(
-        chatId: Long,
-        file: File,
-        caption: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<Message> =
-        bot.sendDocument(
-            chatId = ChatId.fromId(chatId),
-            document = TelegramFile.ByFile(file),
-            caption = caption,
-            replyToMessageId = replyToMessageId
-        ).toGateway()
-
-    override suspend fun sendDocument(
-        chatId: Long,
-        fileId: String,
-        caption: String?,
-        replyToMessageId: Long?
-    ): GatewayResult<Message> =
-        bot.sendDocument(
-            chatId = ChatId.fromId(chatId),
-            document = TelegramFile.ByFileId(fileId),
-            caption = caption,
-            replyToMessageId = replyToMessageId
-        ).toGateway()
-
 }
 
 val CommandContext.chatId: Long
@@ -222,17 +139,17 @@ val CommandContext.isGroupChat: Boolean
 
 val Message.fileId: String?
     get() = this.photo.largest()?.fileId
-    ?: this.document?.fileId
-    ?: this.video?.fileId
-    ?: this.audio?.fileId
-    ?: this.animation?.fileId
+        ?: this.document?.fileId
+        ?: this.video?.fileId
+        ?: this.audio?.fileId
+        ?: this.animation?.fileId
 
 val Message.fileUniqueId: String?
     get() = this.photo.largest()?.fileUniqueId
-    ?: this.document?.fileUniqueId
-    ?: this.video?.fileUniqueId
-    ?: this.audio?.fileUniqueId
-    ?: this.animation?.fileUniqueId
+        ?: this.document?.fileUniqueId
+        ?: this.video?.fileUniqueId
+        ?: this.audio?.fileUniqueId
+        ?: this.animation?.fileUniqueId
 
 private fun List<PhotoSize>?.largest(): PhotoSize? =
     this?.maxByOrNull { max(it.width, it.height) }
