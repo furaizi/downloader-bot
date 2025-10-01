@@ -12,6 +12,8 @@ import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.gateway.GatewayResult
+import com.download.downloaderbot.bot.gateway.InputFile
+import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
 import com.download.downloaderbot.core.cache.CachePort
@@ -127,14 +129,12 @@ class DownloadCommand(
         mediaList: List<Media>,
         replyTo: Long?
     ): GatewayResult<List<Message>> {
-        val allHaveFileId = mediaList.all { it.lastFileId != null }
-        return if (allHaveFileId) {
-            val fileIds = mediaList.map { it.lastFileId!! }
-            botPort.sendPhotoAlbumIds(ctx.chatId, fileIds, replyToMessageId = replyTo)
-        } else {
-            val files = mediaList.map { File(it.fileUrl) }
-            botPort.sendPhotoAlbumFiles(ctx.chatId, files, replyToMessageId = replyTo)
-        }
+        val files = if (mediaList.all { it.lastFileId != null })
+            mediaList.map { it.lastFileId!!.asInputFile() }
+        else
+            mediaList.map { File(it.fileUrl).asInputFile() }
+
+        return botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
     private suspend fun sendImagesAsAlbumChunked(
@@ -142,14 +142,13 @@ class DownloadCommand(
         mediaList: List<Media>,
         replyTo: Long?
     ): GatewayResult<List<Message>> {
-        val allHaveFileId = mediaList.all { it.lastFileId != null }
-        return if (allHaveFileId) {
-            val fileIds = mediaList.map { it.lastFileId!! }
-            botPort.sendPhotoAlbumChunkedIds(ctx.chatId, fileIds, replyToMessageId = replyTo)
-        } else {
-            val files = mediaList.map { File(it.fileUrl) }
-            botPort.sendPhotoAlbumChunkedFiles(ctx.chatId, files, replyToMessageId = replyTo)
-        }
+        val inputs = if (mediaList.all { it.lastFileId != null })
+            mediaList.map { it.lastFileId!!.asInputFile() }
+        else
+            mediaList.map { File(it.fileUrl).asInputFile() }
+
+        return botPort.sendPhotoAlbumChunked(ctx.chatId, inputs, replyToMessageId = replyTo)
+
     }
 
     private suspend fun sendIndividually(
@@ -158,35 +157,21 @@ class DownloadCommand(
         replyTo: Long?
     ): List<GatewayResult<Message>> =
         mediaList.map { media ->
-            if (media.lastFileId != null) {
-                sendByFileId(media.type, ctx.chatId, media.lastFileId, replyTo)
-            } else {
-                val file = File(media.fileUrl)
-                sendByFile(media.type, ctx.chatId, file, replyTo)
-            }
+            val input = media.lastFileId?.asInputFile()
+                ?: File(media.fileUrl).asInputFile()
+            sendByInputFile(media.type, ctx.chatId, input, replyTo)
         }
 
 
-    private suspend fun sendByFileId(
+    private suspend fun sendByInputFile(
         type: MediaType,
         chatId: Long,
-        fileId: String,
+        input: InputFile,
         replyTo: Long?
     ): GatewayResult<Message> = when (type) {
-        MediaType.VIDEO -> botPort.sendVideo(chatId, fileId, replyToMessageId = replyTo)
-        MediaType.AUDIO -> botPort.sendAudio(chatId, fileId, replyToMessageId = replyTo)
-        MediaType.IMAGE -> botPort.sendPhoto(chatId, fileId, replyToMessageId = replyTo)
-    }
-
-    private suspend fun sendByFile(
-        type: MediaType,
-        chatId: Long,
-        file: File,
-        replyTo: Long?
-    ): GatewayResult<Message> = when (type) {
-        MediaType.VIDEO -> botPort.sendVideo(chatId, file, replyToMessageId = replyTo)
-        MediaType.AUDIO -> botPort.sendAudio(chatId, file, replyToMessageId = replyTo)
-        MediaType.IMAGE -> botPort.sendPhoto(chatId, file, replyToMessageId = replyTo)
+        MediaType.VIDEO -> botPort.sendVideo(chatId, input, replyToMessageId = replyTo)
+        MediaType.AUDIO -> botPort.sendAudio(chatId, input, replyToMessageId = replyTo)
+        MediaType.IMAGE -> botPort.sendPhoto(chatId, input, replyToMessageId = replyTo)
     }
 
     private fun updatedWithMsg(media: Media, message: Message): Media =
