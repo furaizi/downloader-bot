@@ -102,9 +102,9 @@ class TelegramBotAdapter(
         caption: String?,
         replyToMessageId: Long?
     ): GatewayResult<List<Message>> {
-        val media = files.mapIndexed { index, f ->
+        val media = files.mapIndexed { index, file ->
             InputMediaPhoto(
-                media = f.toTelegram(),
+                media = file.toTelegram(),
                 caption = caption.takeIf { index == 0 }
             )
         }.toTypedArray()

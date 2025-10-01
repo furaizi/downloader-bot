@@ -3,11 +3,6 @@ package com.download.downloaderbot.bot.gateway
 import com.github.kotlintelegrambot.entities.Message
 import java.io.File
 
-sealed class InputFile {
-    data class Local(val file: File) : InputFile()
-    data class Id(val fileId: String) : InputFile()
-}
-
 interface BotPort {
 
     suspend fun sendText(
