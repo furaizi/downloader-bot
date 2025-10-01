@@ -16,6 +16,7 @@ import com.download.downloaderbot.bot.gateway.InputFile
 import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
+import com.download.downloaderbot.bot.gateway.toInputFile
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
@@ -79,27 +80,27 @@ class DownloadCommand(
             throw MediaNotFoundException(url)
 
         when {
-            isImageAlbum(mediaList) && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
+            mediaList.isImageAlbum() && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
                 sendImagesAsAlbum(ctx, mediaList, replyTo).onOk { messages ->
                     val updated = mediaList.zip(messages)
-                        .map { (media, message) -> updatedWithMsg(media, message) }
+                        .map { (media, message) -> media.updateWith(message) }
                     cachePort.put(url, updated)
                 }
 
-            isImageAlbum(mediaList) && mediaList.size > TELEGRAM_ALBUM_LIMIT ->
+            mediaList.isImageAlbum() && mediaList.size > TELEGRAM_ALBUM_LIMIT ->
                 sendImagesAsAlbumChunked(ctx, mediaList, replyTo).onOk { messages ->
                     val updated = mediaList.zip(messages)
-                        .map { (media, message) -> updatedWithMsg(media, message) }
+                        .map { (media, message) -> media.updateWith(message) }
                     cachePort.put(url, updated)
                 }
 
             else -> {
                 val results = sendIndividually(ctx, mediaList, replyTo)
-                val updated = mediaList.zip(results).map { (m, r) ->
-                    val msg = r.getOrNull()
-                    if (msg != null)
-                        updatedWithMsg(m, msg)
-                    else m
+                val updated = mediaList.zip(results).map { (media, result) ->
+                    val message = result.getOrNull()
+                    if (message != null)
+                        media.updateWith(message)
+                    else media
                 }
 
                 if (updated.any { it.lastFileId != null }) {
@@ -107,6 +108,8 @@ class DownloadCommand(
                 }
             }
         }
+
+
 
         val titles = mediaList.map { it.title }
         val urls = mediaList.map { it.fileUrl }
@@ -121,19 +124,12 @@ class DownloadCommand(
             false
         }
 
-    private fun isImageAlbum(mediaList: List<Media>) =
-        mediaList.first().type == MediaType.IMAGE && mediaList.size >= 2
-
     private suspend fun sendImagesAsAlbum(
         ctx: CommandContext,
         mediaList: List<Media>,
         replyTo: Long?
     ): GatewayResult<List<Message>> {
-        val files = if (mediaList.all { it.lastFileId != null })
-            mediaList.map { it.lastFileId!!.asInputFile() }
-        else
-            mediaList.map { File(it.fileUrl).asInputFile() }
-
+        val files = mediaList.toInputFiles()
         return botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
     }
 
@@ -142,12 +138,8 @@ class DownloadCommand(
         mediaList: List<Media>,
         replyTo: Long?
     ): GatewayResult<List<Message>> {
-        val inputs = if (mediaList.all { it.lastFileId != null })
-            mediaList.map { it.lastFileId!!.asInputFile() }
-        else
-            mediaList.map { File(it.fileUrl).asInputFile() }
-
-        return botPort.sendPhotoAlbumChunked(ctx.chatId, inputs, replyToMessageId = replyTo)
+        val files = mediaList.toInputFiles()
+        return botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
 
     }
 
@@ -157,27 +149,24 @@ class DownloadCommand(
         replyTo: Long?
     ): List<GatewayResult<Message>> =
         mediaList.map { media ->
-            val input = media.lastFileId?.asInputFile()
-                ?: File(media.fileUrl).asInputFile()
-            sendByInputFile(media.type, ctx.chatId, input, replyTo)
+            val input = media.toInputFile()
+            botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
         }
 
-
-    private suspend fun sendByInputFile(
-        type: MediaType,
-        chatId: Long,
-        input: InputFile,
-        replyTo: Long?
-    ): GatewayResult<Message> = when (type) {
-        MediaType.VIDEO -> botPort.sendVideo(chatId, input, replyToMessageId = replyTo)
-        MediaType.AUDIO -> botPort.sendAudio(chatId, input, replyToMessageId = replyTo)
-        MediaType.IMAGE -> botPort.sendPhoto(chatId, input, replyToMessageId = replyTo)
-    }
-
-    private fun updatedWithMsg(media: Media, message: Message): Media =
-        media.copy(
-            lastFileId = message.fileId ?: media.lastFileId,
-            fileUniqueId = message.fileUniqueId ?: media.fileUniqueId
+    private fun Media.updateWith(message: Message): Media =
+        copy(
+            lastFileId = message.fileId ?: lastFileId,
+            fileUniqueId = message.fileUniqueId ?: fileUniqueId
         )
+
+    private fun List<Media>.isImageAlbum(): Boolean =
+        this.size >= 2 && this.first().type == MediaType.IMAGE
+
+    private fun List<Media>.allHaveFileId(): Boolean = all { it.lastFileId != null }
+
+    private fun List<Media>.toInputFiles(): List<InputFile> = if (allHaveFileId())
+        map { it.lastFileId!!.asInputFile() }
+    else
+        map { File(it.fileUrl).asInputFile() }
 
 }

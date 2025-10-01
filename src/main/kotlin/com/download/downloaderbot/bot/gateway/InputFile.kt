@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.gateway
 
+import com.download.downloaderbot.core.domain.Media
 import java.io.File
 
 sealed class InputFile {
@@ -9,3 +10,6 @@ sealed class InputFile {
 
 fun File.asInputFile(): InputFile = InputFile.Local(this)
 fun String.asInputFile(): InputFile = InputFile.Id(this)
+
+fun Media.toInputFile(): InputFile = lastFileId?.asInputFile()
+    ?: File(fileUrl).asInputFile()

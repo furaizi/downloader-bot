@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.gateway
 
+import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.entities.Message
 import java.io.File
 
@@ -10,6 +11,18 @@ interface BotPort {
         text: String,
         replyToMessageId: Long? = null
     ): GatewayResult<Message>
+
+    suspend fun sendMedia(
+        type: MediaType,
+        chatId: Long,
+        file: InputFile,
+        caption: String? = null,
+        replyToMessageId: Long? = null
+    ): GatewayResult<Message> = when (type) {
+        MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId)
+        MediaType.VIDEO -> sendVideo(chatId, file, caption, replyToMessageId = replyToMessageId)
+        MediaType.AUDIO -> sendAudio(chatId, file, title = caption, replyToMessageId = replyToMessageId)
+    }
 
     suspend fun sendPhoto(
         chatId: Long,
