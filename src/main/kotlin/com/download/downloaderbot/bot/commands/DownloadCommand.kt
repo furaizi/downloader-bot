@@ -81,27 +81,33 @@ class DownloadCommand(
 
         when {
             mediaList.isImageAlbum() && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
-                sendImagesAsAlbum(ctx, mediaList, replyTo).onOk { messages ->
-                    val updated = mediaList.zip(messages)
-                        .map { (media, message) -> media.updateWith(message) }
-                    cachePort.put(url, updated)
-                }
+                botPort.sendPhotoAlbum(ctx.chatId, mediaList.toInputFiles(), replyToMessageId = replyTo)
+                    .onOk { messages ->
+                        val updated = mediaList.zip(messages)
+                            .map { (media, message) -> media.updateWith(message) }
+                        cachePort.put(url, updated)
+                    }
 
             mediaList.isImageAlbum() && mediaList.size > TELEGRAM_ALBUM_LIMIT ->
-                sendImagesAsAlbumChunked(ctx, mediaList, replyTo).onOk { messages ->
-                    val updated = mediaList.zip(messages)
-                        .map { (media, message) -> media.updateWith(message) }
-                    cachePort.put(url, updated)
+                botPort.sendPhotoAlbumChunked(ctx.chatId, mediaList.toInputFiles(), replyToMessageId = replyTo)
+                    .onOk { messages ->
+                        val updated = mediaList.zip(messages)
+                            .map { (media, message) -> media.updateWith(message) }
+                        cachePort.put(url, updated)
                 }
 
             else -> {
-                val results = sendIndividually(ctx, mediaList, replyTo)
-                val updated = mediaList.zip(results).map { (media, result) ->
-                    val message = result.getOrNull()
-                    if (message != null)
-                        media.updateWith(message)
-                    else media
+                val results = mediaList.map { media ->
+                    val input = media.toInputFile()
+                    botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
                 }
+                val updated = mediaList.zip(results)
+                    .map { (media, result) ->
+                        val message = result.getOrNull()
+                        if (message != null)
+                            media.updateWith(message)
+                        else media
+                    }
 
                 if (updated.any { it.lastFileId != null }) {
                     cachePort.put(url, updated)
@@ -122,35 +128,6 @@ class DownloadCommand(
             (u.scheme == "http" || u.scheme == "https") && !u.host.isNullOrBlank()
         } catch (_: Exception) {
             false
-        }
-
-    private suspend fun sendImagesAsAlbum(
-        ctx: CommandContext,
-        mediaList: List<Media>,
-        replyTo: Long?
-    ): GatewayResult<List<Message>> {
-        val files = mediaList.toInputFiles()
-        return botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
-    }
-
-    private suspend fun sendImagesAsAlbumChunked(
-        ctx: CommandContext,
-        mediaList: List<Media>,
-        replyTo: Long?
-    ): GatewayResult<List<Message>> {
-        val files = mediaList.toInputFiles()
-        return botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
-
-    }
-
-    private suspend fun sendIndividually(
-        ctx: CommandContext,
-        mediaList: List<Media>,
-        replyTo: Long?
-    ): List<GatewayResult<Message>> =
-        mediaList.map { media ->
-            val input = media.toInputFile()
-            botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
         }
 
     private fun Media.updateWith(message: Message): Media =
