@@ -1,7 +1,8 @@
 package com.download.downloaderbot.infra.config
 
-import com.download.downloaderbot.core.cache.CachedMedia
+import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.infra.cache.AsyncRedisMediaCacheAdapter
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,17 +17,22 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 class RedisConfig {
 
     @Bean
-    fun cachedMediaRedisTemplate(
+    fun asyncRedisMediaCache(
+        mediaTemplate: ReactiveRedisTemplate<String, List<Media>>
+    ): CachePort<String, List<Media>> = AsyncRedisMediaCacheAdapter(mediaTemplate)
+
+    @Bean
+    fun mediaRedisTemplate(
         factory: ReactiveRedisConnectionFactory,
         mapper: ObjectMapper
-    ): ReactiveRedisTemplate<String, List<CachedMedia>> {
+    ): ReactiveRedisTemplate<String, List<Media>> {
         val key = StringRedisSerializer()
         val javaType = mapper.typeFactory
-            .constructCollectionType(List::class.java, CachedMedia::class.java)
-        val value = Jackson2JsonRedisSerializer<List<CachedMedia>>(mapper, javaType)
+            .constructCollectionType(List::class.java, Media::class.java)
+        val value = Jackson2JsonRedisSerializer<List<Media>>(mapper, javaType)
 
         val ctx = RedisSerializationContext
-            .newSerializationContext<String, List<CachedMedia>>(key)
+            .newSerializationContext<String, List<Media>>(key)
             .value(value)
             .build()
         return ReactiveRedisTemplate(factory, ctx)

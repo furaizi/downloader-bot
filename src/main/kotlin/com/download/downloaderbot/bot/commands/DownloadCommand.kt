@@ -11,8 +11,9 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.gateway.GatewayResult
+import com.download.downloaderbot.bot.gateway.telegram.fileId
+import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
 import com.download.downloaderbot.core.cache.CachePort
-import com.download.downloaderbot.core.cache.CachedMedia
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
 import com.github.kotlintelegrambot.entities.Message
@@ -72,12 +73,32 @@ class DownloadCommand(
 
         when {
             isImageAlbum(mediaList) && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
-                sendImagesAsAlbum(ctx, mediaList, replyTo)
+                sendImagesAsAlbum(ctx, mediaList, replyTo).onOk { messages ->
+                    val updated = mediaList.zip(messages)
+                        .map { (media, message) -> updatedWithMsg(media, message) }
+                    cachePort.put(url, updated)
+                }
 
             isImageAlbum(mediaList) && mediaList.size > TELEGRAM_ALBUM_LIMIT ->
-                sendImagesAsAlbumChunked(ctx, mediaList, replyTo)
+                sendImagesAsAlbumChunked(ctx, mediaList, replyTo).onOk { messages ->
+                    val updated = mediaList.zip(messages)
+                        .map { (media, message) -> updatedWithMsg(media, message) }
+                    cachePort.put(url, updated)
+                }
 
-            else -> sendIndividually(ctx, mediaList, replyTo)
+            else -> {
+                val results = sendIndividually(ctx, mediaList, replyTo)
+                val updated = mediaList.zip(results).map { (m, r) ->
+                    val msg = r.getOrNull()
+                    if (msg != null)
+                        updatedWithMsg(m, msg)
+                    else m
+                }
+
+                if (updated.any { it.lastFileId != null }) {
+                    cachePort.put(url, updated)
+                }
+            }
         }
 
         val titles = mediaList.map { it.title }
@@ -162,5 +183,11 @@ class DownloadCommand(
         MediaType.AUDIO -> botPort.sendAudio(chatId, file, replyToMessageId = replyTo)
         MediaType.IMAGE -> botPort.sendPhoto(chatId, file, replyToMessageId = replyTo)
     }
+
+    private fun updatedWithMsg(media: Media, message: Message): Media =
+        media.copy(
+            lastFileId = message.fileId ?: media.lastFileId,
+            fileUniqueId = message.fileUniqueId ?: media.fileUniqueId
+        )
 
 }
