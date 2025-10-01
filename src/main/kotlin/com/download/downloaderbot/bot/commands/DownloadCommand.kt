@@ -76,50 +76,18 @@ class DownloadCommand(
                 service.download(url)
             }
         }
+
         if (mediaList.isEmpty())
             throw MediaNotFoundException(url)
 
-        when {
-            mediaList.isImageAlbum() && mediaList.size <= TELEGRAM_ALBUM_LIMIT ->
-                botPort.sendPhotoAlbum(ctx.chatId, mediaList.toInputFiles(), replyToMessageId = replyTo)
-                    .onOk { messages ->
-                        val updated = mediaList.zip(messages)
-                            .map { (media, message) -> media.updateWith(message) }
-                        cachePort.put(url, updated)
-                    }
+        val messages = sendMediaSmart(ctx, mediaList, replyTo)
+        updateCache(url, mediaList, messages)
 
-            mediaList.isImageAlbum() && mediaList.size > TELEGRAM_ALBUM_LIMIT ->
-                botPort.sendPhotoAlbumChunked(ctx.chatId, mediaList.toInputFiles(), replyToMessageId = replyTo)
-                    .onOk { messages ->
-                        val updated = mediaList.zip(messages)
-                            .map { (media, message) -> media.updateWith(message) }
-                        cachePort.put(url, updated)
-                }
-
-            else -> {
-                val results = mediaList.map { media ->
-                    val input = media.toInputFile()
-                    botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
-                }
-                val updated = mediaList.zip(results)
-                    .map { (media, result) ->
-                        val message = result.getOrNull()
-                        if (message != null)
-                            media.updateWith(message)
-                        else media
-                    }
-
-                if (updated.any { it.lastFileId != null }) {
-                    cachePort.put(url, updated)
-                }
-            }
+        log.info {
+            val titles = mediaList.map { it.title }
+            val urls = mediaList.map { it.fileUrl }
+            "Downloaded: $titles ($urls)"
         }
-
-
-
-        val titles = mediaList.map { it.title }
-        val urls = mediaList.map { it.fileUrl }
-        log.info { "Downloaded: $titles ($urls)" }
     }
 
     private fun looksLikeHttpUrl(s: String): Boolean =
@@ -129,6 +97,52 @@ class DownloadCommand(
         } catch (_: Exception) {
             false
         }
+
+
+    private suspend fun sendMediaSmart(
+        ctx: CommandContext,
+        mediaList: List<Media>,
+        replyTo: Long?
+    ): List<Message> {
+        return if (mediaList.isImageAlbum()) {
+            val inputs = mediaList.toInputFiles()
+            val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
+            when (val res = sendAlbum(ctx, inputs, replyTo, chunked)) {
+                is GatewayResult.Ok  -> res.value
+                is GatewayResult.Err -> {
+                    log.warn(res.cause) { "Failed to send album (chunked=$chunked)" }
+                    emptyList()
+                }
+            }
+        } else {
+            val results = mediaList.map { media ->
+                val input = media.toInputFile()
+                botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
+            }
+
+            results.mapNotNull { it.getOrNull() }
+        }
+    }
+
+    private suspend fun sendAlbum(
+        ctx: CommandContext,
+        inputs: List<InputFile>,
+        replyTo: Long?,
+        chunked: Boolean
+    ): GatewayResult<List<Message>> = if (chunked) {
+            botPort.sendPhotoAlbumChunked(ctx.chatId, inputs, TELEGRAM_ALBUM_LIMIT,
+                replyToMessageId = replyTo)
+        } else {
+            botPort.sendPhotoAlbum(ctx.chatId, inputs, replyToMessageId = replyTo)
+        }
+
+
+    private suspend fun updateCache(url: String, mediaList: List<Media>, messages: List<Message>) {
+        val updated = mediaList.zip(messages)
+            .map { (media, message) -> media.updateWith(message) }
+        if (updated.any { it.lastFileId != null })
+            cachePort.put(url, updated)
+    }
 
     private fun Media.updateWith(message: Message): Media =
         copy(
