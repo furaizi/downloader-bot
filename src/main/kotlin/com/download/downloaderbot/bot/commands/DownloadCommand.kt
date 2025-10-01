@@ -10,10 +10,12 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.cache.CachedMedia
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.core.security.UrlAllowlist
+import com.github.kotlintelegrambot.entities.Message
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -98,33 +100,67 @@ class DownloadCommand(
         ctx: CommandContext,
         mediaList: List<Media>,
         replyTo: Long?
-    ) {
-        val files = mediaList.map { File(it.fileUrl) }
-        botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
+    ): GatewayResult<List<Message>> {
+        val allHaveFileId = mediaList.all { it.lastFileId != null }
+        return if (allHaveFileId) {
+            val fileIds = mediaList.map { it.lastFileId!! }
+            botPort.sendPhotoAlbum(ctx.chatId, fileIds, replyToMessageId = replyTo)
+        } else {
+            val files = mediaList.map { File(it.fileUrl) }
+            botPort.sendPhotoAlbum(ctx.chatId, files, replyToMessageId = replyTo)
+        }
     }
 
     private suspend fun sendImagesAsAlbumChunked(
         ctx: CommandContext,
         mediaList: List<Media>,
         replyTo: Long?
-    ) {
-        val files = mediaList.map { File(it.fileUrl) }
-        botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
+    ): GatewayResult<List<Message>> {
+        val allHaveFileId = mediaList.all { it.lastFileId != null }
+        return if (allHaveFileId) {
+            val fileIds = mediaList.map { it.lastFileId!! }
+            botPort.sendPhotoAlbumChunked(ctx.chatId, fileIds, replyToMessageId = replyTo)
+        } else {
+            val files = mediaList.map { File(it.fileUrl) }
+            botPort.sendPhotoAlbumChunked(ctx.chatId, files, replyToMessageId = replyTo)
+        }
     }
 
     private suspend fun sendIndividually(
         ctx: CommandContext,
         mediaList: List<Media>,
         replyTo: Long?
-    ) {
-        mediaList.forEach { media ->
-            val file = File(media.fileUrl)
-            when (media.type) {
-                MediaType.VIDEO -> botPort.sendVideo(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.AUDIO -> botPort.sendAudio(ctx.chatId, file, replyToMessageId = replyTo)
-                MediaType.IMAGE -> botPort.sendPhoto(ctx.chatId, file, replyToMessageId = replyTo)
+    ): List<GatewayResult<Message>> =
+        mediaList.map { media ->
+            if (media.lastFileId != null) {
+                sendByFileId(media.type, ctx.chatId, media.lastFileId, replyTo)
+            } else {
+                val file = File(media.fileUrl)
+                sendByFile(media.type, ctx.chatId, file, replyTo)
             }
         }
+
+
+    private suspend fun sendByFileId(
+        type: MediaType,
+        chatId: Long,
+        fileId: String,
+        replyTo: Long?
+    ): GatewayResult<Message> = when (type) {
+        MediaType.VIDEO -> botPort.sendVideo(chatId, fileId, replyToMessageId = replyTo)
+        MediaType.AUDIO -> botPort.sendAudio(chatId, fileId, replyToMessageId = replyTo)
+        MediaType.IMAGE -> botPort.sendPhoto(chatId, fileId, replyToMessageId = replyTo)
+    }
+
+    private suspend fun sendByFile(
+        type: MediaType,
+        chatId: Long,
+        file: File,
+        replyTo: Long?
+    ): GatewayResult<Message> = when (type) {
+        MediaType.VIDEO -> botPort.sendVideo(chatId, file, replyToMessageId = replyTo)
+        MediaType.AUDIO -> botPort.sendAudio(chatId, file, replyToMessageId = replyTo)
+        MediaType.IMAGE -> botPort.sendPhoto(chatId, file, replyToMessageId = replyTo)
     }
 
 }

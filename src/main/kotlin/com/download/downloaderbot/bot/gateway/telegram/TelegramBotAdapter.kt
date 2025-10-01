@@ -7,11 +7,13 @@ import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.TelegramFile
+import com.github.kotlintelegrambot.entities.files.PhotoSize
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
 import java.io.File
+import kotlin.math.max
 
 @Component
 class TelegramBotAdapter(
@@ -217,3 +219,20 @@ val CommandContext.isPrivateChat: Boolean
 
 val CommandContext.isGroupChat: Boolean
     get() = chatType == "group" || chatType == "supergroup"
+
+val Message.fileId: String?
+    get() = this.photo.largest()?.fileId
+    ?: this.document?.fileId
+    ?: this.video?.fileId
+    ?: this.audio?.fileId
+    ?: this.animation?.fileId
+
+val Message.fileUniqueId: String?
+    get() = this.photo.largest()?.fileUniqueId
+    ?: this.document?.fileUniqueId
+    ?: this.video?.fileUniqueId
+    ?: this.audio?.fileUniqueId
+    ?: this.animation?.fileUniqueId
+
+private fun List<PhotoSize>?.largest(): PhotoSize? =
+    this?.maxByOrNull { max(it.width, it.height) }
