@@ -6,10 +6,10 @@ open class FilesByPrefixFinderException(message: String) : RuntimeException(mess
 
 class FilesByPrefixNotFoundException(
     val prefix: String,
-    val dir: Path
+    val dir: Path,
 ) : FilesByPrefixFinderException("File with prefix '$prefix' not found in directory: $dir")
 
 class FilesByDirectoryPrefixNotFoundException(
     val prefix: String,
-    val dir: Path
+    val dir: Path,
 ) : FilesByPrefixFinderException("Directory with prefix '$prefix' not found in directory: $dir")

@@ -1,10 +1,9 @@
 package com.download.downloaderbot.bot.config
 
-import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.BotCommand
+import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.CommandRegistry
 import com.download.downloaderbot.bot.config.properties.BotProperties
-import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
@@ -23,32 +22,32 @@ private val log = KotlinLogging.logger {}
 class BotConfig(
     val botProperties: BotProperties,
     val botScope: CoroutineScope,
-    val commands: CommandRegistry
+    val commands: CommandRegistry,
 ) {
-
     @Bean
-    fun telegramBot(): Bot = bot {
-        token = botProperties.token
+    fun telegramBot(): Bot =
+        bot {
+            token = botProperties.token
 
-        dispatch {
-            commands.byName.forEach { (name, handler) ->
-                command(name) {
-                    log.info { "Executing command /$name with args: $args" }
-                    botScope.launchHandler(update, args, handler)
+            dispatch {
+                commands.byName.forEach { (name, handler) ->
+                    command(name) {
+                        log.info { "Executing command /$name with args: $args" }
+                        botScope.launchHandler(update, args, handler)
+                    }
+                }
+
+                text {
+                    log.info { "Executing default command with text: '$text'" }
+                    botScope.launchHandler(update, listOf(text), commands.default)
                 }
             }
-
-            text {
-                log.info { "Executing default command with text: '${text}'" }
-                botScope.launchHandler(update, listOf(text), commands.default)
-            }
         }
-    }
 
     private fun CoroutineScope.launchHandler(
         update: Update,
         args: List<String>,
-        handler: BotCommand
+        handler: BotCommand,
     ) {
         val ctx = CommandContext(update, args)
         update.consume()
@@ -56,5 +55,4 @@ class BotConfig(
             handler.handle(ctx)
         }
     }
-
 }

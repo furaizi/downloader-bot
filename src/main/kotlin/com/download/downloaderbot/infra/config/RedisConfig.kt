@@ -15,31 +15,30 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
 class RedisConfig {
-
     @Bean
-    fun asyncRedisMediaCache(
-        mediaTemplate: ReactiveRedisTemplate<String, List<Media>>
-    ): CachePort<String, List<Media>> = AsyncRedisMediaCacheAdapter(mediaTemplate)
+    fun asyncRedisMediaCache(mediaTemplate: ReactiveRedisTemplate<String, List<Media>>): CachePort<String, List<Media>> =
+        AsyncRedisMediaCacheAdapter(mediaTemplate)
 
     @Bean
     fun mediaRedisTemplate(
         factory: ReactiveRedisConnectionFactory,
-        mapper: ObjectMapper
+        mapper: ObjectMapper,
     ): ReactiveRedisTemplate<String, List<Media>> {
         val key = StringRedisSerializer()
-        val javaType = mapper.typeFactory
-            .constructCollectionType(List::class.java, Media::class.java)
+        val javaType =
+            mapper.typeFactory
+                .constructCollectionType(List::class.java, Media::class.java)
         val value = Jackson2JsonRedisSerializer<List<Media>>(mapper, javaType)
 
-        val ctx = RedisSerializationContext
-            .newSerializationContext<String, List<Media>>(key)
-            .value(value)
-            .build()
+        val ctx =
+            RedisSerializationContext
+                .newSerializationContext<String, List<Media>>(key)
+                .value(value)
+                .build()
         return ReactiveRedisTemplate(factory, ctx)
     }
 
     @Bean
-    fun reactiveStringRedisTemplate(
-        factory: ReactiveRedisConnectionFactory
-    ): ReactiveStringRedisTemplate = ReactiveStringRedisTemplate(factory)
+    fun reactiveStringRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveStringRedisTemplate =
+        ReactiveStringRedisTemplate(factory)
 }

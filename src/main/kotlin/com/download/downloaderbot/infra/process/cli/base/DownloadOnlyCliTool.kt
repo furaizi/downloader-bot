@@ -12,10 +12,12 @@ private val log = KotlinLogging.logger {}
 class DownloadOnlyCliTool<T>(
     val runner: ProcessRunner,
     val cmdBuilder: CommandBuilder,
-    override val toolId: ToolId
-): CliTool<T> {
-
-    override suspend fun download(url: String, output: String) {
+    override val toolId: ToolId,
+) : CliTool<T> {
+    override suspend fun download(
+        url: String,
+        output: String,
+    ) {
         MDC.put("tool", toolId.label)
         try {
             val cmd = cmdBuilder.downloadCommand(url, output)
@@ -26,6 +28,8 @@ class DownloadOnlyCliTool<T>(
         }
     }
 
-    override suspend fun probe(url: String, output: String?): T =
-        throw UnsupportedOperationException("${toolId.label}: probe is not supported yet")
+    override suspend fun probe(
+        url: String,
+        output: String?,
+    ): T = throw UnsupportedOperationException("${toolId.label}: probe is not supported yet")
 }

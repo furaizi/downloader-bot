@@ -6,12 +6,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class InstaloaderPathGenerator(
-    val props: MediaProperties
+    val props: MediaProperties,
 ) : PathGenerator {
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)
         val outputTemplate = props.basePath.resolve(basePrefix).toString()
         return DownloadPath(basePrefix, outputTemplate)
     }
-
 }

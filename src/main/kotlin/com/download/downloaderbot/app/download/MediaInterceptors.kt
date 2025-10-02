@@ -20,9 +20,12 @@ private val log = KotlinLogging.logger {}
 @Order(10)
 class ResolveNormalizeInterceptor(
     private val resolver: FinalUrlResolver,
-    private val normalizer: UrlNormalizer
+    private val normalizer: UrlNormalizer,
 ) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> {
+    override suspend fun invoke(
+        url: String,
+        next: Handler,
+    ): List<Media> {
         val resolved = resolver.resolve(url)
         val final = normalizer.normalize(resolved)
         return next(final)
@@ -32,11 +35,15 @@ class ResolveNormalizeInterceptor(
 @Component
 @Order(20)
 class AllowlistInterceptor(
-    private val allowlist: UrlAllowlist
+    private val allowlist: UrlAllowlist,
 ) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> {
-        if (!allowlist.isAllowed(url))
+    override suspend fun invoke(
+        url: String,
+        next: Handler,
+    ): List<Media> {
+        if (!allowlist.isAllowed(url)) {
             throw UnsupportedSourceException(url)
+        }
         return next(url)
     }
 }
@@ -44,9 +51,12 @@ class AllowlistInterceptor(
 @Component
 @Order(30)
 class CacheReadBeforeLockInterceptor(
-    private val cache: CachePort<String, List<Media>>
+    private val cache: CachePort<String, List<Media>>,
 ) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> {
+    override suspend fun invoke(
+        url: String,
+        next: Handler,
+    ): List<Media> {
         cache.getWithLog(url)?.let { return it }
         return next(url)
     }
@@ -57,9 +67,12 @@ class CacheReadBeforeLockInterceptor(
 class LockWaitInterceptor(
     private val urlLock: UrlLockManager,
     private val cache: CachePort<String, List<Media>>,
-    private val props: CacheProperties
+    private val props: CacheProperties,
 ) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> {
+    override suspend fun invoke(
+        url: String,
+        next: Handler,
+    ): List<Media> {
         var token = urlLock.tryAcquire(url, props.lockTtl)
         if (token == null) {
             cache.awaitGet(url)?.let { return it }
@@ -88,17 +101,21 @@ class LockWaitInterceptor(
 @Component
 @Order(60)
 class SlotsInterceptor(private val slots: DownloadSlots) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> =
+    override suspend fun invoke(
+        url: String,
+        next: Handler,
+    ): List<Media> =
         slots.withSlotOrThrow(url) {
             next(url)
         }
 }
 
-
-private suspend fun CachePort<String, List<Media>>.getWithLog(url: String, afterLock: Boolean = false): List<Media>? {
+private suspend fun CachePort<String, List<Media>>.getWithLog(
+    url: String,
+    afterLock: Boolean = false,
+): List<Media>? {
     return this.get(url)?.also { cached ->
         val stage = if (afterLock) "after lock" else "before lock"
         log.info { "Cache hit $stage for url=$url, returning ${cached.size} media item(s)" }
     }
 }
-

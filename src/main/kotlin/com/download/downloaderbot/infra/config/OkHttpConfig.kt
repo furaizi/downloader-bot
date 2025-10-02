@@ -7,7 +7,6 @@ import java.time.Duration
 
 @Configuration
 class OkHttpConfig {
-
     @Bean
     fun okHttpClient(): OkHttpClient =
         OkHttpClient.Builder()

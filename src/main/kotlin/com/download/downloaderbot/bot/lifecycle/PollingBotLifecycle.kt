@@ -6,12 +6,10 @@ import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicBoolean
 
-
 private val log = KotlinLogging.logger {}
 
 @Component
 class PollingBotLifecycle(private val bot: Bot) : SmartLifecycle {
-
     private val running = AtomicBoolean(false)
 
     override fun isRunning(): Boolean = running.get()
@@ -37,7 +35,7 @@ class PollingBotLifecycle(private val bot: Bot) : SmartLifecycle {
     override fun stop() {
         if (running.compareAndSet(true, false)) {
             runCatching { bot.stopPolling() }
-            .onFailure { log.warn(it) { "stopPolling failed" } }
+                .onFailure { log.warn(it) { "stopPolling failed" } }
             log.info { "Telegram bot stopped polling" }
         }
     }

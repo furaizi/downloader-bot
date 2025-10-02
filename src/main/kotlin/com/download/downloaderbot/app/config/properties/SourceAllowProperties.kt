@@ -4,5 +4,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "downloader.sources")
 data class SourceAllowProperties(
-    val allow: List<String> = emptyList()
+    val allow: List<String> = emptyList(),
 )

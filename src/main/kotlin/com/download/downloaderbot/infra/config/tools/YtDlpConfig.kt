@@ -21,31 +21,30 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.yt-dlp", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class YtDlpConfig(val props: YtDlpProperties) {
-
     @Bean
     fun ytDlp(
         ytDlpRunner: ProcessRunner,
         ytDlpCommandBuilder: CommandBuilder,
         ytDlpExtractor: JsonExtractor,
-        ytDlpParser: JsonParser<YtDlpMedia>
+        ytDlpParser: JsonParser<YtDlpMedia>,
     ): CliTool<YtDlpMedia> =
-        BaseCliTool(ytDlpRunner, ytDlpCommandBuilder,
-            ytDlpExtractor, ytDlpParser, ToolId.YT_DLP)
+        BaseCliTool(
+            ytDlpRunner,
+            ytDlpCommandBuilder,
+            ytDlpExtractor,
+            ytDlpParser,
+            ToolId.YT_DLP,
+        )
 
     @Bean
-    fun ytDlpRunner(): ProcessRunner =
-        DefaultProcessRunner(props.bin, props.timeout)
+    fun ytDlpRunner(): ProcessRunner = DefaultProcessRunner(props.bin, props.timeout)
 
     @Bean
-    fun ytDlpCommandBuilder(): CommandBuilder =
-        YtDlpCommandBuilder(props)
+    fun ytDlpCommandBuilder(): CommandBuilder = YtDlpCommandBuilder(props)
 
     @Bean
-    fun ytDlpExtractor(): JsonExtractor =
-        OutputJsonExtractor(props.bin)
+    fun ytDlpExtractor(): JsonExtractor = OutputJsonExtractor(props.bin)
 
     @Bean
-    fun ytDlpParser(mapper: ObjectMapper): JsonParser<YtDlpMedia> =
-        jsonParser(mapper)
-
+    fun ytDlpParser(mapper: ObjectMapper): JsonParser<YtDlpMedia> = jsonParser(mapper)
 }

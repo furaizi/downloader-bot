@@ -17,15 +17,15 @@ private val log = KotlinLogging.logger {}
 class MediaCleanupSchedulingConfig(
     private val service: MediaCleanupService,
     private val props: MediaProperties,
-    private val maintenanceScope: CoroutineScope
+    private val maintenanceScope: CoroutineScope,
 ) : SchedulingConfigurer {
-
     private val running = java.util.concurrent.atomic.AtomicBoolean(false)
 
     override fun configureTasks(registrar: ScheduledTaskRegistrar) {
-        val trigger = PeriodicTrigger(props.cleanup.interval).apply {
-            setInitialDelay(props.cleanup.initialDelay)
-        }
+        val trigger =
+            PeriodicTrigger(props.cleanup.interval).apply {
+                setInitialDelay(props.cleanup.initialDelay)
+            }
 
         registrar.addTriggerTask({
             maintenanceScope.launch {

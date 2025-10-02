@@ -1,9 +1,9 @@
 package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
-import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
 import com.download.downloaderbot.bot.ratelimit.guard.DefaultRateLimitGuard
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
+import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.distributed.proxy.ProxyManager
@@ -24,23 +24,23 @@ import org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(
     prefix = "downloader.ratelimit",
     name = ["enabled"],
-    havingValue = "true"
+    havingValue = "true",
 )
 class RedisRateLimitConfiguration {
-
-
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
     fun redisClient(redisProps: RedisProperties): RedisClient {
-        val uri = RedisURI.Builder
-            .redis(redisProps.host, redisProps.port)
-            .apply {
-                if (!redisProps.password.isNullOrBlank())
-                    withPassword(redisProps.password.toCharArray())
-                if (redisProps.ssl.isEnabled) withSsl(true)
-                withDatabase(redisProps.database)
-            }
-            .build()
+        val uri =
+            RedisURI.Builder
+                .redis(redisProps.host, redisProps.port)
+                .apply {
+                    if (!redisProps.password.isNullOrBlank()) {
+                        withPassword(redisProps.password.toCharArray())
+                    }
+                    if (redisProps.ssl.isEnabled) withSsl(true)
+                    withDatabase(redisProps.database)
+                }
+                .build()
         return RedisClient.create(uri)
     }
 
@@ -53,9 +53,7 @@ class RedisRateLimitConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun bucket4jProxyManager(
-        connection: StatefulRedisConnection<String, ByteArray>
-    ): ProxyManager<String> {
+    fun bucket4jProxyManager(connection: StatefulRedisConnection<String, ByteArray>): ProxyManager<String> {
         return LettuceBasedProxyManager
             .builderFor(connection)
             .build()
@@ -66,12 +64,10 @@ class RedisRateLimitConfiguration {
     fun rateLimiter(
         proxyManager: ProxyManager<String>,
         props: RateLimitProperties,
-        mapper: ObjectMapper
+        mapper: ObjectMapper,
     ): RateLimiter = Bucket4jRateLimiter(proxyManager, props, mapper)
 
     @Bean
     @ConditionalOnMissingBean(RateLimitGuard::class)
-    fun rateLimitGuard(
-        limiter: RateLimiter
-    ): RateLimitGuard = DefaultRateLimitGuard(limiter)
+    fun rateLimitGuard(limiter: RateLimiter): RateLimitGuard = DefaultRateLimitGuard(limiter)
 }

@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class InstaloaderMedia(
-    val node: Node
+    val node: Node,
 ) : MediaConvertible {
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Node(
@@ -20,12 +20,15 @@ data class InstaloaderMedia(
         @JsonProperty("has_audio") val hasAudio: Boolean,
         @JsonProperty("__typename") val typename: String,
         @JsonProperty("product_type") val productType: String,
-        val dimensions: Dimensions
+        val dimensions: Dimensions,
     )
 
     data class Dimensions(val height: Int, val width: Int)
 
-    override fun toMedia(filePath: Path, sourceUrl: String) = Media(
+    override fun toMedia(
+        filePath: Path,
+        sourceUrl: String,
+    ) = Media(
         type = MediaType.VIDEO,
         fileUrl = filePath.toAbsolutePath().toString(),
         sourceUrl = sourceUrl,

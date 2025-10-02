@@ -7,5 +7,5 @@ import java.time.Duration
 data class GalleryDlProperties(
     val bin: String,
     val extraArgs: List<String> = emptyList(),
-    val timeout: Duration = Duration.ofMinutes(1)
+    val timeout: Duration = Duration.ofMinutes(1),
 )

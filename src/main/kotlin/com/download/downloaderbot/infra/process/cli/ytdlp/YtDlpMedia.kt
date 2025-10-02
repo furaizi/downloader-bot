@@ -12,10 +12,12 @@ data class YtDlpMedia(
     val title: String,
     val filename: String,
     val resolution: String,
-    val duration: Long, // in seconds
+    // in seconds
+    val duration: Long,
     val width: Int,
     val height: Int,
-    val filesize: Long = 0, // in bytes
+    // in bytes
+    val filesize: Long = 0,
     @JsonProperty("filesize_approx")
     val approximateFileSize: Long = 0,
     val extractor: String,
@@ -24,12 +26,15 @@ data class YtDlpMedia(
     @JsonProperty("ext") val extension: String,
     val hasAudio: Boolean = false,
     @JsonProperty("vcodec") val videoCodec: String?,
-    @JsonProperty("acodec") val audioCodec: String?
+    @JsonProperty("acodec") val audioCodec: String?,
 ) : MediaConvertible {
-    override fun toMedia(filePath: Path, sourceUrl: String) = Media(
+    override fun toMedia(
+        filePath: Path,
+        sourceUrl: String,
+    ) = Media(
         type = MediaType.fromString(this.type),
         fileUrl = filePath.toAbsolutePath().toString(),
         sourceUrl = sourceUrl,
-        title = this.title
+        title = this.title,
     )
 }

@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component
 @Component
 class CommandRegistry(
     handlers: List<BotCommand>,
-    props: BotProperties
+    props: BotProperties,
 ) {
     val byName: Map<String, BotCommand> = handlers.associateBy { it.name }
-    val default: BotCommand = byName[props.defaultCommand]
-        ?: error("Default command handler not found: ${props.defaultCommand}")
+    val default: BotCommand =
+        byName[props.defaultCommand]
+            ?: error("Default command handler not found: ${props.defaultCommand}")
 }

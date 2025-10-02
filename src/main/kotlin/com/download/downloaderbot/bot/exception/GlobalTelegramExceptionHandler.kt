@@ -23,30 +23,36 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class GlobalTelegramExceptionHandler(val botPort: BotPort) {
-
-    suspend fun handle(e: Exception, ctx: CommandContext) {
-        if (e is CancellationException)
+    suspend fun handle(
+        e: Exception,
+        ctx: CommandContext,
+    ) {
+        if (e is CancellationException) {
             throw e // very important for coroutines
+        }
         logAtProperLevel(e, ctx.chatId)
         botPort.sendText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
     }
 
+    private fun Exception.toUserMessage(): String =
+        when (this) {
+            is UnsupportedSourceException -> "Це джерело не підтримується."
+            is MediaTooLargeException -> "Медіафайл занадто великий. Обмеження: ${limit.toMB()} МБ."
+            is MediaNotFoundException -> "Нічого не знайдено за цим URL."
+            is ToolExecutionException -> "Внутрішній інструмент не зміг виконатися (код=$exitCode)."
+            is ToolTimeoutException -> "Внутрішній інструмент перевищив час очікування: $timeout."
+            is MediaDownloaderToolException -> "Сталася внутрішня помилка інструменту."
+            is DownloadInProgressException -> "Цей медіафайл уже завантажується, будь ласка, зачекайте."
+            is BusyException -> "Завантажувач зараз зайнятий, спробуйте пізніше."
+            is TooManyRequestsException -> "Занадто багато запитів, спробуйте пізніше."
+            is MediaDownloaderException -> "Сталася помилка під час обробки медіафайлу."
+            else -> "Сталася непередбачена помилка."
+        }
 
-    private fun Exception.toUserMessage(): String = when (this) {
-        is UnsupportedSourceException ->    "Це джерело не підтримується."
-        is MediaTooLargeException ->        "Медіафайл занадто великий. Обмеження: ${limit.toMB()} МБ."
-        is MediaNotFoundException ->        "Нічого не знайдено за цим URL."
-        is ToolExecutionException ->        "Внутрішній інструмент не зміг виконатися (код=$exitCode)."
-        is ToolTimeoutException ->          "Внутрішній інструмент перевищив час очікування: $timeout."
-        is MediaDownloaderToolException ->  "Сталася внутрішня помилка інструменту."
-        is DownloadInProgressException ->   "Цей медіафайл уже завантажується, будь ласка, зачекайте."
-        is BusyException ->                 "Завантажувач зараз зайнятий, спробуйте пізніше."
-        is TooManyRequestsException ->      "Занадто багато запитів, спробуйте пізніше."
-        is MediaDownloaderException ->      "Сталася помилка під час обробки медіафайлу."
-        else ->                             "Сталася непередбачена помилка."
-    }
-
-    private fun logAtProperLevel(e: Exception, chatId: Long) {
+    private fun logAtProperLevel(
+        e: Exception,
+        chatId: Long,
+    ) {
         val msg = e.message ?: e::class.simpleName ?: "No message"
         val base = "[chatId=$chatId] $msg"
 
@@ -56,14 +62,16 @@ class GlobalTelegramExceptionHandler(val botPort: BotPort) {
             is MediaNotFoundException,
             is DownloadInProgressException,
             is BusyException,
-            is TooManyRequestsException -> {
+            is TooManyRequestsException,
+            -> {
                 log.info { base }
                 log.debug(e) { base }
             }
             is ToolTimeoutException,
             is ToolExecutionException,
             is MediaDownloaderToolException,
-            is MediaDownloaderException -> log.warn(e) { base }
+            is MediaDownloaderException,
+            -> log.warn(e) { base }
             else -> log.error(e) { base }
         }
     }

@@ -7,9 +7,8 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate
 import java.time.Duration
 
 class AsyncRedisMediaCacheAdapter(
-    private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>
+    private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
 ) : CachePort<String, List<Media>> {
-
     private fun key(url: String) = "media:url:$url"
 
     override suspend fun get(id: String): List<Media>? =
@@ -17,7 +16,11 @@ class AsyncRedisMediaCacheAdapter(
             .get(key(url = id))
             .awaitFirstOrNull()
 
-    override suspend fun put(id: String, values: List<Media>, ttl: Duration) {
+    override suspend fun put(
+        id: String,
+        values: List<Media>,
+        ttl: Duration,
+    ) {
         if (values.isEmpty()) return
         mediaTemplate.opsForValue()
             .set(key(url = id), values, ttl)

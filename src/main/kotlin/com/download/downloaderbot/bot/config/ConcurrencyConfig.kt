@@ -18,20 +18,22 @@ private val log = KotlinLogging.logger {}
 
 @Configuration
 class ConcurrencyConfig(
-    private val exceptionHandler: GlobalTelegramExceptionHandler
+    private val exceptionHandler: GlobalTelegramExceptionHandler,
 ) {
-    data class BotContext(val commandContext: CommandContext)
-        : AbstractCoroutineContextElement(Key) {
+    data class BotContext(val commandContext: CommandContext) :
+        AbstractCoroutineContextElement(Key) {
         companion object Key : CoroutineContext.Key<BotContext>
     }
 
     class BotCoroutineExceptionHandler(
-        private val delegate: GlobalTelegramExceptionHandler
+        private val delegate: GlobalTelegramExceptionHandler,
     ) : AbstractCoroutineContextElement(CoroutineExceptionHandler), CoroutineExceptionHandler {
-
         private val notifyScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-        override fun handleException(context: CoroutineContext, exception: Throwable) {
+        override fun handleException(
+            context: CoroutineContext,
+            exception: Throwable,
+        ) {
             val botCtx = context[BotContext] ?: return
             if (exception is CancellationException) return
 
@@ -56,5 +58,4 @@ class ConcurrencyConfig(
 
     @Bean
     fun maintenanceScope() = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
 }

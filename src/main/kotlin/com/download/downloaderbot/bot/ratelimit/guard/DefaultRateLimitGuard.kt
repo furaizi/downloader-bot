@@ -9,9 +9,12 @@ import mu.KotlinLogging
 private val log = KotlinLogging.logger {}
 
 class DefaultRateLimitGuard(
-    private val limiter: RateLimiter
+    private val limiter: RateLimiter,
 ) : RateLimitGuard {
-    override suspend fun <T> runOrReject(ctx: CommandContext, block: suspend () -> T): T {
+    override suspend fun <T> runOrReject(
+        ctx: CommandContext,
+        block: suspend () -> T,
+    ): T {
         val chatId = ctx.chatId
         val chatType = if (chatId < 0) "group" else "private"
 
