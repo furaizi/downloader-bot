@@ -1,10 +1,17 @@
 package com.download.downloaderbot.bot.gateway.telegram
 
 import com.download.downloaderbot.bot.gateway.GatewayResult
+import com.download.downloaderbot.bot.gateway.InputFile
+import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.types.TelegramBotResult
 import com.github.kotlintelegrambot.types.TelegramBotResult.*
 import retrofit2.Response as HttpResponse
 import com.github.kotlintelegrambot.network.Response as TgEnvelope
+
+fun InputFile.toTelegram(): TelegramFile = when (this) {
+    is InputFile.Local -> TelegramFile.ByFile(this.file)
+    is InputFile.Id -> TelegramFile.ByFileId(this.fileId)
+}
 
 fun <T : Any> TelegramBotResult<T>.toGateway(): GatewayResult<T> =
     when (this) {

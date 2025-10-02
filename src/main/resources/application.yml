@@ -37,7 +37,7 @@ downloader:
       photo: 10MB
       video: 50MB
     cleanup:
-      max-age: 7d
+      max-age: 3h
       max-total-size: 10GB
       interval: 1h
       initial-delay: 5m
@@ -68,7 +68,7 @@ downloader:
     session-file: ${INSTALOADER_SESSION_FILE:}
     user-agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile'
   cache:
-    media-ttl: 7d
+    media-ttl: 180d
     lock-ttl: 60s
     wait-timeout: 60s
     wait-poll: 1s

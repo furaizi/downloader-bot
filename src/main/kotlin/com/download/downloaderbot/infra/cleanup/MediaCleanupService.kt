@@ -1,7 +1,8 @@
 package com.download.downloaderbot.infra.cleanup
 
-import com.download.downloaderbot.core.cache.MediaCache
+import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.app.config.properties.MediaProperties
+import com.download.downloaderbot.core.domain.Media
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -18,8 +19,7 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class MediaCleanupService(
-    private val mediaProperties: MediaProperties,
-    private val mediaCache: MediaCache
+    private val mediaProperties: MediaProperties
 ) {
 
     suspend fun cleanup(): MediaCleanupReport {
@@ -40,7 +40,7 @@ class MediaCleanupService(
         if (threshold != null) {
             val expired = remaining.filter { it.lastModified.isBefore(threshold) }
             for (file in expired) {
-                if (deleteAndEvict(file)) {
+                if (deleteFile(file)) {
                     deletedFiles += 1
                     freedBytes += file.size
                     remaining.remove(file)
@@ -55,7 +55,7 @@ class MediaCleanupService(
                 val orderedByAge = remaining.sortedBy { it.lastModified }
                 for (file in orderedByAge) {
                     if (totalSize <= maxBytes) break
-                    if (deleteAndEvict(file)) {
+                    if (deleteFile(file)) {
                         deletedFiles += 1
                         freedBytes += file.size
                         totalSize -= file.size
@@ -65,19 +65,6 @@ class MediaCleanupService(
         }
 
         return MediaCleanupReport(deletedFiles, freedBytes)
-    }
-
-    private suspend fun deleteAndEvict(file: MediaFile): Boolean {
-        val deleted = deleteFile(file)
-        if (deleted) {
-            evictCacheFor(file.path)
-        }
-        return deleted
-    }
-
-    private suspend fun evictCacheFor(path: Path) {
-        mediaCache.evictByPath(path)
-        log.debug { "Evicted cache entries by path=$path" }
     }
 
     private suspend fun loadFiles(basePath: Path): List<MediaFile> = withContext(Dispatchers.IO) {

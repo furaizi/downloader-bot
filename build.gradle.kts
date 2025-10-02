@@ -38,7 +38,7 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:8.15.0")
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.15.0")
     implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
