@@ -52,10 +52,7 @@ class DownloadCommand(
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
         val rawUrl = ctx.args.firstOrNull()?.trim()
-        val url = rawUrl
-            ?.takeIf { it.isNotBlank() && validator.isHttpUrl(it) }
-            ?.let { original -> urlNormalizer.normalize(urlResolver.resolve(original)) }
-
+        val url = normalizeUrlOrNull(rawUrl)
 
         val allowed = when {
             url == null       -> false
@@ -90,6 +87,12 @@ class DownloadCommand(
             val urls = mediaList.map { it.fileUrl }
             "Downloaded: $titles ($urls)"
         }
+    }
+
+    private suspend fun normalizeUrlOrNull(rawUrl: String?): String? {
+        if (!validator.isHttpUrl(rawUrl)) return null
+        val resolved = urlResolver.resolve(rawUrl!!.trim())
+        return urlNormalizer.normalize(resolved)
     }
 
 
