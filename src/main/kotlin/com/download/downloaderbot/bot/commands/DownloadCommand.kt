@@ -107,7 +107,7 @@ class DownloadCommand(
             when (val res = sendAlbum(ctx, inputs, replyTo, chunked)) {
                 is GatewayResult.Ok  -> res.value
                 is GatewayResult.Err -> {
-                    log.warn(res.cause) { "Failed to send album (chunked=$chunked)" }
+                    log.warn(res.cause) { res.description }
                     emptyList()
                 }
             }
@@ -118,7 +118,10 @@ class DownloadCommand(
             }
 
             // TODO: handle many videos properly
-            results.mapNotNull { it.getOrNull() }
+            results.mapNotNull { result ->
+                result.onErr { log.warn(it.cause) { it.description } }
+                    .getOrNull()
+            }
         }
     }
 
