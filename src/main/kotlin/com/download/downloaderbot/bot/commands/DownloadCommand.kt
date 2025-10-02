@@ -11,6 +11,7 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.app.download.UrlNormalizer
+import com.download.downloaderbot.bot.commands.util.UrlValidator
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.InputFile
 import com.download.downloaderbot.bot.gateway.asInputFile
@@ -36,6 +37,7 @@ class DownloadCommand(
     private val botPort: BotPort,
     private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
+    private val validator: UrlValidator,
     private val urlResolver: FinalUrlResolver,
     private val urlNormalizer: UrlNormalizer,
     private val cachePort: CachePort<String, List<Media>>
@@ -50,26 +52,26 @@ class DownloadCommand(
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
         val rawUrl = ctx.args.firstOrNull()?.trim()
+        val url = rawUrl
+            ?.takeIf { it.isNotBlank() && validator.isHttpUrl(it) }
+            ?.let { original -> urlNormalizer.normalize(urlResolver.resolve(original)) }
 
-        val isUrl = !rawUrl.isNullOrBlank() && looksLikeHttpUrl(rawUrl)
-        val url = if (isUrl)
-            urlNormalizer.normalize(urlResolver.resolve(rawUrl!!))
-            else null
 
-        val isValid = when {
-            ctx.isPrivateChat -> isUrl
-            ctx.isGroupChat -> isUrl && allowlist.isAllowed(url!!)
-            else -> false
+        val allowed = when {
+            url == null       -> false
+            ctx.isPrivateChat -> true
+            ctx.isGroupChat   -> allowlist.isAllowed(url)
+            else              -> false
         }
-        url!!
 
-        if (!isValid) {
+        if (!allowed) {
             if (ctx.isPrivateChat)
                 rateLimitGuard.runOrReject(ctx) {
                     botPort.sendText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
                 }
             return
         }
+        url ?: return
 
         val mediaList = withContext(Dispatchers.IO) {
             rateLimitGuard.runOrReject(ctx) {
@@ -89,14 +91,6 @@ class DownloadCommand(
             "Downloaded: $titles ($urls)"
         }
     }
-
-    private fun looksLikeHttpUrl(s: String): Boolean =
-        try {
-            val u = URI(s)
-            (u.scheme == "http" || u.scheme == "https") && !u.host.isNullOrBlank()
-        } catch (_: Exception) {
-            false
-        }
 
 
     private suspend fun sendMediaSmart(
@@ -120,6 +114,7 @@ class DownloadCommand(
                 botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
             }
 
+            // TODO: handle many videos properly
             results.mapNotNull { it.getOrNull() }
         }
     }
