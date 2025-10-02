@@ -51,12 +51,6 @@ RUN set -eux; \
   /opt/bin/yt-dlp --version >/dev/null
 
 RUN set -eux; \
-  curl -fsSL "https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.bin" \
-    -o /opt/bin/gallery-dl; \
-  chmod +x /opt/bin/gallery-dl; \
-  /opt/bin/gallery-dl --version >/dev/null
-
-RUN set -eux; \
   arch="$(dpkg --print-architecture)"; \
   case "$arch" in \
     amd64)  triplet="x86_64-unknown-linux-gnu" ;; \
@@ -76,8 +70,9 @@ RUN set -eux; \
 RUN set -eux; \
   "${PY_PREFIX}/bin/python3" -m ensurepip --upgrade; \
   "${PY_PREFIX}/bin/python3" -m pip install --upgrade pip; \
-  "${PY_PREFIX}/bin/python3" -m pip install --no-cache-dir instaloader; \
-  "${PY_PREFIX}/bin/instaloader" --version >/dev/null
+  "${PY_PREFIX}/bin/python3" -m pip install --no-cache-dir instaloader gallery-dl 'requests[socks]'; \
+  "${PY_PREFIX}/bin/instaloader" --version >/dev/null; \
+  "${PY_PREFIX}/bin/gallery-dl" --version >/dev/null
 
 RUN mkdir -p /opt/empty && rm -rf /tmp/*
 
@@ -90,9 +85,8 @@ WORKDIR /app
 COPY --from=tools /opt/bin/ffmpeg   /usr/local/bin/ffmpeg
 COPY --from=tools /opt/bin/ffprobe  /usr/local/bin/ffprobe
 COPY --from=tools /opt/bin/yt-dlp   /usr/local/bin/yt-dlp
-COPY --from=tools /opt/bin/gallery-dl /usr/local/bin/gallery-dl
 COPY --from=tools /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=tools /bin/busybox      /usr/local/bin/busybox
+COPY --from=tools /bin/busybox  /usr/local/bin/busybox
 
 COPY --from=tools --chown=65532:65532 /opt/empty/ /data/Downloads/downloader-bot/
 
