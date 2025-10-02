@@ -1,6 +1,7 @@
 package com.download.downloaderbot.infra.cleanup
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -22,13 +23,16 @@ class MediaCleanupSchedulingConfig(
     private val running = java.util.concurrent.atomic.AtomicBoolean(false)
 
     override fun configureTasks(registrar: ScheduledTaskRegistrar) {
+        val handler = CoroutineExceptionHandler { _, e ->
+            log.warn(e) { "Media cleanup failed" }
+        }
         val trigger =
             PeriodicTrigger(props.cleanup.interval).apply {
                 setInitialDelay(props.cleanup.initialDelay)
             }
 
         registrar.addTriggerTask({
-            maintenanceScope.launch {
+            maintenanceScope.launch(handler) {
                 runCleanupGuarded()
             }
         }, trigger)
@@ -46,8 +50,6 @@ class MediaCleanupSchedulingConfig(
             } else {
                 log.debug { "Media cleanup run completed without deletions" }
             }
-        } catch (t: Throwable) {
-            log.warn(t) { "Media cleanup failed" }
         } finally {
             running.set(false)
         }

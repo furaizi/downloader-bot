@@ -78,12 +78,13 @@ class MediaCleanupService(
                         .mapNotNull { toMediaFile(it) }
                         .toList()
                 }
-            } catch (ex: Exception) {
+            } catch (ex: IOException) {
                 log.warn(ex) { "Failed to enumerate media files in $basePath" }
                 emptyList()
             }
         }
 
+    @SuppressWarnings("TooGenericExceptionCaught")
     private fun toMediaFile(path: Path): MediaFile? {
         val size =
             try {

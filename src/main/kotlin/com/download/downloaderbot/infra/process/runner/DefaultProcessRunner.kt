@@ -63,7 +63,7 @@ class DefaultProcessRunner(
                             ""
                         }
                     }.getOrDefault("")
-                throw ToolTimeoutException(bin, timeout, partialOutput)
+                throw ToolTimeoutException(bin, timeout, partialOutput, te)
             } catch (ce: CancellationException) {
                 log.info { "Cancelling download process for $url" }
                 process.killTree()
@@ -95,6 +95,7 @@ class DefaultProcessRunner(
             }
         }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun Process.awaitExitCode(): Int =
         try {
             onExit()

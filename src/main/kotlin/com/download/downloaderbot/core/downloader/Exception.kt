@@ -9,8 +9,8 @@ fun Long.toMB() = this / BYTES_IN_MB
 open class MediaDownloaderToolException(
     message: String,
     val output: String = "",
-) :
-    RuntimeException(message)
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)
 
 class ToolExecutionException(
     val tool: String,
@@ -55,4 +55,11 @@ class ToolTimeoutException(
     val tool: String,
     val timeout: Duration,
     output: String,
-) : MediaDownloaderToolException("$tool timed out after $timeout", output)
+    cause: Throwable? = null
+) : MediaDownloaderToolException("$tool timed out after $timeout", output, cause)
+
+class MalformedJsonException(
+    message: String,
+    output: String,
+    cause: Throwable? = null,
+) : MediaDownloaderToolException(message, output, cause)

@@ -93,6 +93,7 @@ class TelegramBotAdapter(
             replyToMessageId = replyToMessageId,
         ).toGateway()
 
+    @Suppress("SpreadOperator")
     override suspend fun sendPhotoAlbum(
         chatId: Long,
         files: List<InputFile>,

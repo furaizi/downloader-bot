@@ -22,7 +22,11 @@ class FileJsonExtractor(
             try {
                 file.readText()
             } catch (e: IOException) {
-                throw MediaDownloaderToolException("Failed to read JSON produced by $toolName", output = e.message ?: "IO error")
+                throw MediaDownloaderToolException(
+                    message = "Failed to read JSON produced by $toolName",
+                    output = e.message ?: "IO error",
+                    cause = e
+                )
             } finally {
                 runCatching { file.delete() }
             }

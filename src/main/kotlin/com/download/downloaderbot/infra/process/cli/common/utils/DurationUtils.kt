@@ -1,5 +1,6 @@
 package com.download.downloaderbot.infra.process.cli.common.utils
 
+import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -16,20 +17,20 @@ fun Duration.human(): String =
 
         this < 1.toDuration(DurationUnit.MINUTES) -> {
             val s = inWholeMilliseconds / 1000.0
-            String.format("%.3fs", s)
+            String.format(Locale.ROOT, "%.3fs", s)
         }
 
         this < 1.toDuration(DurationUnit.HOURS) -> {
             toComponents { _, minutes, seconds, nanoseconds ->
                 val millis = nanoseconds / 1_000_000
-                String.format("%02d:%02d.%03d", minutes, seconds, millis)
+                String.format(Locale.ROOT, "%02d:%02d.%03d", minutes, seconds, millis)
             }
         }
 
         else -> {
             toComponents { hours, minutes, seconds, nanoseconds ->
                 val millis = nanoseconds / 1_000_000
-                String.format("%d:%02d:%02d.%03d", hours, minutes, seconds, millis)
+                String.format(Locale.ROOT, "%d:%02d:%02d.%03d", hours, minutes, seconds, millis)
             }
         }
     }

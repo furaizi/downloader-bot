@@ -23,13 +23,21 @@ class TelegramJacksonConfig {
                     ): MessageEntity.Type {
                         val raw =
                             p.valueAsString
-                                ?: throw ctxt.weirdStringException("", MessageEntity.Type::class.java, "Missing entity type")
+                                ?: throw ctxt.weirdStringException(
+                                    "",
+                                    MessageEntity.Type::class.java,
+                                    "Missing entity type"
+                                )
 
                         val normalized = raw.trim().uppercase().replace('-', '_')
                         return try {
                             MessageEntity.Type.valueOf(normalized)
                         } catch (_: IllegalArgumentException) {
-                            throw ctxt.weirdStringException(raw, MessageEntity.Type::class.java, "Unknown MessageEntity.Type")
+                            throw ctxt.weirdStringException(
+                                raw,
+                                MessageEntity.Type::class.java,
+                                "Unknown MessageEntity.Type"
+                            )
                         }
                     }
                 },
