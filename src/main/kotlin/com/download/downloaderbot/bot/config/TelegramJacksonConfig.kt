@@ -26,7 +26,7 @@ class TelegramJacksonConfig {
                                 ?: throw ctxt.weirdStringException(
                                     "",
                                     MessageEntity.Type::class.java,
-                                    "Missing entity type"
+                                    "Missing entity type",
                                 )
 
                         val normalized = raw.trim().uppercase().replace('-', '_')
@@ -36,7 +36,7 @@ class TelegramJacksonConfig {
                             throw ctxt.weirdStringException(
                                 raw,
                                 MessageEntity.Type::class.java,
-                                "Unknown MessageEntity.Type"
+                                "Unknown MessageEntity.Type",
                             )
                         }
                     }

@@ -25,7 +25,7 @@ class FileJsonExtractor(
                 throw MediaDownloaderToolException(
                     message = "Failed to read JSON produced by $toolName",
                     output = e.message ?: "IO error",
-                    cause = e
+                    cause = e,
                 )
             } finally {
                 runCatching { file.delete() }

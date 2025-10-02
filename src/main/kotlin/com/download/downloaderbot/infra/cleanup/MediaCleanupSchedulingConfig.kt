@@ -23,9 +23,10 @@ class MediaCleanupSchedulingConfig(
     private val running = java.util.concurrent.atomic.AtomicBoolean(false)
 
     override fun configureTasks(registrar: ScheduledTaskRegistrar) {
-        val handler = CoroutineExceptionHandler { _, e ->
-            log.warn(e) { "Media cleanup failed" }
-        }
+        val handler =
+            CoroutineExceptionHandler { _, e ->
+                log.warn(e) { "Media cleanup failed" }
+            }
         val trigger =
             PeriodicTrigger(props.cleanup.interval).apply {
                 setInitialDelay(props.cleanup.initialDelay)

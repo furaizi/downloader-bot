@@ -55,7 +55,7 @@ class ToolTimeoutException(
     val tool: String,
     val timeout: Duration,
     output: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : MediaDownloaderToolException("$tool timed out after $timeout", output, cause)
 
 class MalformedJsonException(
