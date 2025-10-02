@@ -51,6 +51,12 @@ RUN set -eux; \
   /opt/bin/yt-dlp --version >/dev/null
 
 RUN set -eux; \
+  curl -fsSL "https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.bin" \
+    -o /opt/bin/gallery-dl; \
+  chmod +x /opt/bin/gallery-dl; \
+  /opt/bin/gallery-dl --version >/dev/null
+
+RUN set -eux; \
   arch="$(dpkg --print-architecture)"; \
   case "$arch" in \
     amd64)  triplet="x86_64-unknown-linux-gnu" ;; \
@@ -81,9 +87,10 @@ ENV PATH="/usr/local/bin:/opt/py/bin:${PATH}" \
     JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data"
 WORKDIR /app
 
-COPY --from=tools /opt/bin/yt-dlp   /usr/local/bin/yt-dlp
 COPY --from=tools /opt/bin/ffmpeg   /usr/local/bin/ffmpeg
 COPY --from=tools /opt/bin/ffprobe  /usr/local/bin/ffprobe
+COPY --from=tools /opt/bin/yt-dlp   /usr/local/bin/yt-dlp
+COPY --from=tools /opt/bin/gallery-dl /usr/local/bin/gallery-dl
 COPY --from=tools /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=tools /bin/busybox      /usr/local/bin/busybox
 
