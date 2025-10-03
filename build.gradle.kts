@@ -1,5 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
-import kotlinx.kover.gradle.plugin.dsl.MetricType
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -8,7 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
-    id("org.jetbrains.kotlinx.kover") version "0.7.5"
+    id("org.jetbrains.kotlinx.kover") version "0.8.3"
 }
 
 group = "com.download"
@@ -99,7 +99,7 @@ ktlint {
 }
 
 tasks.named("check") {
-    dependsOn("detekt", "ktlintCheck", "koverHtmlReport", "koverXmlReport", "koverVerify")
+    dependsOn("detekt", "ktlintCheck")
 }
 
 tasks.register("format") {
@@ -108,30 +108,35 @@ tasks.register("format") {
     dependsOn("ktlintFormat")
 }
 
-koverReport {
-    defaults {
-        verify {
-            rule {
-                bound {
-                    minValue = 0
-                    metric = MetricType.LINE
-                }
-                bound {
-                    minValue = 0
-                    metric = MetricType.BRANCH
+kover {
+    reports {
+        total {
+            html { onCheck = true }
+            xml { onCheck = true }
+
+            verify {
+                rule {
+                    bound {
+                        minValue = 0
+                        coverageUnits = CoverageUnit.LINE
+                    }
+                    bound {
+                        minValue = 0
+                        coverageUnits = CoverageUnit.BRANCH
+                    }
                 }
             }
-        }
-    }
 
-    filters {
-        excludes {
-            classes(
-                "com.download.downloaderbot.DownloaderBotApplicationKt",
-                "com.download.downloaderbot.*.*Config*",
-                "com.download.downloaderbot.*.*Properties*",
-                "com.download.downloaderbot.*.*Media",
-            )
+            filters {
+                excludes {
+                    classes(
+                        "com.download.downloaderbot.DownloaderBotApplicationKt",
+                        "com.download.downloaderbot.*.*Config*",
+                        "com.download.downloaderbot.*.*Properties*",
+                        "com.download.downloaderbot.*.*Media",
+                    )
+                }
+            }
         }
     }
 }

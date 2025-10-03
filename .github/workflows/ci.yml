@@ -34,8 +34,8 @@ jobs:
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - name: Build, Lint, Analyze, Test
-        run: ./gradlew --no-daemon clean check
+      - name: Build (includes tests & check)
+        run: ./gradlew --no-daemon build
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
