@@ -16,8 +16,6 @@ import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-private val log = KotlinLogging.logger {}
-
 @Configuration
 class BotConfig(
     val botProperties: BotProperties,
