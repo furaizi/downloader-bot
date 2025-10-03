@@ -12,7 +12,6 @@ import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.Update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
