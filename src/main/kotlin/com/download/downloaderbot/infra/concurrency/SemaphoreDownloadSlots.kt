@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class SemaphoreDownloadSlots(
-    val props: ConcurrencyProperties
+    val props: ConcurrencyProperties,
 ) : DownloadSlots {
     private val sem = Semaphore(props.maxDownloads)
 
-    override suspend fun <T> withSlotOrThrow(url: String, block: suspend () -> T): T {
+    override suspend fun <T> withSlotOrThrow(
+        url: String,
+        block: suspend () -> T,
+    ): T {
         val acquired = sem.tryAcquire()
         if (!acquired) throw BusyException(url)
         try {

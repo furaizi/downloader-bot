@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class GalleryDlPathGenerator(
-    val props: MediaProperties
+    val props: MediaProperties,
 ) : PathGenerator {
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)

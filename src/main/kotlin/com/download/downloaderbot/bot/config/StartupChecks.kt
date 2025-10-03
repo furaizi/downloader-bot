@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class StartupChecks {
-
     @Bean
-    fun checkToken(props: BotProperties) = ApplicationRunner {
-        require(props.token.isNotBlank()) { "Telegram bot token must be provided" }
-    }
+    fun checkToken(props: BotProperties) =
+        ApplicationRunner {
+            require(props.token.isNotBlank()) { "Telegram bot token must be provided" }
+        }
 }

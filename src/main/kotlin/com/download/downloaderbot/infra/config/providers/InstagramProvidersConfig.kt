@@ -16,18 +16,16 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class InstagramProvidersConfig(
-    val props: MediaProperties
+    val props: MediaProperties,
 ) {
-
     @Bean
     @ConditionalOnBean(YtDlpConfig::class)
     fun instagramReelsDownloader(
         ytDlp: CliTool<YtDlpMedia>,
         ytDlpPathGenerator: PathGenerator,
-        @ForYtDlp filesByPrefixFinder: FilesByPrefixFinder
+        @ForYtDlp filesByPrefixFinder: FilesByPrefixFinder,
     ): MediaProvider =
         BaseMediaProvider(props, ytDlp, ytDlpPathGenerator, filesByPrefixFinder, urlPredicate = {
             it.containsAll("instagram.com", "reel")
         })
-
 }

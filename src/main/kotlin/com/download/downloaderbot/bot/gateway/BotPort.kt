@@ -2,14 +2,12 @@ package com.download.downloaderbot.bot.gateway
 
 import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.entities.Message
-import java.io.File
 
 interface BotPort {
-
     suspend fun sendText(
         chatId: Long,
         text: String,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<Message>
 
     suspend fun sendMedia(
@@ -17,18 +15,19 @@ interface BotPort {
         chatId: Long,
         file: InputFile,
         caption: String? = null,
-        replyToMessageId: Long? = null
-    ): GatewayResult<Message> = when (type) {
-        MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId)
-        MediaType.VIDEO -> sendVideo(chatId, file, caption, replyToMessageId = replyToMessageId)
-        MediaType.AUDIO -> sendAudio(chatId, file, title = caption, replyToMessageId = replyToMessageId)
-    }
+        replyToMessageId: Long? = null,
+    ): GatewayResult<Message> =
+        when (type) {
+            MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId)
+            MediaType.VIDEO -> sendVideo(chatId, file, caption, replyToMessageId = replyToMessageId)
+            MediaType.AUDIO -> sendAudio(chatId, file, title = caption, replyToMessageId = replyToMessageId)
+        }
 
     suspend fun sendPhoto(
         chatId: Long,
         file: InputFile,
         caption: String? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<Message>
 
     suspend fun sendVideo(
@@ -38,7 +37,7 @@ interface BotPort {
         durationSeconds: Int? = null,
         width: Int? = null,
         height: Int? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<Message>
 
     suspend fun sendAudio(
@@ -47,21 +46,21 @@ interface BotPort {
         durationSeconds: Int? = null,
         performer: String? = null,
         title: String? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<Message>
 
     suspend fun sendDocument(
         chatId: Long,
         file: InputFile,
         caption: String? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<Message>
 
     suspend fun sendPhotoAlbum(
         chatId: Long,
         files: List<InputFile>,
         caption: String? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<List<Message>>
 
     suspend fun sendPhotoAlbumChunked(
@@ -69,17 +68,16 @@ interface BotPort {
         files: List<InputFile>,
         chunk: Int = 10,
         caption: String? = null,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long? = null,
     ): GatewayResult<List<Message>> {
         val all = mutableListOf<Message>()
         for ((idx, part) in files.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
             when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
-                is GatewayResult.Ok  -> all += res.value
+                is GatewayResult.Ok -> all += res.value
                 is GatewayResult.Err -> return res
             }
         }
         return GatewayResult.Ok(all)
     }
-
 }

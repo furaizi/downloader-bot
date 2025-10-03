@@ -21,30 +21,30 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.instaloader", name = ["enabled"], havingValue = "true")
 class InstaloaderConfig(val props: InstaloaderProperties) {
-
     @Bean
     fun instaloader(
         instaloaderRunner: ProcessRunner,
         instaloaderCommandBuilder: CommandBuilder,
         instaloaderJsonExtractor: JsonExtractor,
-        instaloaderJsonParser: JsonParser<InstaloaderMedia>
+        instaloaderJsonParser: JsonParser<InstaloaderMedia>,
     ): CliTool<InstaloaderMedia> =
-        BaseCliTool(instaloaderRunner, instaloaderCommandBuilder,
-            instaloaderJsonExtractor, instaloaderJsonParser, ToolId.INSTALOADER)
+        BaseCliTool(
+            instaloaderRunner,
+            instaloaderCommandBuilder,
+            instaloaderJsonExtractor,
+            instaloaderJsonParser,
+            ToolId.INSTALOADER,
+        )
 
     @Bean
-    fun instaloaderRunner(): ProcessRunner =
-        DefaultProcessRunner(props.bin, props.timeout)
+    fun instaloaderRunner(): ProcessRunner = DefaultProcessRunner(props.bin, props.timeout)
 
     @Bean
-    fun instaloaderCommandBuilder(): CommandBuilder =
-        InstaloaderCommandBuilder(props)
+    fun instaloaderCommandBuilder(): CommandBuilder = InstaloaderCommandBuilder(props)
 
     @Bean
-    fun instaloaderJsonExtractor(): JsonExtractor =
-        FileJsonExtractor(props.bin)
+    fun instaloaderJsonExtractor(): JsonExtractor = FileJsonExtractor(props.bin)
 
     @Bean
-    fun instaloaderJsonParser(mapper: ObjectMapper): JsonParser<InstaloaderMedia> =
-        jsonParser(mapper)
+    fun instaloaderJsonParser(mapper: ObjectMapper): JsonParser<InstaloaderMedia> = jsonParser(mapper)
 }

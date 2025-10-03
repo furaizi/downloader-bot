@@ -9,13 +9,14 @@ data class Media(
     val title: String?,
     val fileUniqueId: String? = null,
     val lastFileId: String? = null,
-    val downloadedAt: OffsetDateTime = OffsetDateTime.now()
+    val downloadedAt: OffsetDateTime = OffsetDateTime.now(),
 )
 
 enum class MediaType {
     VIDEO,
     AUDIO,
-    IMAGE;
+    IMAGE,
+    ;
 
     companion object {
         fun fromString(type: String) = valueOf(type.uppercase())

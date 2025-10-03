@@ -1,8 +1,14 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import kotlinx.kover.gradle.plugin.dsl.MetricType
+
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("org.jetbrains.kotlinx.kover") version "0.7.5"
 }
 
 group = "com.download"
@@ -57,4 +63,75 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+
+    // config = files("$rootDir/config/detekt/detekt.yml")
+    // baseline = file("$rootDir/config/detekt/baseline.xml")
+
+    source.from("src/main/kotlin", "src/test/kotlin")
+}
+
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = "21"
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        txt.required.set(false)
+        sarif.required.set(false)
+        md.required.set(false)
+    }
+}
+
+ktlint {
+    android.set(false)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    verbose.set(true)
+
+    filter {
+        exclude("**/build/**")
+        include("**/src/**/*.kt")
+    }
+}
+
+tasks.named("check") {
+    dependsOn("detekt", "ktlintCheck", "koverHtmlReport", "koverXmlReport", "koverVerify")
+}
+
+tasks.register("format") {
+    group = "verification"
+    description = "Runs ktlintFormat and detekt (formatting rules via detekt-formatting are auto-fixed by ktlint)."
+    dependsOn("ktlintFormat")
+}
+
+koverReport {
+    defaults {
+        verify {
+            rule {
+                bound {
+                    minValue = 0
+                    metric = MetricType.LINE
+                }
+                bound {
+                    minValue = 0
+                    metric = MetricType.BRANCH
+                }
+            }
+        }
+    }
+
+    filters {
+        excludes {
+            classes(
+                "com.download.downloaderbot.DownloaderBotApplicationKt",
+                "com.download.downloaderbot.*.*Config*",
+                "com.download.downloaderbot.*.*Properties*",
+                "com.download.downloaderbot.*.*Media",
+            )
+        }
+    }
 }

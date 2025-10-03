@@ -8,6 +8,7 @@ import org.springframework.boot.runApplication
 @SpringBootApplication
 class DownloaderBotApplication
 
+@Suppress("SpreadOperator")
 fun main(args: Array<String>) {
     runApplication<DownloaderBotApplication>(*args)
 }

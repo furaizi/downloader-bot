@@ -16,20 +16,15 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.gallery-dl", name = ["enabled"], havingValue = "true")
 class GalleryDlConfig(val props: GalleryDlProperties) {
-
     @Bean
     fun galleryDl(
         galleryDlRunner: ProcessRunner,
         galleryDlCommandBuilder: CommandBuilder,
-    ): CliTool<GalleryDlMedia> =
-        DownloadOnlyCliTool(galleryDlRunner, galleryDlCommandBuilder, ToolId.GALLERY_DL)
+    ): CliTool<GalleryDlMedia> = DownloadOnlyCliTool(galleryDlRunner, galleryDlCommandBuilder, ToolId.GALLERY_DL)
 
     @Bean
-    fun galleryDlRunner(): ProcessRunner =
-        DefaultProcessRunner(props.bin, props.timeout)
+    fun galleryDlRunner(): ProcessRunner = DefaultProcessRunner(props.bin, props.timeout)
 
     @Bean
-    fun galleryDlCommandBuilder(): CommandBuilder =
-        GalleryDlCommandBuilder(props)
-
+    fun galleryDlCommandBuilder(): CommandBuilder = GalleryDlCommandBuilder(props)
 }

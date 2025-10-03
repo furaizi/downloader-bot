@@ -8,18 +8,19 @@ import org.springframework.stereotype.Component
 @Component
 class HelpCommand(
     private val botPort: BotPort,
-    private val rateLimitGuard: RateLimitGuard
+    private val rateLimitGuard: RateLimitGuard,
 ) : BotCommand {
     override val name = "help"
+
     override suspend fun handle(ctx: CommandContext) {
         rateLimitGuard.runOrReject(ctx) {
             botPort.sendText(
                 ctx.chatId,
                 """
-            /start – привітання
-            /help – допомога
-            (просто надішли мені посилання на відео в особисті повідомлення)
-            """.trimIndent()
+                /start – привітання
+                /help – допомога
+                (просто надішли мені посилання на відео в особисті повідомлення)
+                """.trimIndent(),
             )
         }
     }

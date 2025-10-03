@@ -2,11 +2,11 @@ package com.download.downloaderbot.infra.process.cli.base
 
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
-import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
 import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonParser
 import com.download.downloaderbot.infra.process.cli.common.utils.preview
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import mu.KotlinLogging
 import org.slf4j.MDC
 
@@ -17,10 +17,12 @@ class BaseCliTool<META>(
     val cmdBuilder: CommandBuilder,
     val jsonExtractor: JsonExtractor,
     val jsonParser: JsonParser<META>,
-    override val toolId: ToolId
+    override val toolId: ToolId,
 ) : CliTool<META> {
-
-    override suspend fun download(url: String, output: String) {
+    override suspend fun download(
+        url: String,
+        output: String,
+    ) {
         MDC.put("tool", toolId.label)
         try {
             val cmd = cmdBuilder.downloadCommand(url, output)
@@ -32,7 +34,10 @@ class BaseCliTool<META>(
         }
     }
 
-    override suspend fun probe(url: String, output: String?): META {
+    override suspend fun probe(
+        url: String,
+        output: String?,
+    ): META {
         MDC.put("tool", toolId.label)
         try {
             val cmd = cmdBuilder.probeCommand(url, output)

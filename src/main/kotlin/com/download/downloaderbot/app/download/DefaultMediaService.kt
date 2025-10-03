@@ -8,15 +8,13 @@ import mu.KotlinLogging
 private val log = KotlinLogging.logger {}
 
 class DefaultMediaService(
-    private val providers: Map<String, MediaProvider>
+    private val providers: Map<String, MediaProvider>,
 ) : MediaService {
-
     override suspend fun download(url: String): List<Media> {
         return providers.entries.firstOrNull { it.value.supports(url) }
             ?.also { log.info { "Selected provider=${it.key} for url=$url" } }
             ?.value
             ?.download(url)
             ?: throw UnsupportedSourceException(url)
-
     }
 }

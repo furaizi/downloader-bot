@@ -19,15 +19,14 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class TikTokProvidersConfig(
-    val props: MediaProperties
+    val props: MediaProperties,
 ) {
-
     @Bean
     @ConditionalOnBean(YtDlpConfig::class)
     fun tikTokVideoDownloader(
         ytDlp: CliTool<YtDlpMedia>,
         ytDlpPathGenerator: PathGenerator,
-        @ForYtDlp filesByPrefixFinder: FilesByPrefixFinder
+        @ForYtDlp filesByPrefixFinder: FilesByPrefixFinder,
     ): MediaProvider =
         BaseMediaProvider(props, ytDlp, ytDlpPathGenerator, filesByPrefixFinder, urlPredicate = {
             it.containsAll("tiktok.com", "video")
@@ -38,11 +37,9 @@ class TikTokProvidersConfig(
     fun tikTokPhotoDownloader(
         galleryDl: CliTool<GalleryDlMedia>,
         galleryDlPathGenerator: PathGenerator,
-        @ForGalleryDl filesByPrefixFinder: FilesByPrefixFinder
+        @ForGalleryDl filesByPrefixFinder: FilesByPrefixFinder,
     ): MediaProvider =
         BaseMediaProvider(props, galleryDl, galleryDlPathGenerator, filesByPrefixFinder, urlPredicate = {
             it.containsAll("tiktok.com", "photo")
         })
-
-
 }

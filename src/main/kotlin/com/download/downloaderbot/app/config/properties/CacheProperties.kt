@@ -8,5 +8,5 @@ data class CacheProperties(
     val mediaTtl: Duration = Duration.ofDays(7),
     val lockTtl: Duration = Duration.ofSeconds(60),
     val waitTimeout: Duration = Duration.ofSeconds(60),
-    val waitPoll: Duration = Duration.ofSeconds(1)
+    val waitPoll: Duration = Duration.ofSeconds(1),
 )

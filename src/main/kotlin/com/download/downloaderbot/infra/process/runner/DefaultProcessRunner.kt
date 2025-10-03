@@ -26,80 +26,95 @@ private val clock = TimeSource.Monotonic
 
 class DefaultProcessRunner(
     private val bin: String,
-    private val timeout: Duration
+    private val timeout: Duration,
 ) : ProcessRunner {
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun run(cmd: List<String>, url: String): String = coroutineScope {
-        val mark = clock.markNow()
-        log.info { "Starting process: bin=$bin, cmd=$cmd, timeout=${timeout.toSeconds()}s" }
-        val process = startProcess(cmd)
-        val pidInfo = runCatching { process.pid() }
-            .getOrNull()?.let { "(pid=$it)" } ?: ""
-        log.debug { "Process started $pidInfo" }
+    override suspend fun run(
+        cmd: List<String>,
+        url: String,
+    ): String =
+        coroutineScope {
+            val mark = clock.markNow()
+            log.info { "Starting process: bin=$bin, cmd=$cmd, timeout=${timeout.toSeconds()}s" }
+            val process = startProcess(cmd)
+            val pidInfo =
+                runCatching { process.pid() }
+                    .getOrNull()?.let { "(pid=$it)" } ?: ""
+            log.debug { "Process started $pidInfo" }
 
-        val outputDeferred = collectProcessOutputAsync(process)
-        try {
-            val exitCode = withTimeout(timeout) { process.awaitExitCode() }
-            val output = outputDeferred.await()
-            handleExitCode(exitCode, output)
-            val dur = mark.elapsedNow()
-            dur.toIsoString()
-            log.info { "Process $pidInfo finished successfully: exitCode=$exitCode, duration=${dur.human()}" }
-            log.debug { "Process $pidInfo durationMs=${dur.inWholeMilliseconds}" }
-            output
-        } catch (te: TimeoutCancellationException) {
-            log.warn { "Timeout waiting for $bin (url=$url). Killing process tree..." }
-            process.killTree()
-            val partialOutput = runCatching {
-                if (outputDeferred.isCompleted)
-                    outputDeferred.getCompleted()
-                else ""
-            }.getOrDefault("")
-            throw ToolTimeoutException(bin, timeout, partialOutput)
-        } catch (ce: CancellationException) {
-            log.info { "Cancelling download process for $url" }
-            process.killTree()
-            throw ce
-        } finally {
-            withContext(NonCancellable) {
-                process.closeStreams()
-                stopTasks(process, outputDeferred)
-            }
-        }
-    }
-
-    private suspend fun startProcess(cmd: List<String>) = withContext(Dispatchers.IO) {
-        ProcessBuilder(cmd)
-            .redirectErrorStream(true)
-            .start()
-    }
-
-    private fun CoroutineScope.collectProcessOutputAsync(process: Process) =
-        async(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
-        process.inputStream.bufferedReader(Charsets.UTF_8).useLines { lines ->
-            buildString {
-                lines.forEach { line ->
-                    log.debug { line }
-                    appendLine(line)
+            val outputDeferred = collectProcessOutputAsync(process)
+            try {
+                val exitCode = withTimeout(timeout) { process.awaitExitCode() }
+                val output = outputDeferred.await()
+                handleExitCode(exitCode, output)
+                val dur = mark.elapsedNow()
+                dur.toIsoString()
+                log.info { "Process $pidInfo finished successfully: exitCode=$exitCode, duration=${dur.human()}" }
+                log.debug { "Process $pidInfo durationMs=${dur.inWholeMilliseconds}" }
+                output
+            } catch (te: TimeoutCancellationException) {
+                log.warn { "Timeout waiting for $bin (url=$url). Killing process tree..." }
+                process.killTree()
+                val partialOutput =
+                    runCatching {
+                        if (outputDeferred.isCompleted) {
+                            outputDeferred.getCompleted()
+                        } else {
+                            ""
+                        }
+                    }.getOrDefault("")
+                throw ToolTimeoutException(bin, timeout, partialOutput, te)
+            } catch (ce: CancellationException) {
+                log.info { "Cancelling download process for $url" }
+                process.killTree()
+                throw ce
+            } finally {
+                withContext(NonCancellable) {
+                    process.closeStreams()
+                    stopTasks(process, outputDeferred)
                 }
             }
         }
-    }
 
-    private suspend fun Process.awaitExitCode(): Int = try {
-        onExit()
-            .await()
-            .exitValue()
-    } catch (t: Throwable) {
-        if (isAlive)
-            destroyForcibly()
-        throw t
-    }
+    private suspend fun startProcess(cmd: List<String>) =
+        withContext(Dispatchers.IO) {
+            ProcessBuilder(cmd)
+                .redirectErrorStream(true)
+                .start()
+        }
 
-    private fun handleExitCode(exitCode: Int, output: String) {
-        if (exitCode != 0)
+    private fun CoroutineScope.collectProcessOutputAsync(process: Process) =
+        async(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
+            process.inputStream.bufferedReader(Charsets.UTF_8).useLines { lines ->
+                buildString {
+                    lines.forEach { line ->
+                        log.debug { line }
+                        appendLine(line)
+                    }
+                }
+            }
+        }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun Process.awaitExitCode(): Int =
+        try {
+            onExit()
+                .await()
+                .exitValue()
+        } catch (t: Throwable) {
+            if (isAlive) {
+                destroyForcibly()
+            }
+            throw t
+        }
+
+    private fun handleExitCode(
+        exitCode: Int,
+        output: String,
+    ) {
+        if (exitCode != 0) {
             throw ToolExecutionException(bin, exitCode, output)
+        }
     }
 
     private fun Process.closeStreams() {
@@ -108,7 +123,10 @@ class DefaultProcessRunner(
         runCatching { outputStream.close() }
     }
 
-    private suspend fun <T> stopTasks(process: Process, deferred: Deferred<T>) {
+    private suspend fun <T> stopTasks(
+        process: Process,
+        deferred: Deferred<T>,
+    ) {
         runCatching { deferred.cancelAndJoin() }
         runCatching { process.onExit().await() }
     }

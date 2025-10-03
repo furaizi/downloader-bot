@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class MappingConfig {
-
     @Bean
-    fun objectMapper(): ObjectMapper = JsonMapper.builder()
+    fun objectMapper(): ObjectMapper =
+        JsonMapper.builder()
             .addModule(KotlinModule.Builder().build())
             .addModule(JavaTimeModule())
             .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)

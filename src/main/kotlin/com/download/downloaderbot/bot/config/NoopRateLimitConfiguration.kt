@@ -12,12 +12,10 @@ import org.springframework.context.annotation.Configuration
     prefix = "downloader.ratelimit",
     name = ["enabled"],
     havingValue = "false",
-    matchIfMissing = true
+    matchIfMissing = true,
 )
 class NoopRateLimitConfiguration {
-
     @Bean
     @ConditionalOnMissingBean(RateLimitGuard::class)
     fun noopRateLimitGuard(): RateLimitGuard = NoopRateLimitGuard()
-
 }
