@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.download"
-version = "0.0.1"
+version = "0.0.1" // x-release-please-version
 description = "downloader-bot"
 
 java {
