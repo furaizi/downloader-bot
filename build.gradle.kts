@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import kotlinx.kover.gradle.plugin.dsl.MetricType
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -7,6 +8,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("org.jetbrains.kotlinx.kover") version "0.7.5"
 }
 
 group = "com.download"
@@ -97,11 +99,39 @@ ktlint {
 }
 
 tasks.named("check") {
-    dependsOn("detekt", "ktlintCheck")
+    dependsOn("detekt", "ktlintCheck", "koverHtmlReport", "koverXmlReport", "koverVerify")
 }
 
 tasks.register("format") {
     group = "verification"
     description = "Runs ktlintFormat and detekt (formatting rules via detekt-formatting are auto-fixed by ktlint)."
     dependsOn("ktlintFormat")
+}
+
+koverReport {
+    defaults {
+        verify {
+            rule {
+                bound {
+                    minValue = 0
+                    metric = MetricType.LINE
+                }
+                bound {
+                    minValue = 0
+                    metric = MetricType.BRANCH
+                }
+            }
+        }
+    }
+
+    filters {
+        excludes {
+            classes(
+                "com.download.downloaderbot.DownloaderBotApplicationKt",
+                "com.download.downloaderbot.*.*Config*",
+                "com.download.downloaderbot.*.*Properties*",
+                "com.download.downloaderbot.*.*Media",
+            )
+        }
+    }
 }
