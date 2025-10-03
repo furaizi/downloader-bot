@@ -62,6 +62,7 @@ class DownloadCommand(
 
         if (!allowed) {
             if (ctx.isPrivateChat) {
+                log.info { "Executing /$name command but not URL provided" }
                 rateLimitGuard.runOrReject(ctx) {
                     botPort.sendText(ctx.chatId, "Будь ласка, вкажіть URL для завантаження.", replyTo)
                 }
@@ -70,6 +71,7 @@ class DownloadCommand(
         }
         url ?: return
 
+        log.info { "Executing /$name command with url: $url" }
         val mediaList =
             withContext(Dispatchers.IO) {
                 rateLimitGuard.runOrReject(ctx) {

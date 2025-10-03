@@ -12,11 +12,8 @@ import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.Update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-
-private val log = KotlinLogging.logger {}
 
 @Configuration
 class BotConfig(
@@ -32,14 +29,13 @@ class BotConfig(
             dispatch {
                 commands.byName.forEach { (name, handler) ->
                     command(name) {
-                        log.info { "Executing command /$name with args: $args" }
                         botScope.launchHandler(update, args, handler)
                     }
                 }
 
                 text {
-                    log.info { "Executing default command with text: '$text'" }
-                    botScope.launchHandler(update, listOf(text), commands.default)
+                    val args = text.trim().split("\\s+".toRegex())
+                    botScope.launchHandler(update, args, commands.default)
                 }
             }
         }
