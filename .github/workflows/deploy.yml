@@ -47,48 +47,54 @@ jobs:
       - name: Deploy via SSM
         env:
           INSTANCE_ID: ${{ vars.INSTANCE_ID }}
-          APP_DIR:     ${{ vars.APP_DIR }}
-          IMAGE_NAME:  ${{ env.IMAGE_NAME }}
-          IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
+          APP_DIR: ${{ vars.APP_DIR }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
-          TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
-          SCRIPT=$(cat <<'EOS'
           set -euo pipefail
-          export IMAGE_NAME="${{ env.IMAGE_NAME }}"
-          export IMAGE_TAG="${{ env.IMAGE_TAG }}"
-          export TELEGRAM_BOT_TOKEN="${{ env.TELEGRAM_BOT_TOKEN }}"
-          export SPRING_PROFILES_ACTIVE="${{ env.SPRING_PROFILES_ACTIVE || 'prod' }}"
-          export APP_DIR="${{ env.APP_DIR || '/opt/downloader-bot' }}"
-    
-          mkdir -p "$APP_DIR"
-          cd "$APP_DIR"
+
+          SCRIPT=$(cat <<EOS
+          set -euo pipefail
+          IMAGE_NAME="${IMAGE_NAME}"
+          IMAGE_TAG="${IMAGE_TAG}"
+          TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN}"
+          SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod}"
+          APP_DIR="${APP_DIR:-/opt/downloader-bot}"
+          
+          mkdir -p "\$APP_DIR"
+          cd "\$APP_DIR"
           
           docker compose pull
           docker compose up -d --remove-orphans
           
           ok=0
-          for i in $(seq 1 24); do
-            CID="$(docker compose ps -q app || true)"
-            STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
-            echo "app health=$STATUS"
-            if [ "$STATUS" = "healthy" ]; then ok=1; break; fi
-            sleep 5
+          for i in \$(seq 1 24); do
+          CID="\$(docker compose ps -q app || true)"
+          STATUS="\$(docker inspect --format '{{.State.Health.Status}}' "\$CID" 2>/dev/null || echo unknown)"
+          echo "app health=\$STATUS"
+          if [ "\$STATUS" = "healthy" ]; then ok=1; break; fi
+          sleep 5
           done
           
-          if [ "$ok" -ne 1 ]; then
-            echo "!! unhealthy after update"
-            docker compose logs --no-color --since=10m app || true
-            exit 1
+          if [ "\$ok" -ne 1 ]; then
+          echo "!! unhealthy after update"
+          docker compose logs --no-color --since=10m app || true
+          exit 1
           fi
           
           docker image prune -f || true
           EOS
           )
-
+          
+          SCRIPT_JSON=$(printf '%s' "$SCRIPT" | jq -Rs .)
+          
           aws ssm send-command \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
-            --parameters commands="$SCRIPT" \
-            --output text
+          --cli-binary-format raw-in-base64-out \
+          --instance-ids "$INSTANCE_ID" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
+          --parameters "{\"commands\":[\"bash\",\"-lc\",$SCRIPT_JSON],\"executionTimeout\":[\"3600\"]}" \
+          --output text
+      
