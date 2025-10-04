@@ -59,18 +59,15 @@ jobs:
             IMAGE_TAG=${{ steps.tag.outputs.image_tag }}
             PROD_APP_DIR=${{ secrets.PROD_APP_DIR }}
             GHCR_USER=${{ github.repository_owner }}
-            GHCR_PAT=${{ secrets.GHCR_PAT }}
             TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-            SPRING_PROFILES_ACTIVE=prod
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
           script: |
             set -euo pipefail
             APP_DIR="${PROD_APP_DIR:-/opt/downloader-bot}"
+            SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod}"
+            
             mkdir -p "${APP_DIR}"
             cd "${APP_DIR}"
-
-            if [ -n "${GHCR_PAT:-}" ]; then
-              echo "${GHCR_PAT}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
-            fi
 
             docker compose pull
             docker compose up -d --remove-orphans
@@ -84,7 +81,9 @@ jobs:
               sleep 5
             done
             if [ "$ok" -ne 1 ]; then
-              echo "!! unhealthy after update"; docker compose logs --no-color --since=10m app || true; exit 1
+              echo "!! unhealthy after update"
+              docker compose logs --no-color --since=10m app || true
+              exit 1
             fi
 
             docker image prune -f || true
