@@ -22,6 +22,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Fast-pass for release-please PR
         if: env.IS_RP == 'true'
         run: echo "Release-please PR detected — marking build as passed without heavy steps."
