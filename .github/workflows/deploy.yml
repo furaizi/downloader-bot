@@ -44,7 +44,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ vars.AWS_REGION }}
 
-      - name: Deploy via SSM (bash shebang)
+      - name: Deploy via SSM
         env:
           INSTANCE_ID: ${{ vars.INSTANCE_ID }}
           APP_DIR:     ${{ vars.APP_DIR }}
@@ -55,13 +55,8 @@ jobs:
         run: |
           set -euo pipefail
           
-          SCRIPT=$(cat <<EOS
+          SCRIPT=$(cat <<'EOS'
           set -euo pipefail
-          IMAGE_NAME="${IMAGE_NAME}"
-          IMAGE_TAG="${IMAGE_TAG}"
-          TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN}"
-          SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod}"
-          APP_DIR="${APP_DIR:-/opt/downloader-bot}"
           
           mkdir -p "$APP_DIR"
           cd "$APP_DIR"
@@ -88,34 +83,53 @@ jobs:
           EOS
           )
           
-          PARAMS_JSON=$(printf '%s\n' "$SCRIPT" \
-            | jq -R -s 'split("\n") | ["#!/bin/bash"] + map(select(length>0)) | {commands: ., executionTimeout:["3600"]}')
-      
+          SCRIPT_JSON=$(printf '%s' "$SCRIPT" | jq -Rs .)
+          
+          PARAMS_JSON=$(jq -n \
+          --arg img "$IMAGE_NAME" \
+          --arg tag "$IMAGE_TAG" \
+          --arg tok "$TELEGRAM_BOT_TOKEN" \
+          --arg prof "$SPRING_PROFILES_ACTIVE" \
+          --arg dir "$APP_DIR" \
+          --arg s "$SCRIPT_JSON" \
+          '{
+                commands: [
+                  "#!/bin/bash",
+                  "set -euo pipefail",
+                  ("export IMAGE_NAME=\"" + $img + "\""),
+                  ("export IMAGE_TAG=\"" + $tag + "\""),
+                  ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
+                  ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
+                  ("export APP_DIR=\"" + $dir + "\""),
+                  ("bash -lc " + $s)
+                ],
+                executionTimeout: ["3600"]
+              }')
+          
           COMMAND_ID=$(aws ssm send-command \
-            --cli-binary-format raw-in-base64-out \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
-            --parameters "$PARAMS_JSON" \
-            --query "Command.CommandId" \
-            --output text)
-      
+          --cli-binary-format raw-in-base64-out \
+          --instance-ids "$INSTANCE_ID" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
+          --parameters "$PARAMS_JSON" \
+          --query "Command.CommandId" \
+          --output text)
+        
           echo "SSM CommandId: $COMMAND_ID"
-      
           aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
-      
+          
           RES_JSON=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --details --output json)
           STATUS=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].Status')
           EXIT_CODE=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].ResponseCode')
           OUT=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // ""')
           ERRURL=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorUrl // empty')
-      
+        
           echo "SSM Status: $STATUS"
           echo "ExitCode: ${EXIT_CODE:-unknown}"
           echo "----- STDOUT -----"
           echo "$OUT"
           [ -n "$ERRURL" ] && echo "STDERR URL: $ERRURL"
-      
+          
           if [ "$STATUS" != "Success" ] || [ "${EXIT_CODE:-0}" -ne 0 ]; then
             echo "Deployment failed via SSM"
             exit 1
