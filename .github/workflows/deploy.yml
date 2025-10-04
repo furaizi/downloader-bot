@@ -1,0 +1,89 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    environment:
+      name: production
+
+    steps:
+      - name: Resolve IMAGE_TAG
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "image_tag=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
+            echo "image_tag=latest" >> $GITHUB_OUTPUT
+          else
+            echo "image_tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync compose files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "compose.yml,prometheus.yml"
+          target: ${{ secrets.PROD_APP_DIR }}
+
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          envs: |
+            IMAGE_NAME
+            IMAGE_TAG=${{ steps.tag.outputs.image_tag }}
+            PROD_APP_DIR=${{ secrets.PROD_APP_DIR }}
+            GHCR_USER=${{ github.repository_owner }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
+          script: |
+            set -euo pipefail
+            APP_DIR="${PROD_APP_DIR:-/opt/downloader-bot}"
+            SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod}"
+            
+            mkdir -p "${APP_DIR}"
+            cd "${APP_DIR}"
+
+            docker compose pull
+            docker compose up -d --remove-orphans
+
+            ok=0
+            for i in $(seq 1 24); do
+              CID="$(docker compose ps -q app || true)"
+              STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
+              echo "app health=$STATUS"
+              if [ "$STATUS" = "healthy" ]; then ok=1; break; fi
+              sleep 5
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "!! unhealthy after update"
+              docker compose logs --no-color --since=10m app || true
+              exit 1
+            fi
+
+            docker image prune -f || true
