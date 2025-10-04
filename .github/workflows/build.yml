@@ -1,0 +1,62 @@
+name: Gradle Build
+description: Build Kotlin project with tests, detekt, ktlint, kover and upload artifacts
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+    - name: Build (includes tests & check)
+      shell: bash
+      run: ./gradlew --no-daemon build
+
+    - name: Publish unit test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          **/build/test-results/test/*.xml
+
+    - name: Upload Detekt report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: detekt-report
+        path: |
+          **/build/reports/detekt/**
+
+    - name: Upload Ktlint reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ktlint-reports
+        path: |
+          **/build/reports/ktlint/**
+
+    - name: Upload Kover coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: kover-reports
+        path: |
+          **/build/reports/kover/**
+
+    - name: Upload JARs
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-jars
+        path: |
+          **/build/libs/*.jar
