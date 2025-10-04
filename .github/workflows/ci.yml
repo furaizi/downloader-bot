@@ -28,4 +28,4 @@ jobs:
 
       - name: Full build
         if: env.IS_RP != 'true'
-        uses: ./.github/workflows/build.yml
+        uses: ./.github/workflows/gradle-build
