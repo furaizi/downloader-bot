@@ -13,7 +13,7 @@ permissions:
   attestations: read
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/downloader-bot
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
   docker:
