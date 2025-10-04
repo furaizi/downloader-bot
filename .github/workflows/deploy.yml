@@ -54,7 +54,7 @@ jobs:
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          set -euo pipefail
+          set -eo pipefail
           
           SCRIPT=$(cat <<'EOS'
           set -euo pipefail
