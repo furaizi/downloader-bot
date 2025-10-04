@@ -31,6 +31,7 @@ jobs:
             chore
             revert
           scopes: |
+            main
             bot
             gateway
             app
@@ -46,4 +47,6 @@ jobs:
             test
             config
             scripts
+          ignoreLabels: |
+            autorelease: pending
           wip: true
