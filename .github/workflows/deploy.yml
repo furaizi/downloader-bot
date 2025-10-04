@@ -96,29 +96,30 @@ jobs:
           SCRIPT_B64=$(printf '%s' "$SCRIPT" | base64 -w0)
 
           PARAMS_JSON=$(jq -n \
-            --arg img  "$IMAGE_NAME" \
-            --arg tag  "$IMAGE_TAG" \
-            --arg repo "$REPOSITORY" \
-            --arg tok  "$TELEGRAM_BOT_TOKEN" \
-            --arg prof "$SPRING_PROFILES_ACTIVE" \
-            --arg dir  "$APP_DIR" \
-            --arg b64  "$SCRIPT_B64" \
-            '{
-              commands: [
-                "set -eo pipefail",
-                ("export IMAGE_NAME=\"" + $img + "\""),
-                ("export IMAGE_TAG=\"" + $tag + "\""),
-                ("export REPOSITORY=\"" + $repo + "\""),
-                ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
-                ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
-                ("export APP_DIR=\"" + $dir + "\""),
-                # восстанавливаем файл и запускаем его — БЕЗ подстановки наружным shell
-                ("echo " + $b64 + " | base64 -d > /tmp/deploy.sh"),
-                "chmod +x /tmp/deploy.sh",
-                "bash /tmp/deploy.sh"
-              ],
-              executionTimeout: ["3600"]
-            }')
+          --arg img  "$IMAGE_NAME" \
+          --arg tag  "$IMAGE_TAG" \
+          --arg repo "$REPOSITORY" \
+          --arg tok  "$TELEGRAM_BOT_TOKEN" \
+          --arg prof "$SPRING_PROFILES_ACTIVE" \
+          --arg dir  "$APP_DIR" \
+          --arg b64  "$SCRIPT_B64" \
+          '{
+            commands: [
+              ("export IMAGE_NAME=\"" + $img + "\""),
+              ("export IMAGE_TAG=\"" + $tag + "\""),
+              ("export REPOSITORY=\"" + $repo + "\""),
+              ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
+              ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
+              ("export APP_DIR=\"" + $dir + "\""),
+        
+              ("echo " + $b64 + " | base64 -d > /tmp/deploy.sh"),
+              "chmod +x /tmp/deploy.sh",
+        
+              "/usr/bin/env bash -euo pipefail /tmp/deploy.sh"
+            ],
+            executionTimeout: ["3600"]
+          }')
+
 
           COMMAND_ID=$(aws ssm send-command \
             --cli-binary-format raw-in-base64-out \
