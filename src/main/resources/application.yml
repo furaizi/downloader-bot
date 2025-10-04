@@ -38,7 +38,7 @@ downloader:
       video: 50MB
     cleanup:
       max-age: 3h
-      max-total-size: 10GB
+      max-total-size: 6GB
       interval: 1h
       initial-delay: 5m
   sources:
