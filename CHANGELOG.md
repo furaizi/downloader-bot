@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/furaizi/downloader-bot/compare/v0.1.0...v0.2.0) (2025-10-04)
+
+
+### Features
+
+* **ci:** add CI/CD ([c99f9ed](https://github.com/furaizi/downloader-bot/commit/c99f9ed4c6ba1e541cf9cc9c1c39e6d9cb3dfcbd))
+* **ci:** publish Docker image to GHCR ([6f623ce](https://github.com/furaizi/downloader-bot/commit/6f623ce3f36db799b7470f924628312777ffc66f))
+
 ## [0.1.0](https://github.com/furaizi/downloader-bot/compare/v0.0.1...v0.1.0) (2025-10-04)
 
 
