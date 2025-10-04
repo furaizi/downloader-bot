@@ -44,17 +44,17 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region:     ${{ vars.AWS_REGION }}
 
-      - name: Deploy via SSM
+      - name: Deploy via SSM (bash shebang)
         env:
           INSTANCE_ID: ${{ vars.INSTANCE_ID }}
-          APP_DIR: ${{ vars.APP_DIR }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          APP_DIR:     ${{ vars.APP_DIR }}
+          IMAGE_NAME:  ${{ env.IMAGE_NAME }}
+          IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           set -euo pipefail
-
+          
           SCRIPT=$(cat <<EOS
           set -euo pipefail
           IMAGE_NAME="${IMAGE_NAME}"
@@ -63,38 +63,60 @@ jobs:
           SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-prod}"
           APP_DIR="${APP_DIR:-/opt/downloader-bot}"
           
-          mkdir -p "\$APP_DIR"
-          cd "\$APP_DIR"
+          mkdir -p "$APP_DIR"
+          cd "$APP_DIR"
           
           docker compose pull
           docker compose up -d --remove-orphans
           
           ok=0
-          for i in \$(seq 1 24); do
-          CID="\$(docker compose ps -q app || true)"
-          STATUS="\$(docker inspect --format '{{.State.Health.Status}}' "\$CID" 2>/dev/null || echo unknown)"
-          echo "app health=\$STATUS"
-          if [ "\$STATUS" = "healthy" ]; then ok=1; break; fi
-          sleep 5
+          for i in $(seq 1 24); do
+            CID="$(docker compose ps -q app || true)"
+            STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
+            echo "app health=$STATUS"
+            if [ "$STATUS" = "healthy" ]; then ok=1; break; fi
+            sleep 5
           done
           
-          if [ "\$ok" -ne 1 ]; then
-          echo "!! unhealthy after update"
-          docker compose logs --no-color --since=10m app || true
-          exit 1
+          if [ "$ok" -ne 1 ]; then
+            echo "!! unhealthy after update"
+            docker compose logs --no-color --since=10m app || true
+            exit 1
           fi
           
           docker image prune -f || true
           EOS
           )
           
-          SCRIPT_JSON=$(printf '%s' "$SCRIPT" | jq -Rs .)
-          
-          aws ssm send-command \
-          --cli-binary-format raw-in-base64-out \
-          --instance-ids "$INSTANCE_ID" \
-          --document-name "AWS-RunShellScript" \
-          --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
-          --parameters "{\"commands\":[\"bash\",\"-lc\",$SCRIPT_JSON],\"executionTimeout\":[\"3600\"]}" \
-          --output text
+          PARAMS_JSON=$(printf '%s\n' "$SCRIPT" \
+            | jq -R -s 'split("\n") | ["#!/bin/bash"] + map(select(length>0)) | {commands: ., executionTimeout:["3600"]}')
       
+          COMMAND_ID=$(aws ssm send-command \
+            --cli-binary-format raw-in-base64-out \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
+            --parameters "$PARAMS_JSON" \
+            --query "Command.CommandId" \
+            --output text)
+      
+          echo "SSM CommandId: $COMMAND_ID"
+      
+          aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
+      
+          RES_JSON=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --details --output json)
+          STATUS=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].Status')
+          EXIT_CODE=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].ResponseCode')
+          OUT=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // ""')
+          ERRURL=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorUrl // empty')
+      
+          echo "SSM Status: $STATUS"
+          echo "ExitCode: ${EXIT_CODE:-unknown}"
+          echo "----- STDOUT -----"
+          echo "$OUT"
+          [ -n "$ERRURL" ] && echo "STDERR URL: $ERRURL"
+      
+          if [ "$STATUS" != "Success" ] || [ "${EXIT_CODE:-0}" -ne 0 ]; then
+            echo "Deployment failed via SSM"
+            exit 1
+          fi
