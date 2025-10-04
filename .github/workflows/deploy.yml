@@ -52,6 +52,7 @@ jobs:
           IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
           
@@ -61,13 +62,22 @@ jobs:
           mkdir -p "$APP_DIR"
           cd "$APP_DIR"
           
+          curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/v${IMAGE_TAG}/compose.yml" || \
+          curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/compose.yml"
+          
+          curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/v${IMAGE_TAG}/prometheus.yml" || \
+          curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/prometheus.yml"
+          
           docker compose pull
           docker compose up -d --remove-orphans
           
           ok=0
           for i in $(seq 1 24); do
-            CID="$(docker compose ps -q app || true)"
-            STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
+            CID="$(docker compose ps -q app 2>/dev/null || true)"
+            STATUS="unknown"
+            if [ -n "${CID:-}" ]; then
+              STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
+            fi
             echo "app health=$STATUS"
             if [ "$STATUS" = "healthy" ]; then ok=1; break; fi
             sleep 5
@@ -88,6 +98,7 @@ jobs:
           PARAMS_JSON=$(jq -n \
           --arg img "$IMAGE_NAME" \
           --arg tag "$IMAGE_TAG" \
+          --arg repo "$REPOSITORY" \
           --arg tok "$TELEGRAM_BOT_TOKEN" \
           --arg prof "$SPRING_PROFILES_ACTIVE" \
           --arg dir "$APP_DIR" \
@@ -98,6 +109,7 @@ jobs:
                   "set -euo pipefail",
                   ("export IMAGE_NAME=\"" + $img + "\""),
                   ("export IMAGE_TAG=\"" + $tag + "\""),
+                  ("export REPOSITORY=\"" + $repo + "\""),
                   ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
                   ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
                   ("export APP_DIR=\"" + $dir + "\""),
