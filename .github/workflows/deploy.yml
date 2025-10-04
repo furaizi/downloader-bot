@@ -65,6 +65,11 @@ jobs:
 
           mkdir -p "$APP_DIR"
           cd "$APP_DIR"
+          
+          if [ ! -f .env ]; then
+            umask 077
+            : > .env
+          fi
 
           curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/compose.yml" || \
           curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/compose.yml"
