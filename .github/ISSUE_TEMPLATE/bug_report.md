@@ -7,22 +7,30 @@ assignees: ''
 
 ---
 
-**Describe the bug**  
+### Describe the bug
 Example: "Bot replies 'Сталася непередбачувана помилка' when I send a TikTok link."
 
-**To Reproduce**  
+---
+
+### To Reproduce  
 Steps to reproduce the issue:
 1. Start the bot  
-3. Open a `private` / `group` chat.
-2. Send this link: `...`  
-3. Observe the response or error  
+2. Open a `private` / `group` chat.
+3. Send this link: `...`  
+4. Observe the response or error  
 
-**Expected behavior**  
+---
+
+### Expected behavior  
 Example: "The bot should download the video and send it as a file."
 
-**Actual behavior**  
+---
+
+### Actual behavior  
 Paste the error message or logs if possible.  
 
-**Additional context**
+---
+
+### Additional context
 - Date:
 - Chat: `private` / `group`
