@@ -75,3 +75,6 @@ They are available at `localhost:8081/actuator/prometheus`:
 
 ## Contributing
 See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for contribution guidelines.
+
+## License
+This project is licensed under the [MIT License](./LICENSE).
