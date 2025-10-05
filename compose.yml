@@ -19,6 +19,7 @@ services:
 
   app:
     image: ghcr.io/furaizi/downloader-bot:${IMAGE_TAG:-latest}
+#    build: .
     depends_on:
       redis:
         condition: service_healthy

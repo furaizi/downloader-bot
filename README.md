@@ -28,7 +28,7 @@ cd downloader-bot
 
 2. Set up environment variables:
 ```bash
-export TELEGRAM_BOT_TOKEN=<your_bot_token>
+echo "TELEGRAM_BOT_TOKEN=<your_bot_token>" > .env
 ```
 
 3. Start up the application:
