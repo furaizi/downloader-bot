@@ -1,4 +1,10 @@
 # Downloader Bot
+
+[![CI](https://github.com/furaizi/downloader-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/furaizi/downloader-bot/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/furaizi/downloader-bot)](https://github.com/furaizi/downloader-bot/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://ghcr.io/furaizi/downloader-bot)
+
 The official repository for [`Zavantazhnyk (Завантажник) bot`](https://t.me/zavantazhnyk_bot) - Telegram bot for downloading media from various sources.
 
 ## Supported Sources
