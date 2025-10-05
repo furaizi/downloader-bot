@@ -1,47 +1,64 @@
 # Downloader Bot
-A Telegram bot that downloads media from links you send it and replies with the files.
-It uses yt-dlp for video extraction and can optionally use gallery-dl for image albums.
+The official repository for [`Zavantazhnyk (Завантажник) bot`](https://t.me/zavantazhnyk_bot) - Telegram bot for downloading media from various sources.
 
 ## Supported Sources
-- TikTok (videos)
-- YouTube Shorts
-- More sources will be added over time.
+- TikTok
+- Instagram Reels
 
 ## Requirements
-You don't need to have any dependencies installed on your host.  
-The only thing you need is `Docker` and `Docker Compose`.
+No dependencies required on the host system.  
+You only need `Docker` and `Docker Compose`.
 
-## Tech Stack
-- Kotlin v1.9.25
+## Used Technologies
+- Kotlin v1.9.23
 - Spring Boot v3.5.4
 - Redis
-- yt-dlp
 - ffmpeg
-- (Optional) gallery-dl
+- yt-dlp
+- gallery-dl
+- instaloader
+- Docker Compose
 
 ## Quick Start
-1. Set up environment variables:
+1. Clone the repository:
 ```bash
-export TELEGRAM_BOT_TOKEN=
+git clone https://github.com/furaizi/downloader-bot
+cd downloader-bot
 ```
-2. Start up the application:
+
+2. Set up environment variables:
+```bash
+export TELEGRAM_BOT_TOKEN=<your_bot_token>
+```
+
+3. Start up the application:
 ```bash
 docker compose up -d
 ```
 
-## Configuration Reference
-Only the token is required to start. Other settings are optional with sensible defaults.
-Look up `src/main/resources/application.yml` for more details.
-- `downloader.media.cleanup` controls how often the cleanup job runs as well as the max age and total size kept on disk.
-
 ## How To Use
-- DM your bot a supported link. The bot replies with the downloaded media.
-- Examples:
-  - TikTok video: `https://www.tiktok.com/@user/video/1234567890`
-  - TikTok video (short form): `https://www.tiktok.com/video/1234567890`
-  - YouTube Shorts: `https://www.youtube.com/shorts/abcdefghijk`
+- Private chat:
+  1. Start a conversation with the bot: [@zavantazhnyk_bot](https://t.me/zavantazhnyk_bot)
+  2. DM your bot a supported link. The bot replies with the downloaded media.
 
-Tip: The default allowlist only permits the patterns above. You can extend `downloader.sources.allow` via application config if you build a custom image.
+- Group chat:
+  1. Add the bot to your group.
+  2. Grant it admin rights. This is necessary for the bot to be able to read messages and send media.
+  3. Send a supported link in the group. The bot replies with the downloaded media.
+
+## Configuration Reference
+Only the token is required to start. Other settings are optional with sensible defaults.  
+Look up [`application.yml`](./src/main/resources/application.yml) for more details.
+
+## Deployment
+Each release tag (`v*`) triggers automatic deployment to an AWS EC2 instance via GitHub Actions and AWS SSM.
+
+Builds and tests are verified in CI before release:
+- Linting: Detekt, Ktlint
+- Tests: JUnit (unit + integration)
+- Code coverage: Kover (temporary off)
+- Pull Request title validation: semantic-pr
+- Release automation: Release-Please
 
 ## Metrics
 Prometheus metrics are exposed when running with the `prod` profile.  
@@ -51,7 +68,4 @@ curl http://localhost:8081/actuator/prometheus | head
 ```
 
 ## Contributing
-Small PRs and issue reports are welcome. Please keep changes focused and include a brief rationale and testing notes.
-
-## License
-This repository’s license governs usage. If a LICENSE file is present, its terms apply; otherwise, all rights are reserved by the author.
+See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for contribution guidelines.
