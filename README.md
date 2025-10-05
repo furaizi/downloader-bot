@@ -21,20 +21,20 @@ You only need `Docker` and `Docker Compose`.
 
 ## Quick Start
 1. Clone the repository:
-```bash
-git clone https://github.com/furaizi/downloader-bot
-cd downloader-bot
-```
+    ```bash
+    git clone https://github.com/furaizi/downloader-bot
+    cd downloader-bot
+    ```
 
 2. Set up environment variables:
-```bash
-echo "TELEGRAM_BOT_TOKEN=<your_bot_token>" > .env
-```
+    ```bash
+    echo "TELEGRAM_BOT_TOKEN=<your_bot_token>" > .env
+    ```
 
 3. Start up the application:
-```bash
-docker compose up -d
-```
+    ```bash
+    docker compose up -d
+    ```
 
 ## How To Use
 - Private chat:
@@ -63,9 +63,9 @@ Builds and tests are verified in CI before release:
 ## Metrics
 Prometheus metrics are exposed when running with the `prod` profile.  
 They are available at `localhost:8081/actuator/prometheus`:
-```bash
-curl http://localhost:8081/actuator/prometheus | head
-```
+    ```bash
+    curl http://localhost:8081/actuator/prometheus | head
+    ```
 
 ## Contributing
 See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for contribution guidelines.
