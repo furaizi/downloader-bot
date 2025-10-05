@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.1](https://github.com/furaizi/downloader-bot/compare/v0.2.0...v0.2.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* **ci:** add REPO_REF to fetch configs from correct tag or branch ([2aff793](https://github.com/furaizi/downloader-bot/commit/2aff7930f4b779ca960ea3f12277c44cb054b6c1))
+* **ci:** add safe fallback with empty .env file ([f533ffe](https://github.com/furaizi/downloader-bot/commit/f533ffe68c4cb00d87904c72117138b7c147e2da))
+* **ci:** add shebang and wait for SSM command completion ([#95](https://github.com/furaizi/downloader-bot/issues/95)) ([9a9e477](https://github.com/furaizi/downloader-bot/commit/9a9e477e1f01f72bcb23289481e385cf6e707187))
+* **ci:** cite heredoc and export env vars before launch ([a43fb6e](https://github.com/furaizi/downloader-bot/commit/a43fb6e3535dd959c6d06d355f8a546d03f0198f))
+* **ci:** migrate EC2 deployment from SSH to AWS SSM ([#92](https://github.com/furaizi/downloader-bot/issues/92)) ([1c8f909](https://github.com/furaizi/downloader-bot/commit/1c8f90921ba89d6eaa6836f2d1d506dc863d6946))
+* **ci:** properly escape and pass SSM script via JSON ([d927fea](https://github.com/furaizi/downloader-bot/commit/d927fea0e4cb54b65f7cc34c97b6eea13817bae5))
+* **ci:** refactor SSM command to use base64-encoded deploy script ([eb68898](https://github.com/furaizi/downloader-bot/commit/eb68898a2b92a093890eac866fa68b0b4a495d12))
+* **ci:** remove '-u' flag from deploy script ([d345847](https://github.com/furaizi/downloader-bot/commit/d345847a612cc8dc89ffab8df1f4fb3500841c37))
+* **ci:** run decoded script via env bash with strict flags ([7b83cd4](https://github.com/furaizi/downloader-bot/commit/7b83cd4cc248af34cf231a2abc791a8a419a4f75))
+* **ci:** trigger CD only on release tags (v*) ([095c7e8](https://github.com/furaizi/downloader-bot/commit/095c7e83458a0153d41adf5f0708fd405f02678e))
+
 ## [0.2.0](https://github.com/furaizi/downloader-bot/compare/v0.1.0...v0.2.0) (2025-10-04)
 
 
