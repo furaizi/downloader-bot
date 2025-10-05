@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/furaizi/downloader-bot/compare/v0.2.1...v0.2.2) (2025-10-05)
+
+
+### Bug Fixes
+
+* **ci:** tags in Docker image ([2bbecc0](https://github.com/furaizi/downloader-bot/commit/2bbecc029875f06ab325e3b06eed7af7c5702cb9))
+
 ## [0.2.1](https://github.com/furaizi/downloader-bot/compare/v0.2.0...v0.2.1) (2025-10-05)
 
 
