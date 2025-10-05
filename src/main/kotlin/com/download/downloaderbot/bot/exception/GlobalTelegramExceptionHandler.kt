@@ -39,7 +39,7 @@ class GlobalTelegramExceptionHandler(val botPort: BotPort) {
             is UnsupportedSourceException -> "Це джерело не підтримується."
             is MediaTooLargeException -> "Медіафайл занадто великий. Обмеження: ${limit.toMB()} МБ."
             is MediaNotFoundException -> "Нічого не знайдено за цим URL."
-            is ToolExecutionException -> "Внутрішній інструмент не зміг виконатися (код=$exitCode)."
+            is ToolExecutionException -> "Внутрішній інструмент не зміг виконатися."
             is ToolTimeoutException -> "Внутрішній інструмент перевищив час очікування: $timeout."
             is MediaDownloaderToolException -> "Сталася внутрішня помилка інструменту."
             is DownloadInProgressException -> "Цей медіафайл уже завантажується, будь ласка, зачекайте."
