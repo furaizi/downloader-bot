@@ -20,7 +20,7 @@ Examples of unacceptable behavior include:
 Maintainers are responsible for clarifying standards of acceptable behavior and taking corrective actions when needed.
 
 ## Enforcement
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainer at **furachannel16@gmail.com**.  
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainer at [**t.me/fura_izi**](https://t.me/fura_izi).  
 All complaints will be reviewed and handled appropriately.
 
 ## Attribution
