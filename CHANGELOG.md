@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/furaizi/downloader-bot/compare/v0.2.2...v0.2.3) (2025-10-05)
+
+
+### Bug Fixes
+
+* **ci:** use a dedicated PAT token for release-please ([5e3651e](https://github.com/furaizi/downloader-bot/commit/5e3651ef23525477e4e0469c8f6ad222c57d3328))
+
 ## [0.2.2](https://github.com/furaizi/downloader-bot/compare/v0.2.1...v0.2.2) (2025-10-05)
 
 
