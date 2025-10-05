@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-blue)](https://ghcr.io/furaizi/downloader-bot)
 
-The official repository for [`Zavantazhnyk (Завантажник) bot`](https://t.me/zavantazhnyk_bot) - Telegram bot for downloading media from various sources.
+The official repository for [Zavantazhnyk (Завантажник) bot](https://t.me/zavantazhnyk_bot) - Telegram bot for downloading media from various sources.
 
 ## Supported Sources
 - TikTok
