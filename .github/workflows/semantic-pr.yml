@@ -30,24 +30,6 @@ jobs:
             ci
             chore
             revert
-          scopes: |
-            main
-            bot
-            gateway
-            app
-            domain
-            ratelimit
-            core
-            logging
-            infra
-            build
-            ci
-            docker
-            docs
-            test
-            config
-            scripts
-            deploy
           ignoreLabels: |
             autorelease: pending
           wip: true
