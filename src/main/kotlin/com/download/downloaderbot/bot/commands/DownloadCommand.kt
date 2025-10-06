@@ -32,6 +32,7 @@ import java.io.File
 
 private val log = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 @Component
 class DownloadCommand(
     private val service: MediaService,
@@ -116,9 +117,10 @@ class DownloadCommand(
                 is GatewayResult.Ok -> {
                     val sentPhotos = res.value
                     botPort.sendText(
-                        ctx.chatId, props.promoText,
+                        ctx.chatId,
+                        props.promoText,
                         replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
-                        replyMarkup = share
+                        replyMarkup = share,
                     )
                     sentPhotos
                 }
@@ -132,10 +134,12 @@ class DownloadCommand(
                 mediaList.map { media ->
                     val input = media.toInputFile()
                     botPort.sendMedia(
-                        media.type, ctx.chatId, input,
+                        media.type,
+                        ctx.chatId,
+                        input,
                         caption = props.promoText,
                         replyToMessageId = replyTo,
-                        replyMarkup = share
+                        replyMarkup = share,
                     )
                 }
 

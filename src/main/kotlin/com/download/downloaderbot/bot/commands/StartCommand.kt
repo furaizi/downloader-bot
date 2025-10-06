@@ -24,8 +24,9 @@ class StartCommand(
         log.info { "Executing command /$name" }
         rateLimitGuard.runOrReject(ctx) {
             botPort.sendText(
-                ctx.chatId, "Привіт! Надішли мені посилання - я завантажу і відправлю відео.",
-                replyMarkup = share
+                ctx.chatId,
+                "Привіт! Надішли мені посилання - я завантажу і відправлю відео.",
+                replyMarkup = share,
             )
         }
     }

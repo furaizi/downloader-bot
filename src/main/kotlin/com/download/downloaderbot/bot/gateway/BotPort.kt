@@ -22,17 +22,22 @@ interface BotPort {
     ): GatewayResult<Message> =
         when (type) {
             MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId, replyMarkup)
-            MediaType.VIDEO -> sendVideo(
-                chatId, file, caption,
-                replyToMessageId = replyToMessageId,
-                replyMarkup = replyMarkup
-            )
-            MediaType.AUDIO -> sendAudio(
-                chatId, file,
-                title = caption,
-                replyToMessageId = replyToMessageId,
-                replyMarkup = replyMarkup
-            )
+            MediaType.VIDEO ->
+                sendVideo(
+                    chatId,
+                    file,
+                    caption,
+                    replyToMessageId = replyToMessageId,
+                    replyMarkup = replyMarkup,
+                )
+            MediaType.AUDIO ->
+                sendAudio(
+                    chatId,
+                    file,
+                    title = caption,
+                    replyToMessageId = replyToMessageId,
+                    replyMarkup = replyMarkup,
+                )
         }
 
     suspend fun sendPhoto(

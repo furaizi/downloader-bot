@@ -25,7 +25,7 @@ class TelegramBotAdapter(
         chatId: Long,
         text: String,
         replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendMessage(
             chatId = ChatId.fromId(chatId),
@@ -39,7 +39,7 @@ class TelegramBotAdapter(
         file: InputFile,
         caption: String?,
         replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendPhoto(
             chatId = ChatId.fromId(chatId),
@@ -57,7 +57,7 @@ class TelegramBotAdapter(
         width: Int?,
         height: Int?,
         replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendVideo(
             chatId = ChatId.fromId(chatId),
@@ -77,7 +77,7 @@ class TelegramBotAdapter(
         performer: String?,
         title: String?,
         replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendAudio(
             chatId = ChatId.fromId(chatId),
@@ -94,7 +94,7 @@ class TelegramBotAdapter(
         file: InputFile,
         caption: String?,
         replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendDocument(
             chatId = ChatId.fromId(chatId),

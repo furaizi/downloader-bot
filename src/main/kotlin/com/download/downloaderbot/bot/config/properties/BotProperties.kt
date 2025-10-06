@@ -8,5 +8,5 @@ class BotProperties(
     val username: String,
     val defaultCommand: String = "download",
     val shareText: String,
-    val promoText: String = "\u200B"
+    val promoText: String = "\u200B",
 )
