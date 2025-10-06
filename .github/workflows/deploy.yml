@@ -53,6 +53,7 @@ jobs:
           REPO_REF:    ${{ steps.tag.outputs.repo_ref }}
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_USERNAME:  ${{ vars.TELEGRAM_BOT_USERNAME }}
           REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
@@ -107,6 +108,7 @@ jobs:
           --arg repo "$REPOSITORY" \
           --arg repo_ref "$REPO_REF" \
           --arg tok  "$TELEGRAM_BOT_TOKEN" \
+          --arg name "$TELEGRAM_BOT_USERNAME" \
           --arg prof "$SPRING_PROFILES_ACTIVE" \
           --arg dir  "$APP_DIR" \
           --arg b64  "$SCRIPT_B64" \
@@ -117,6 +119,7 @@ jobs:
               ("export REPOSITORY=\"" + $repo + "\""),
               ("export REPO_REF=\"" + $repo_ref + "\""),
               ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
+              ("export TELEGRAM_BOT_USERNAME=\"" + $name + "\""),
               ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
               ("export APP_DIR=\"" + $dir + "\""),
         
