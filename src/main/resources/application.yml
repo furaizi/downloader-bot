@@ -28,7 +28,10 @@ logging:
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}
     default-command: download
+    share-text: 'Спробуй цього бота для завантаження відео без реклами!'
+    promo-text: 'Сподобався бот? 💬 Поділись із друзями або додай у свою групу 👇'
 
 downloader:
   media:
