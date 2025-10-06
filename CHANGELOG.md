@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/furaizi/downloader-bot/compare/v0.2.3...v0.3.0) (2025-10-06)
+
+
+### Features
+
+* **bot:** add share keyboard and promo messages for better user engagement ([#103](https://github.com/furaizi/downloader-bot/issues/103)) ([d89924c](https://github.com/furaizi/downloader-bot/commit/d89924c817bebea10c50e6c01755cc2cbe6aec27))
+
 ## [0.2.3](https://github.com/furaizi/downloader-bot/compare/v0.2.2...v0.2.3) (2025-10-05)
 
 
