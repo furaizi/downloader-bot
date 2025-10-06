@@ -7,6 +7,7 @@ import com.download.downloaderbot.bot.gateway.InputFile
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
+import com.github.kotlintelegrambot.entities.ReplyMarkup
 import com.github.kotlintelegrambot.entities.files.PhotoSize
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
@@ -24,11 +25,13 @@ class TelegramBotAdapter(
         chatId: Long,
         text: String,
         replyToMessageId: Long?,
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendMessage(
             chatId = ChatId.fromId(chatId),
             text = text,
             replyToMessageId = replyToMessageId,
+            replyMarkup = replyMarkup,
         ).toGateway()
 
     override suspend fun sendPhoto(
@@ -36,12 +39,14 @@ class TelegramBotAdapter(
         file: InputFile,
         caption: String?,
         replyToMessageId: Long?,
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendPhoto(
             chatId = ChatId.fromId(chatId),
             photo = file.toTelegram(),
             caption = caption,
             replyToMessageId = replyToMessageId,
+            replyMarkup = replyMarkup,
         ).toGateway()
 
     override suspend fun sendVideo(
@@ -52,6 +57,7 @@ class TelegramBotAdapter(
         width: Int?,
         height: Int?,
         replyToMessageId: Long?,
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendVideo(
             chatId = ChatId.fromId(chatId),
@@ -61,6 +67,7 @@ class TelegramBotAdapter(
             width = width,
             height = height,
             replyToMessageId = replyToMessageId,
+            replyMarkup = replyMarkup,
         ).toGateway()
 
     override suspend fun sendAudio(
@@ -70,6 +77,7 @@ class TelegramBotAdapter(
         performer: String?,
         title: String?,
         replyToMessageId: Long?,
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendAudio(
             chatId = ChatId.fromId(chatId),
@@ -78,6 +86,7 @@ class TelegramBotAdapter(
             performer = performer,
             title = title,
             replyToMessageId = replyToMessageId,
+            replyMarkup = replyMarkup,
         ).toGateway()
 
     override suspend fun sendDocument(
@@ -85,12 +94,14 @@ class TelegramBotAdapter(
         file: InputFile,
         caption: String?,
         replyToMessageId: Long?,
+        replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
         bot.sendDocument(
             chatId = ChatId.fromId(chatId),
             document = file.toTelegram(),
             caption = caption,
             replyToMessageId = replyToMessageId,
+            replyMarkup = replyMarkup,
         ).toGateway()
 
     @Suppress("SpreadOperator")

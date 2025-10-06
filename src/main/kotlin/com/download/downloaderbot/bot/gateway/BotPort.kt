@@ -2,12 +2,14 @@ package com.download.downloaderbot.bot.gateway
 
 import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.entities.Message
+import com.github.kotlintelegrambot.entities.ReplyMarkup
 
 interface BotPort {
     suspend fun sendText(
         chatId: Long,
         text: String,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message>
 
     suspend fun sendMedia(
@@ -16,11 +18,26 @@ interface BotPort {
         file: InputFile,
         caption: String? = null,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message> =
         when (type) {
-            MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId)
-            MediaType.VIDEO -> sendVideo(chatId, file, caption, replyToMessageId = replyToMessageId)
-            MediaType.AUDIO -> sendAudio(chatId, file, title = caption, replyToMessageId = replyToMessageId)
+            MediaType.IMAGE -> sendPhoto(chatId, file, caption, replyToMessageId, replyMarkup)
+            MediaType.VIDEO ->
+                sendVideo(
+                    chatId,
+                    file,
+                    caption,
+                    replyToMessageId = replyToMessageId,
+                    replyMarkup = replyMarkup,
+                )
+            MediaType.AUDIO ->
+                sendAudio(
+                    chatId,
+                    file,
+                    title = caption,
+                    replyToMessageId = replyToMessageId,
+                    replyMarkup = replyMarkup,
+                )
         }
 
     suspend fun sendPhoto(
@@ -28,6 +45,7 @@ interface BotPort {
         file: InputFile,
         caption: String? = null,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message>
 
     suspend fun sendVideo(
@@ -38,6 +56,7 @@ interface BotPort {
         width: Int? = null,
         height: Int? = null,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message>
 
     suspend fun sendAudio(
@@ -47,6 +66,7 @@ interface BotPort {
         performer: String? = null,
         title: String? = null,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message>
 
     suspend fun sendDocument(
@@ -54,6 +74,7 @@ interface BotPort {
         file: InputFile,
         caption: String? = null,
         replyToMessageId: Long? = null,
+        replyMarkup: ReplyMarkup? = null,
     ): GatewayResult<Message>
 
     suspend fun sendPhotoAlbum(

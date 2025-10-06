@@ -6,15 +6,18 @@ Any contribution - bug reports, ideas, or pull requests - is appreciated.
 ## Development Setup
 
 1. Clone the repository:
-```bash
-git clone https://github.com/furaizi/downloader-bot
-cd downloader-bot
-```
+    ```bash
+    git clone https://github.com/furaizi/downloader-bot
+    cd downloader-bot
+    ```
 
 2. Set up environment variables:
-```bash
-echo "TELEGRAM_BOT_TOKEN=<your_token>" > .env
-```
+    ```bash
+    cat <<EOF > .env
+    TELEGRAM_BOT_TOKEN=<your_bot_token>
+    TELEGRAM_BOT_USERNAME=<your_bot_username>
+    EOF
+    ```
 You have to create a bot via [BotFather](https://t.me/BotFather) to get a token.
 
 > `.env` file is included in `.gitignore`, so it won't be committed.

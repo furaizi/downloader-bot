@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.commands
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.commands.util.UrlValidator
+import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.InputFile
@@ -15,6 +16,7 @@ import com.download.downloaderbot.bot.gateway.telegram.isPrivateChat
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.gateway.toInputFile
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
+import com.download.downloaderbot.bot.ui.shareKeyboard
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
@@ -30,6 +32,7 @@ import java.io.File
 
 private val log = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 @Component
 class DownloadCommand(
     private val service: MediaService,
@@ -40,12 +43,15 @@ class DownloadCommand(
     private val urlResolver: FinalUrlResolver,
     private val urlNormalizer: UrlNormalizer,
     private val cachePort: CachePort<String, List<Media>>,
+    private val props: BotProperties,
 ) : BotCommand {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
     }
 
     override val name: String = "download"
+
+    private val share by lazy { shareKeyboard(props.username, props.shareText) }
 
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
@@ -108,7 +114,16 @@ class DownloadCommand(
             val inputs = mediaList.toInputFiles()
             val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
             when (val res = sendAlbum(ctx, inputs, replyTo, chunked)) {
-                is GatewayResult.Ok -> res.value
+                is GatewayResult.Ok -> {
+                    val sentPhotos = res.value
+                    botPort.sendText(
+                        ctx.chatId,
+                        props.promoText,
+                        replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
+                        replyMarkup = share,
+                    )
+                    sentPhotos
+                }
                 is GatewayResult.Err -> {
                     log.warn(res.cause) { res.description }
                     emptyList()
@@ -118,7 +133,14 @@ class DownloadCommand(
             val results =
                 mediaList.map { media ->
                     val input = media.toInputFile()
-                    botPort.sendMedia(media.type, ctx.chatId, input, replyToMessageId = replyTo)
+                    botPort.sendMedia(
+                        media.type,
+                        ctx.chatId,
+                        input,
+                        caption = props.promoText,
+                        replyToMessageId = replyTo,
+                        replyMarkup = share,
+                    )
                 }
 
             // TODO: handle many videos properly

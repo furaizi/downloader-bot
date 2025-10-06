@@ -34,7 +34,11 @@ You only need `Docker` and `Docker Compose`.
 
 2. Set up environment variables:
     ```bash
-    echo "TELEGRAM_BOT_TOKEN=<your_bot_token>" > .env
+    cat <<EOF > .env
+    TELEGRAM_BOT_TOKEN=<your_bot_token>
+    TELEGRAM_BOT_USERNAME=<your_bot_username>
+    EOF
+
     ```
 
 3. Start up the application:
