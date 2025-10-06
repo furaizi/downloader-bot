@@ -50,6 +50,8 @@ class DownloadCommand(
 
     override val name: String = "download"
 
+    private val share by lazy { shareKeyboard(props.username, props.shareText) }
+
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
         val rawUrl = ctx.args.firstOrNull()?.trim()
@@ -107,8 +109,6 @@ class DownloadCommand(
         mediaList: List<Media>,
         replyTo: Long?,
     ): List<Message> {
-        val share = shareKeyboard(props.username, props.shareText)
-
         return if (mediaList.isImageAlbum()) {
             val inputs = mediaList.toInputFiles()
             val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
