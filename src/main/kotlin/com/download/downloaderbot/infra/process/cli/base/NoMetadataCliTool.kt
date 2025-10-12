@@ -25,18 +25,17 @@ class NoMetadataCliTool(
 ) : CliTool {
     private val toolName = toolId.label
 
-    override suspend fun download(
-        url: String
-    ): List<Media> {
+    override suspend fun download(url: String): List<Media> {
         log.info { "Starting download: tool=$toolName, url=$url" }
 
         val (basePrefix, outputPath) = pathGenerator.generate(url)
         log.debug { "Generated path prefix=$basePrefix, outputPath=$outputPath" }
 
-        val metaData = when (toolId) {
-            ToolId.YT_DLP, ToolId.INSTALOADER -> EmptyVideoMedia()
-            ToolId.GALLERY_DL -> EmptyPhotoMedia()
-        }
+        val metaData =
+            when (toolId) {
+                ToolId.YT_DLP, ToolId.INSTALOADER -> EmptyVideoMedia()
+                ToolId.GALLERY_DL -> EmptyPhotoMedia()
+            }
 
         val cmd = cmdBuilder.downloadCommand(url, outputPath)
         log.debug { "Running download command: ${cmd.joinToString(" ")}" }
@@ -44,7 +43,6 @@ class NoMetadataCliTool(
         runner.run(cmd, url)
 
         return resolveDownloadedMedia(basePrefix, url, metaData)
-
     }
 
     private suspend fun resolveDownloadedMedia(
@@ -62,5 +60,4 @@ class NoMetadataCliTool(
         }
         return files.map { path -> metaData.toMedia(path, sourceUrl) }
     }
-
 }

@@ -21,13 +21,12 @@ import org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(prefix = "downloader.yt-dlp", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class YtDlpConfig(
     val mediaProps: MediaProperties,
-    val toolProps: YtDlpProperties
+    val toolProps: YtDlpProperties,
 ) {
-
     @Bean
     fun ytDlp(
         mapper: ObjectMapper,
-        @ForYtDlp fileFinder: FilesByPrefixFinder
+        @ForYtDlp fileFinder: FilesByPrefixFinder,
     ): CliTool =
         BaseCliTool(
             mediaProps,
@@ -37,6 +36,6 @@ class YtDlpConfig(
             OutputJsonExtractor(toolProps.bin),
             createJsonParser(mapper),
             fileFinder,
-            ToolId.YT_DLP
+            ToolId.YT_DLP,
         )
 }

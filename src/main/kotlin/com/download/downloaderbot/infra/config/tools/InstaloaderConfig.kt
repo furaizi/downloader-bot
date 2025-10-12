@@ -21,13 +21,12 @@ import org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(prefix = "downloader.instaloader", name = ["enabled"], havingValue = "true")
 class InstaloaderConfig(
     val mediaProps: MediaProperties,
-    val toolProps: InstaloaderProperties
+    val toolProps: InstaloaderProperties,
 ) {
-
     @Bean
     fun instaloader(
         mapper: ObjectMapper,
-        @ForInstaloader fileFinder: FilesByPrefixFinder
+        @ForInstaloader fileFinder: FilesByPrefixFinder,
     ): CliTool =
         BaseCliTool(
             mediaProps,
@@ -37,7 +36,6 @@ class InstaloaderConfig(
             FileJsonExtractor(toolProps.bin),
             createJsonParser(mapper),
             fileFinder,
-            ToolId.YT_DLP
+            ToolId.YT_DLP,
         )
-
 }

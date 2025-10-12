@@ -18,11 +18,11 @@ import org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(prefix = "downloader.gallery-dl", name = ["enabled"], havingValue = "true")
 class GalleryDlConfig(
     val mediaProps: MediaProperties,
-    val toolProps: GalleryDlProperties
+    val toolProps: GalleryDlProperties,
 ) {
     @Bean
     fun galleryDl(
-        @ForGalleryDl fileFinder: FilesByPrefixFinder
+        @ForGalleryDl fileFinder: FilesByPrefixFinder,
     ): CliTool =
         NoMetadataCliTool(
             mediaProps,
@@ -30,7 +30,6 @@ class GalleryDlConfig(
             GalleryDlCommandBuilder(toolProps),
             DefaultProcessRunner(toolProps.bin, toolProps.timeout),
             fileFinder,
-            ToolId.GALLERY_DL
+            ToolId.GALLERY_DL,
         )
-
 }

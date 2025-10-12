@@ -17,7 +17,5 @@ class BaseMediaProvider(
         urlPredicate(url)
             .also { log.debug { "Checking support for URL=$url with tool=$toolName: $it" } }
 
-    override suspend fun download(url: String): List<Media> =
-        tool.download(url)
-
+    override suspend fun download(url: String): List<Media> = tool.download(url)
 }

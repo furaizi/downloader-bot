@@ -21,7 +21,7 @@ class TikTokProvidersConfig {
 
     @Bean
     @ConditionalOnBean(GalleryDlConfig::class)
-    fun tikTokPhotoDownloader(galleryDl: CliTool, ): MediaProvider =
+    fun tikTokPhotoDownloader(galleryDl: CliTool): MediaProvider =
         BaseMediaProvider(galleryDl) { url ->
             url.containsAll("tiktok.com", "photo")
         }

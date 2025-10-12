@@ -44,7 +44,7 @@ open class BaseCliTool<META : MediaConvertible>(
                     when (toolId) {
                         ToolId.YT_DLP, ToolId.INSTALOADER -> EmptyVideoMedia()
                         ToolId.GALLERY_DL -> EmptyPhotoMedia()
-                    }
+                    },
                 )
 
         val cmd = cmdBuilder.downloadCommand(url, outputPath)
@@ -86,5 +86,4 @@ open class BaseCliTool<META : MediaConvertible>(
         }
         return files.map { path -> metaData.toMedia(path, sourceUrl) }
     }
-
 }
