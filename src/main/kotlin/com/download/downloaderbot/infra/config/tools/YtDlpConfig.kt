@@ -1,7 +1,12 @@
 package com.download.downloaderbot.infra.config.tools
 
+import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.app.config.properties.YtDlpProperties
-import com.download.downloaderbot.infra.config.jsonParser
+import com.download.downloaderbot.infra.config.createJsonParser
+import com.download.downloaderbot.infra.di.ForYtDlp
+import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
+import com.download.downloaderbot.infra.media.path.PathGenerator
+import com.download.downloaderbot.infra.media.path.YtDlpPathGenerator
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
@@ -20,31 +25,43 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.yt-dlp", name = ["enabled"], havingValue = "true", matchIfMissing = true)
-class YtDlpConfig(val props: YtDlpProperties) {
+class YtDlpConfig(
+    val mediaProps: MediaProperties,
+    val toolProps: YtDlpProperties
+) {
+
     @Bean
     fun ytDlp(
-        ytDlpRunner: ProcessRunner,
-        ytDlpCommandBuilder: CommandBuilder,
-        ytDlpExtractor: JsonExtractor,
-        ytDlpParser: JsonParser<YtDlpMedia>,
-    ): CliTool<YtDlpMedia> =
+        pathGenerator: PathGenerator,
+        commandBuilder: CommandBuilder,
+        processRunner: ProcessRunner,
+        jsonExtractor: JsonExtractor,
+        jsonParser: JsonParser<YtDlpMedia>,
+        @ForYtDlp fileFinder: FilesByPrefixFinder
+    ): CliTool =
         BaseCliTool(
-            ytDlpRunner,
-            ytDlpCommandBuilder,
-            ytDlpExtractor,
-            ytDlpParser,
-            ToolId.YT_DLP,
+            mediaProps,
+            pathGenerator,
+            commandBuilder,
+            processRunner,
+            jsonExtractor,
+            jsonParser,
+            fileFinder,
+            ToolId.YT_DLP
         )
 
     @Bean
-    fun ytDlpRunner(): ProcessRunner = DefaultProcessRunner(props.bin, props.timeout)
+    fun pathGenerator(): PathGenerator = YtDlpPathGenerator(mediaProps)
 
     @Bean
-    fun ytDlpCommandBuilder(): CommandBuilder = YtDlpCommandBuilder(props)
+    fun commandBuilder(): CommandBuilder = YtDlpCommandBuilder(toolProps)
 
     @Bean
-    fun ytDlpExtractor(): JsonExtractor = OutputJsonExtractor(props.bin)
+    fun processRunner(): ProcessRunner = DefaultProcessRunner(toolProps.bin, toolProps.timeout)
 
     @Bean
-    fun ytDlpParser(mapper: ObjectMapper): JsonParser<YtDlpMedia> = jsonParser(mapper)
+    fun jsonExtractor(): JsonExtractor = OutputJsonExtractor(toolProps.bin)
+
+    @Bean
+    fun jsonParser(mapper: ObjectMapper): JsonParser<YtDlpMedia> = createJsonParser(mapper)
 }

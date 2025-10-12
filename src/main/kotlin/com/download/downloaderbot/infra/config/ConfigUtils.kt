@@ -5,6 +5,6 @@ import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonPar
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 
-inline fun <reified T> jsonParser(mapper: ObjectMapper): JsonParser<T> = DefaultJsonParser(mapper, object : TypeReference<T>() {})
+inline fun <reified T> createJsonParser(mapper: ObjectMapper): JsonParser<T> = DefaultJsonParser(mapper, object : TypeReference<T>() {})
 
 fun String.containsAll(vararg parts: String): Boolean = parts.all(this::contains)
