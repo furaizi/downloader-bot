@@ -16,7 +16,7 @@ class DynamicMediaProvider(
     val tools: ToolRegistry
 ) : MediaProvider {
 
-    override fun supports(url: String): Boolean =
+    override suspend fun supports(url: String): Boolean =
         sources.match(url) != null
 
     override suspend fun download(url: String): List<Media> {

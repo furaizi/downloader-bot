@@ -17,19 +17,31 @@ import org.springframework.stereotype.Component
 private val log = KotlinLogging.logger {}
 
 @Component
-@Order(10)
-class ResolveNormalizeInterceptor(
+class ResolveNormalizeCore(
     private val resolver: FinalUrlResolver,
     private val normalizer: UrlNormalizer,
+) {
+    suspend fun apply(url: String): String =
+        normalizer.normalize(resolver.resolve(url))
+}
+
+
+@Component
+@Order(10)
+class ResolveNormalizeInterceptor(
+    private val core: ResolveNormalizeCore,
 ) : MediaInterceptor {
-    override suspend fun invoke(
-        url: String,
-        next: Handler,
-    ): List<Media> {
-        val resolved = resolver.resolve(url)
-        val final = normalizer.normalize(resolved)
-        return next(final)
-    }
+    override suspend fun invoke(url: String, next: Handler): List<Media> =
+        next(core.apply(url))
+}
+
+@Component
+@Order(10)
+class ResolveNormalizeSupportsInterceptor(
+    private val core: ResolveNormalizeCore,
+) : SupportsInterceptor {
+    override suspend fun invoke(url: String, next: BoolHandler): Boolean =
+        next(core.apply(url))
 }
 
 @Component
