@@ -14,11 +14,16 @@ class SourcesSanityCheck(
     fun check() {
         val unknown = props.sources
             .filter { it.value.enabled }
-            .flatMap { (_, s) -> s.subresources.values.map { it.tool } }
+            .flatMap { (_, s) ->
+                s.subresources.values
+                    .filter { it.enabled }
+                    .map { it.tool }
+            }
             .distinct()
             .filter { runCatching { tools.get(it) }.isFailure }
-
-        require(unknown.isEmpty()) { "Unknown tools in sources.yml: $unknown" }
+        require(unknown.isEmpty()) {
+            "Unknown tools in sources.yml: $unknown"
+        }
         sources.list()
     }
 }
