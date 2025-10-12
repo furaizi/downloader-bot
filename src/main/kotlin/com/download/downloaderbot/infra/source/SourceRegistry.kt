@@ -32,11 +32,13 @@ class SourceRegistry(
         return props.sources
             .filter { (_, def) -> def.enabled }
             .map { (name, def) ->
-                val compiledSubs = def.subresources.mapValues { (_, sub) ->
-                    CompiledSubresource(
-                        tool = sub.tool,
-                        patterns = sub.urlPatterns.map { Pattern.compile(it) }
-                    )
+                val compiledSubs = def.subresources
+                    .filter { (_, sub) -> sub.enabled }
+                    .mapValues { (_, sub) ->
+                        CompiledSubresource(
+                            tool = sub.tool,
+                            patterns = sub.urlPatterns.map { Pattern.compile(it) }
+                        )
                 }
                 CompiledSource(name = name, subresources = compiledSubs)
             }
