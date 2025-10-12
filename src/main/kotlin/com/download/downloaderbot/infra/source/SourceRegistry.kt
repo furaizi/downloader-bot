@@ -1,9 +1,11 @@
 package com.download.downloaderbot.infra.source
 
+import org.springframework.stereotype.Service
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 
-class SourcesRegistry(
+@Service
+class SourceRegistry(
     props: SourcesProperties
 ) {
     private val compiled = AtomicReference(compile(props))
