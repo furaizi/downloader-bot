@@ -18,7 +18,7 @@ private val log = KotlinLogging.logger {}
 @Component
 @ForYtDlp
 @ForInstaloader
-class DefaultFilesByPrefixFinder : FilesByPrefixFinder {
+class SingleFileByPrefixFinder : FilesByPrefixFinder {
     override suspend fun find(
         prefix: String,
         dir: Path,

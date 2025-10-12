@@ -12,7 +12,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 @ForGalleryDl
-class FilesByDirectoryPrefixFinder : FilesByPrefixFinder {
+class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
     override suspend fun find(
         prefix: String,
         dir: Path,

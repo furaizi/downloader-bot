@@ -1,18 +1,17 @@
 package com.download.downloaderbot.infra.config.tools
 
 import com.download.downloaderbot.app.config.properties.InstaloaderProperties
-import com.download.downloaderbot.infra.config.jsonParser
+import com.download.downloaderbot.app.config.properties.MediaProperties
+import com.download.downloaderbot.infra.config.createJsonParser
+import com.download.downloaderbot.infra.di.ForInstaloader
+import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
+import com.download.downloaderbot.infra.media.path.InstaloaderPathGenerator
 import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
-import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
-import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonExtractor
-import com.download.downloaderbot.infra.process.cli.api.interfaces.JsonParser
 import com.download.downloaderbot.infra.process.cli.base.BaseCliTool
 import com.download.downloaderbot.infra.process.cli.common.extractor.FileJsonExtractor
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderCommandBuilder
-import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
-import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -20,31 +19,23 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.instaloader", name = ["enabled"], havingValue = "true")
-class InstaloaderConfig(val props: InstaloaderProperties) {
+class InstaloaderConfig(
+    val mediaProps: MediaProperties,
+    val toolProps: InstaloaderProperties,
+) {
     @Bean
     fun instaloader(
-        instaloaderRunner: ProcessRunner,
-        instaloaderCommandBuilder: CommandBuilder,
-        instaloaderJsonExtractor: JsonExtractor,
-        instaloaderJsonParser: JsonParser<InstaloaderMedia>,
-    ): CliTool<InstaloaderMedia> =
+        mapper: ObjectMapper,
+        @ForInstaloader fileFinder: FilesByPrefixFinder,
+    ): CliTool =
         BaseCliTool(
-            instaloaderRunner,
-            instaloaderCommandBuilder,
-            instaloaderJsonExtractor,
-            instaloaderJsonParser,
-            ToolId.INSTALOADER,
+            mediaProps,
+            InstaloaderPathGenerator(mediaProps),
+            InstaloaderCommandBuilder(toolProps),
+            DefaultProcessRunner(toolProps.bin, toolProps.timeout),
+            FileJsonExtractor(toolProps.bin),
+            createJsonParser(mapper),
+            fileFinder,
+            ToolId.YT_DLP,
         )
-
-    @Bean
-    fun instaloaderRunner(): ProcessRunner = DefaultProcessRunner(props.bin, props.timeout)
-
-    @Bean
-    fun instaloaderCommandBuilder(): CommandBuilder = InstaloaderCommandBuilder(props)
-
-    @Bean
-    fun instaloaderJsonExtractor(): JsonExtractor = FileJsonExtractor(props.bin)
-
-    @Bean
-    fun instaloaderJsonParser(mapper: ObjectMapper): JsonParser<InstaloaderMedia> = jsonParser(mapper)
 }

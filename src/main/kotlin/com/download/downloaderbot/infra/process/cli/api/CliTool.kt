@@ -1,15 +1,9 @@
 package com.download.downloaderbot.infra.process.cli.api
 
-interface CliTool<out META> {
+import com.download.downloaderbot.core.domain.Media
+
+interface CliTool {
     val toolId: ToolId
 
-    suspend fun download(
-        url: String,
-        output: String,
-    )
-
-    suspend fun probe(
-        url: String,
-        output: String? = null,
-    ): META
+    suspend fun download(url: String): List<Media>
 }
