@@ -3,13 +3,12 @@ package com.download.downloaderbot.infra.media.provider
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.process.cli.api.CliTool
-import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
 class BaseMediaProvider(
-    val tool: CliTool<MediaConvertible>,
+    val tool: CliTool,
     val urlPredicate: (String) -> Boolean,
 ) : MediaProvider {
     val toolName = tool.toolId.label
