@@ -2,7 +2,9 @@ spring:
   application:
     name: downloader-bot
   config:
-    import: optional:file:.env[.properties]
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:./config/sources.yml
   profiles:
     default: dev
   jackson:
