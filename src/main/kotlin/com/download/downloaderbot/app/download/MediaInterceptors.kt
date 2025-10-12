@@ -31,7 +31,7 @@ class ResolveNormalizeCore(
 class ResolveNormalizeInterceptor(
     private val core: ResolveNormalizeCore,
 ) : MediaInterceptor {
-    override suspend fun invoke(url: String, next: Handler): List<Media> =
+    override suspend fun invoke(url: String, next: MediaHandler): List<Media> =
         next(core.apply(url))
 }
 
@@ -51,7 +51,7 @@ class AllowlistInterceptor(
 ) : MediaInterceptor {
     override suspend fun invoke(
         url: String,
-        next: Handler,
+        next: MediaHandler,
     ): List<Media> {
         if (!allowlist.isAllowed(url)) {
             throw UnsupportedSourceException(url)
@@ -67,7 +67,7 @@ class CacheReadBeforeLockInterceptor(
 ) : MediaInterceptor {
     override suspend fun invoke(
         url: String,
-        next: Handler,
+        next: MediaHandler,
     ): List<Media> {
         cache.getWithLog(url)?.let { return it }
         return next(url)
@@ -83,7 +83,7 @@ class LockWaitInterceptor(
 ) : MediaInterceptor {
     override suspend fun invoke(
         url: String,
-        next: Handler,
+        next: MediaHandler,
     ): List<Media> {
         var token = urlLock.tryAcquire(url, props.lockTtl)
         if (token == null) {
@@ -115,7 +115,7 @@ class LockWaitInterceptor(
 class SlotsInterceptor(private val slots: DownloadSlots) : MediaInterceptor {
     override suspend fun invoke(
         url: String,
-        next: Handler,
+        next: MediaHandler,
     ): List<Media> =
         slots.withSlotOrThrow(url) {
             next(url)

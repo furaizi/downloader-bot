@@ -3,13 +3,13 @@ package com.download.downloaderbot.app.download
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.MediaProvider
 
-typealias Handler = suspend (String) -> List<Media>
+typealias MediaHandler = suspend (String) -> List<Media>
 typealias BoolHandler = suspend (String) -> Boolean
 
 fun interface MediaInterceptor {
     suspend fun invoke(
         url: String,
-        next: Handler,
+        next: MediaHandler,
     ): List<Media>
 }
 

@@ -5,8 +5,8 @@ import java.net.URI
 
 @Component
 class UrlValidator {
-    fun isHttpUrl(str: String?): Boolean =
-        if (str.isNullOrBlank()) {
+    fun isHttpUrl(str: String): Boolean =
+        if (str.isBlank()) {
             false
         } else {
             try {

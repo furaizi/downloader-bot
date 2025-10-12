@@ -37,11 +37,8 @@ private val log = KotlinLogging.logger {}
 class DownloadCommand(
     private val service: MediaService,
     private val botPort: BotPort,
-    private val allowlist: UrlAllowlist,
     private val rateLimitGuard: RateLimitGuard,
     private val validator: UrlValidator,
-    private val urlResolver: FinalUrlResolver,
-    private val urlNormalizer: UrlNormalizer,
     private val cachePort: CachePort<String, List<Media>>,
     private val props: BotProperties,
 ) : BotCommand {
@@ -55,14 +52,14 @@ class DownloadCommand(
 
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
-        val rawUrl = ctx.args.firstOrNull()?.trim()
-        val url = normalizeUrlOrNull(rawUrl)
+        val url = ctx.args.firstOrNull()?.trim() ?: ""
+        val isNotUrl = !validator.isHttpUrl(url)
 
         val allowed =
             when {
-                url == null -> false
+                isNotUrl -> false
                 ctx.isPrivateChat -> true
-                ctx.isGroupChat -> allowlist.isAllowed(url)
+                ctx.isGroupChat -> service.supports(url)
                 else -> false
             }
 
@@ -75,7 +72,6 @@ class DownloadCommand(
             }
             return
         }
-        url ?: return
 
         log.info { "Executing /$name command with url: $url" }
         val mediaList =
@@ -85,24 +81,18 @@ class DownloadCommand(
                 }
             }
 
+        val normalizedUrl = mediaList.first().sourceUrl
         if (mediaList.isEmpty()) {
-            throw MediaNotFoundException(url)
+            throw MediaNotFoundException(normalizedUrl)
         }
-
         val messages = sendMediaSmart(ctx, mediaList, replyTo)
-        updateCache(url, mediaList, messages)
+        updateCache(normalizedUrl, mediaList, messages)
 
         log.info {
             val titles = mediaList.map { it.title }
-            val urls = mediaList.map { it.fileUrl }
-            "Downloaded: $titles ($urls)"
+            val paths = mediaList.map { it.fileUrl }
+            "Downloaded: $titles ($paths)"
         }
-    }
-
-    private suspend fun normalizeUrlOrNull(rawUrl: String?): String? {
-        if (!validator.isHttpUrl(rawUrl)) return null
-        val resolved = urlResolver.resolve(rawUrl!!.trim())
-        return urlNormalizer.normalize(resolved)
     }
 
     private suspend fun sendMediaSmart(
