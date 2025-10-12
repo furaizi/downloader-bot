@@ -23,35 +23,25 @@ class BaseCliTool<META>(
         url: String,
         output: String,
     ) {
-        MDC.put("tool", toolId.label)
-        try {
-            val cmd = cmdBuilder.downloadCommand(url, output)
-            log.debug { "Running download command: ${cmd.joinToString(" ")}" }
+        val cmd = cmdBuilder.downloadCommand(url, output)
+        log.debug { "Running download command: ${cmd.joinToString(" ")}" }
 
-            runner.run(cmd, url)
-        } finally {
-            MDC.remove("tool")
-        }
+        runner.run(cmd, url)
     }
 
     override suspend fun probe(
         url: String,
         output: String?,
     ): META {
-        MDC.put("tool", toolId.label)
-        try {
-            val cmd = cmdBuilder.probeCommand(url, output)
-            log.debug { "Running probe command: ${cmd.joinToString(" ")}" }
+        val cmd = cmdBuilder.probeCommand(url, output)
+        log.debug { "Running probe command: ${cmd.joinToString(" ")}" }
 
-            val processOutput = runner.run(cmd, url)
-            log.trace { "Probe result (raw): $processOutput" }
+        val processOutput = runner.run(cmd, url)
+        log.trace { "Probe result (raw): $processOutput" }
 
-            val json = jsonExtractor.extract(processOutput)
-            log.trace { "Extracted JSON: ${json.preview()}" }
+        val json = jsonExtractor.extract(processOutput)
+        log.trace { "Extracted JSON: ${json.preview()}" }
 
-            return jsonParser.parse(json)
-        } finally {
-            MDC.remove("tool")
-        }
+        return jsonParser.parse(json)
     }
 }
