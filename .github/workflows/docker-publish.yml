@@ -3,9 +3,6 @@ name: Publish Docker image to GHCR
 on:
   release:
     types: [ published ]
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -50,9 +47,8 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=ref,event=tag,enable=${{ github.event_name == 'release' }}
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'release' }}
+            type=ref,event=tag
+            type=semver,pattern={{version}}
 
       - name: Build & Push
         uses: docker/build-push-action@v6
