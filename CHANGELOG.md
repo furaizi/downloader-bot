@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/furaizi/downloader-bot/compare/v0.4.0...v0.5.0) (2025-10-13)
+
+
+### Features
+
+* **ci:** trigger docker publish workflow for releases only ([9ec5efc](https://github.com/furaizi/downloader-bot/commit/9ec5efc057747f75831e920f224a44acbdec62d8))
+
 ## [0.4.0](https://github.com/furaizi/downloader-bot/compare/v0.3.0...v0.4.0) (2025-10-13)
 
 
