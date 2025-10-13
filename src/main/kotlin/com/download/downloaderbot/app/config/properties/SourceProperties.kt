@@ -1,21 +1,19 @@
-package com.download.downloaderbot.infra.source
+package com.download.downloaderbot.app.config.properties
 
 import jakarta.validation.constraints.NotEmpty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
-@ConfigurationProperties(prefix = "sources")
+@ConfigurationProperties
 @Validated
-@Component
 class SourcesProperties(
-    val sources: Map<String, SourceDef> = emptyMap()
+    val sources: Map<String, SourceDef>
 )
 
 data class SourceDef(
     val enabled: Boolean = true,
     @field:NotEmpty
-    val subresources: Map<String, SubresourceDef> = emptyMap()
+    val subresources: Map<String, SubresourceDef>
 )
 
 

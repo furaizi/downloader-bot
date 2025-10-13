@@ -1,5 +1,6 @@
 package com.download.downloaderbot.infra.source
 
+import com.download.downloaderbot.app.config.properties.SourcesProperties
 import org.springframework.stereotype.Service
 import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern

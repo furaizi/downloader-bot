@@ -1,32 +1,36 @@
 sources:
   tiktok:
     enabled: true # default: true
-    video:
-      tool: yt-dlp
-      url-patterns:
-        - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+/?(?:[?#].*)?$
-        - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+/?(?:[?#].*)?$
-    photo:
-      tool: gallery-dl
-      url-patterns:
-        - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+/?(?:[?#].*)?$
-        - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+/?(?:[?#].*)?$
+    subresources:
+      video:
+        tool: yt-dlp
+        url-patterns:
+          - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+/?(?:[?#].*)?$
+          - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+/?(?:[?#].*)?$
+      photo:
+        tool: gallery-dl
+        url-patterns:
+          - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+/?(?:[?#].*)?$
+          - ^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+/?(?:[?#].*)?$
   instagram:
-    reels:
-      tool: yt-dlp
-      url-patterns:
-        - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
+    subresources:
+      reels:
+        tool: yt-dlp
+        url-patterns:
+          - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
   some-extraordinary-source:
     enabled: false
-    subresource:
-      tool: magic-tool
-      url-patterns:
-        - 'xxx'
-        - 'xxx'
+    subresources:
+      subresource:
+        tool: magic-tool
+        url-patterns:
+          - 'xxx'
+          - 'xxx'
   youtube:
     enabled: false
-    shorts:
-      tool: yt-dlp
-      url-patterns:
-        - ^https?://(?:www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
-        - ^https?://(?:www\.|m\.)?youtube\.com/@[^/]+/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
+    subresources:
+      shorts:
+        tool: yt-dlp
+        url-patterns:
+          - ^https?://(?:www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
+          - ^https?://(?:www\.|m\.)?youtube\.com/@[^/]+/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$

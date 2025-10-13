@@ -1,5 +1,6 @@
 package com.download.downloaderbot.infra.source
 
+import com.download.downloaderbot.app.config.properties.SourcesProperties
 import com.download.downloaderbot.infra.process.cli.api.ToolRegistry
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Component
