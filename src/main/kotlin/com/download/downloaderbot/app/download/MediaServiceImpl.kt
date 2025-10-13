@@ -20,9 +20,8 @@ class MediaServiceImpl(
     private val cache: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val urlLock: UrlLockManager,
-    private val slots: DownloadSlots
+    private val slots: DownloadSlots,
 ) : MediaService {
-
     override suspend fun supports(url: String): Boolean {
         val finalUrl = urlOps.finalOf(url)
         return provider.supports(finalUrl)

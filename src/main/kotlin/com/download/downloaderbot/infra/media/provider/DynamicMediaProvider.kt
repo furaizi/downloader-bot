@@ -13,11 +13,9 @@ private val log = KotlinLogging.logger {}
 @Component
 class DynamicMediaProvider(
     val sources: SourceRegistry,
-    val tools: ToolRegistry
+    val tools: ToolRegistry,
 ) : MediaProvider {
-
-    override suspend fun supports(url: String): Boolean =
-        sources.match(url) != null
+    override suspend fun supports(url: String): Boolean = sources.match(url) != null
 
     override suspend fun download(url: String): List<Media> {
         val match = sources.match(url) ?: throw UnsupportedSourceException(url)

@@ -7,20 +7,18 @@ import org.springframework.validation.annotation.Validated
 @ConfigurationProperties
 @Validated
 class SourcesProperties(
-    val sources: Map<String, SourceDef>
+    val sources: Map<String, SourceDef>,
 )
 
 data class SourceDef(
     val enabled: Boolean = true,
     @field:NotEmpty
-    val subresources: Map<String, SubresourceDef>
+    val subresources: Map<String, SubresourceDef>,
 )
-
 
 data class SubresourceDef(
     val enabled: Boolean = true,
     val tool: String,
     @field:NotEmpty
-    val urlPatterns: List<String>
+    val urlPatterns: List<String>,
 )
-

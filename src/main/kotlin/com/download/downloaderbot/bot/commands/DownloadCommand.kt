@@ -1,7 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
-import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.commands.util.UrlValidator
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
@@ -21,8 +20,6 @@ import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
-import com.download.downloaderbot.core.net.FinalUrlResolver
-import com.download.downloaderbot.core.security.UrlAllowlist
 import com.github.kotlintelegrambot.entities.Message
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
