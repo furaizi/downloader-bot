@@ -9,13 +9,11 @@ import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.lock.UrlLockManager
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
-import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
 private val log = KotlinLogging.logger {}
 
 @Service
-@Primary
 class MediaServiceImpl(
     private val provider: MediaProvider,
     private val urlOps: UrlOps,
