@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/furaizi/downloader-bot/compare/v0.3.0...v0.4.0) (2025-10-13)
+
+
+### Features
+
+* implement configurable sources module ([6622e48](https://github.com/furaizi/downloader-bot/commit/6622e48b7911a5dd60e0a044f27673168cb9a3d6))
+
 ## [0.3.0](https://github.com/furaizi/downloader-bot/compare/v0.2.3...v0.3.0) (2025-10-06)
 
 
