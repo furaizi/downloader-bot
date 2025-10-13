@@ -64,6 +64,8 @@ jobs:
           mkdir -p "$APP_DIR"
           cd "$APP_DIR"
           
+          mkdir -p config
+
           if [ ! -f .env ]; then
             umask 077
             : > .env
@@ -74,6 +76,11 @@ jobs:
 
           curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/prometheus.yml" || \
           curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/prometheus.yml"
+
+          curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/config/sources.yml" || \
+          curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/config/sources.yml"
+
+          chmod 0644 config/sources.yml || true
 
           docker compose pull
           docker compose up -d --remove-orphans
@@ -160,4 +167,3 @@ jobs:
             echo "Deployment failed via SSM"
             exit 1
           fi
-

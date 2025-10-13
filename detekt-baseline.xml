@@ -16,17 +16,12 @@
     <ID>MagicNumber:CacheProperties.kt$CacheProperties$7</ID>
     <ID>MagicNumber:DurationUtils.kt$1000.0</ID>
     <ID>MagicNumber:DurationUtils.kt$1_000_000</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$AllowlistInterceptor$20</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$CacheReadBeforeLockInterceptor$30</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$LockWaitInterceptor$100</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$LockWaitInterceptor$40</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$ResolveNormalizeInterceptor$10</ID>
-    <ID>MagicNumber:MediaInterceptors.kt$SlotsInterceptor$60</ID>
     <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$10</ID>
     <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$5</ID>
     <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$7</ID>
     <ID>MagicNumber:MediaProperties.kt$MediaSizeLimits$10</ID>
     <ID>MagicNumber:MediaProperties.kt$MediaSizeLimits$50</ID>
+    <ID>MagicNumber:MediaServiceImpl.kt$MediaServiceImpl$100</ID>
     <ID>MagicNumber:OkHttpConfig.kt$OkHttpConfig$20</ID>
     <ID>MagicNumber:RateLimitProperties.kt$8</ID>
     <ID>MagicNumber:UrlNormalizer.kt$UrlNormalizer$443</ID>
@@ -37,6 +32,7 @@
     <ID>NestedBlockDepth:MediaCleanupService.kt$MediaCleanupService$suspend fun cleanup(): MediaCleanupReport</ID>
     <ID>ReturnCount:Mappers.kt$fun &lt;T : Any&gt; Pair&lt;HttpResponse&lt;TgEnvelope&lt;T&gt;?&gt;?, Exception?&gt;.toGateway(): GatewayResult&lt;T&gt;</ID>
     <ID>ReturnCount:MediaCleanupService.kt$MediaCleanupService$@SuppressWarnings("TooGenericExceptionCaught") private fun toMediaFile(path: Path): MediaFile?</ID>
+    <ID>ReturnCount:MediaServiceImpl.kt$MediaServiceImpl$override suspend fun download(url: String): List&lt;Media&gt;</ID>
     <ID>ReturnCount:UrlNormalizer.kt$UrlNormalizer$fun normalize(url: String): String</ID>
     <ID>TooGenericExceptionCaught:Bucket4jRateLimiter.kt$Bucket4jRateLimiter$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ConcurrencyConfig.kt$ConcurrencyConfig.BotCoroutineExceptionHandler$e: Exception</ID>

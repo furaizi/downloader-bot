@@ -13,7 +13,7 @@ class BaseMediaProvider(
 ) : MediaProvider {
     val toolName = tool.toolId.label
 
-    override fun supports(url: String): Boolean =
+    override suspend fun supports(url: String): Boolean =
         urlPredicate(url)
             .also { log.debug { "Checking support for URL=$url with tool=$toolName: $it" } }
 
