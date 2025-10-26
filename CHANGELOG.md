@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/furaizi/downloader-bot/compare/v0.5.1...v0.5.2) (2025-10-26)
+
+
+### Bug Fixes
+
+* **ci:** trigger docker publish workflow on tag push ([#115](https://github.com/furaizi/downloader-bot/issues/115)) ([86f8ac1](https://github.com/furaizi/downloader-bot/commit/86f8ac127d63f76e48636fa3e4294e9642e2b0e6))
+
 ## [0.5.1](https://github.com/furaizi/downloader-bot/compare/v0.5.0...v0.5.1) (2025-10-26)
 
 
