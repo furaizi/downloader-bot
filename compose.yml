@@ -48,6 +48,7 @@ services:
     volumes:
       - downloads:/downloads
       - ./secrets:/app/secrets
+      - ./config:/app/config
       - type: tmpfs
         target: /tmp
         tmpfs:
