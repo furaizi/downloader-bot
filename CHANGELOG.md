@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/furaizi/downloader-bot/compare/v0.5.2...v0.6.0) (2025-10-26)
+
+
+### Features
+
+* **bot:** enable YouTube Shorts support ([#118](https://github.com/furaizi/downloader-bot/issues/118)) ([10ed00d](https://github.com/furaizi/downloader-bot/commit/10ed00d99724e1e4754e403e7c6e2e28f6a24b44))
+
 ## [0.5.2](https://github.com/furaizi/downloader-bot/compare/v0.5.1...v0.5.2) (2025-10-26)
 
 
