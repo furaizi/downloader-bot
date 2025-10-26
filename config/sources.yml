@@ -27,7 +27,7 @@ sources:
           - 'xxx'
           - 'xxx'
   youtube:
-    enabled: false
+    enabled: true
     subresources:
       shorts:
         tool: yt-dlp
