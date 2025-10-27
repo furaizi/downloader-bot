@@ -101,12 +101,14 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./monitoring/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/downloader-bot.yaml
+      - ./monitoring/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/downloader-bot.yml
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
       - ./monitoring/grafana/alerting:/etc/grafana/provisioning/alerting
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
     depends_on:
       - prometheus
 
