@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/furaizi/downloader-bot/compare/v0.7.0...v0.7.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* **ci:** correct docker compose profile flag order in deploy workflow ([#122](https://github.com/furaizi/downloader-bot/issues/122)) ([5e60ccc](https://github.com/furaizi/downloader-bot/commit/5e60ccc0a9e605616a39f32e1cde46bfa5cfdd7c))
+
 ## [0.7.0](https://github.com/furaizi/downloader-bot/compare/v0.6.0...v0.7.0) (2025-10-27)
 
 
