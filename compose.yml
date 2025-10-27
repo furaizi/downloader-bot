@@ -43,8 +43,8 @@ services:
     pids_limit: 256
     cap_drop:
       - ALL
-    security_opt:
-      - no-new-privileges:true
+#    security_opt:
+#      - no-new-privileges:true
     volumes:
       - downloads:/downloads
       - ./secrets:/app/secrets
@@ -77,7 +77,8 @@ services:
     ports:
         - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/rules.yml:/etc/prometheus/rules/rules.yml
     depends_on:
       - app
 
