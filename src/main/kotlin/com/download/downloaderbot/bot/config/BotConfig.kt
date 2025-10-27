@@ -22,7 +22,7 @@ class BotConfig(
     val botProperties: BotProperties,
     val botScope: CoroutineScope,
     val commands: CommandRegistry,
-    private val botMetrics: BotMetrics
+    private val botMetrics: BotMetrics,
 ) {
     @Bean
     fun telegramBot(): Bot =

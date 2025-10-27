@@ -25,7 +25,7 @@ private val log = KotlinLogging.logger {}
 @Component
 class GlobalTelegramExceptionHandler(
     val botPort: BotPort,
-    private val botMetrics: BotMetrics
+    private val botMetrics: BotMetrics,
 ) {
     suspend fun handle(
         e: Exception,
