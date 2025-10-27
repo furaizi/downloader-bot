@@ -15,6 +15,7 @@ import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.ToolTimeoutException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.downloader.toMB
+import com.download.downloaderbot.infra.metrics.BotMetrics
 import kotlinx.coroutines.CancellationException
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
@@ -22,7 +23,10 @@ import org.springframework.stereotype.Component
 private val log = KotlinLogging.logger {}
 
 @Component
-class GlobalTelegramExceptionHandler(val botPort: BotPort) {
+class GlobalTelegramExceptionHandler(
+    val botPort: BotPort,
+    private val botMetrics: BotMetrics
+) {
     suspend fun handle(
         e: Exception,
         ctx: CommandContext,
@@ -30,6 +34,7 @@ class GlobalTelegramExceptionHandler(val botPort: BotPort) {
         if (e is CancellationException) {
             throw e // very important for coroutines
         }
+        botMetrics.errors.increment()
         logAtProperLevel(e, ctx.chatId)
         botPort.sendText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
     }

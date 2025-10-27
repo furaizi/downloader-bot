@@ -1,0 +1,14 @@
+apiVersion: 1
+providers:
+  - name: downloader-bot-dashboards
+    orgId: 1
+    folder: Downloader-Bot
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 60
+    options:
+      path: /var/lib/grafana/dashboards
+      # only import files that match this pattern
+      # (we'll place downloader-bot.json here next step)
+      foldersFromFilesStructure: false

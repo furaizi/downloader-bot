@@ -1,0 +1,30 @@
+groups:
+  - name: downloader-bot.rules
+    rules:
+      - alert: DownloaderBotDown
+        expr: max(up{job="downloader-bot"}) < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Downloader-Bot is down"
+          description: "Prometheus job downloader-bot is not up for > 1m."
+
+      - alert: DownloaderBotHighErrorRate
+        expr: ( sum(rate(downloader_errors_total{job="downloader-bot"}[5m])) )
+          / ( sum(rate(downloader_updates_total{job="downloader-bot"}[5m])) + 1e-9 ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate for Downloader-Bot"
+          description: "Error rate > 5% over 5m."
+
+      - alert: DownloaderBotHighCPU
+        expr: process_cpu_usage{job="downloader-bot"} * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on Downloader-Bot"
+          description: "process_cpu_usage > 90% for 10m."

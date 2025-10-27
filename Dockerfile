@@ -79,7 +79,7 @@ RUN mkdir -p /opt/empty && rm -rf /tmp/*
 
 FROM gcr.io/distroless/java21-debian12 AS runtime
 ENV PATH="/usr/local/bin:/opt/py/bin:${PATH}" \
-    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data"
+    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data --add-modules=jdk.management"
 WORKDIR /app
 
 COPY --from=tools /opt/bin/ffmpeg   /usr/local/bin/ffmpeg

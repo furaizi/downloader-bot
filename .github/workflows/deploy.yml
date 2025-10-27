@@ -54,6 +54,8 @@ jobs:
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_BOT_USERNAME:  ${{ vars.TELEGRAM_BOT_USERNAME }}
+          GRAFANA_ADMIN_USER:     ${{ vars.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
@@ -65,6 +67,9 @@ jobs:
           cd "$APP_DIR"
           
           mkdir -p config
+          mkdir -p monitoring/grafana/datasources
+          mkdir -p monitoring/grafana/dashboards
+          mkdir -p monitoring/prometheus
 
           if [ ! -f .env ]; then
             umask 077
@@ -76,14 +81,30 @@ jobs:
 
           curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/prometheus.yml" || \
           curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/prometheus.yml"
+          
+          curl -fsSL -o monitoring/prometheus/rules.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/prometheus/rules.yml" || \
+          curl -fsSL -o monitoring/prometheus/rules.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/prometheus/rules.yml"
 
           curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/config/sources.yml" || \
           curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/config/sources.yml"
+          
+          curl -fsSL -o monitoring/grafana/datasources/prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/datasources/prometheus.yml" || \
+          curl -fsSL -o monitoring/grafana/datasources/prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/datasources/prometheus.yml"
+          
+          curl -fsSL -o monitoring/grafana/dashboards.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/dashboards.yml" || \
+          curl -fsSL -o monitoring/grafana/dashboards.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/dashboards.yml"
+          
+          for f in downloader-bot.json jvm-micrometer.json redis.json; do
+            curl -fsSL -o "monitoring/grafana/dashboards/${f}" "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/dashboards/${f}" || \
+            curl -fsSL -o "monitoring/grafana/dashboards/${f}" "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/dashboards/${f}"
+          done
 
           chmod 0644 config/sources.yml || true
+          find monitoring -type f -name "*.yml" -exec chmod 0644 {} \; || true
+          find monitoring -type f -name "*.json" -exec chmod 0644 {} \; || true
 
           docker compose pull
-          docker compose up -d --remove-orphans
+          docker compose up --profile monitoring -d --remove-orphans
 
           ok=0
           for i in $(seq 1 24); do
@@ -117,6 +138,8 @@ jobs:
           --arg tok  "$TELEGRAM_BOT_TOKEN" \
           --arg name "$TELEGRAM_BOT_USERNAME" \
           --arg prof "$SPRING_PROFILES_ACTIVE" \
+          --arg gfu  "$GRAFANA_ADMIN_USER" \
+          --arg gfp  "$GRAFANA_ADMIN_PASSWORD" \
           --arg dir  "$APP_DIR" \
           --arg b64  "$SCRIPT_B64" \
           '{
@@ -127,6 +150,8 @@ jobs:
               ("export REPO_REF=\"" + $repo_ref + "\""),
               ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
               ("export TELEGRAM_BOT_USERNAME=\"" + $name + "\""),
+              ("export GRAFANA_ADMIN_USER=\"" + $gfu + "\""),
+              ("export GRAFANA_ADMIN_PASSWORD=\"" + $gfp + "\""),
               ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
               ("export APP_DIR=\"" + $dir + "\""),
         
