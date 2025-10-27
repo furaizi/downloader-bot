@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/furaizi/downloader-bot/compare/v0.6.0...v0.7.0) (2025-10-27)
+
+
+### Features
+
+* **devops:** add basic monitoring dashboard in Grafana ([#120](https://github.com/furaizi/downloader-bot/issues/120)) ([f1bb116](https://github.com/furaizi/downloader-bot/commit/f1bb116d39954c4e46510b2e704e8e224873ddca))
+
 ## [0.6.0](https://github.com/furaizi/downloader-bot/compare/v0.5.2...v0.6.0) (2025-10-26)
 
 
