@@ -104,7 +104,7 @@ jobs:
           find monitoring -type f -name "*.json" -exec chmod 0644 {} \; || true
 
           docker compose pull
-          docker compose up --profile monitoring -d --remove-orphans
+          docker compose --profile monitoring up -d --remove-orphans
 
           ok=0
           for i in $(seq 1 24); do
