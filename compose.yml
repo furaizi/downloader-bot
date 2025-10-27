@@ -43,8 +43,6 @@ services:
     pids_limit: 256
     cap_drop:
       - ALL
-#    security_opt:
-#      - no-new-privileges:true
     volumes:
       - downloads:/downloads
       - ./secrets:/app/secrets
