@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/furaizi/downloader-bot/compare/v0.7.1...v0.8.0) (2025-11-08)
+
+
+### Features
+
+* **bot:** make promo message less intrusive and configurable ([#127](https://github.com/furaizi/downloader-bot/issues/127)) ([a97083f](https://github.com/furaizi/downloader-bot/commit/a97083fee974a489129946a2022c83df74d49ba4))
+
 ## [0.7.1](https://github.com/furaizi/downloader-bot/compare/v0.7.0...v0.7.1) (2025-10-27)
 
 
