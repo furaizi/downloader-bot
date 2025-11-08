@@ -14,6 +14,7 @@ import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
 import com.download.downloaderbot.bot.gateway.telegram.isPrivateChat
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.gateway.toInputFile
+import com.download.downloaderbot.bot.promo.PromoService
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.bot.ui.shareKeyboard
 import com.download.downloaderbot.core.cache.CachePort
@@ -38,6 +39,7 @@ class DownloadCommand(
     private val validator: UrlValidator,
     private val cachePort: CachePort<String, List<Media>>,
     private val props: BotProperties,
+    private val promoService: PromoService,
 ) : BotCommand {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -97,18 +99,21 @@ class DownloadCommand(
         mediaList: List<Media>,
         replyTo: Long?,
     ): List<Message> {
+        val sendPromo = promoService.shouldSend(ctx.chatId)
         return if (mediaList.isImageAlbum()) {
             val inputs = mediaList.toInputFiles()
             val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
             when (val res = sendAlbum(ctx, inputs, replyTo, chunked)) {
                 is GatewayResult.Ok -> {
                     val sentPhotos = res.value
-                    botPort.sendText(
-                        ctx.chatId,
-                        props.promoText,
-                        replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
-                        replyMarkup = share,
-                    )
+                    if (sendPromo) {
+                        botPort.sendText(
+                            ctx.chatId,
+                            props.promoText,
+                            replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
+                            replyMarkup = share,
+                        )
+                    }
                     sentPhotos
                 }
                 is GatewayResult.Err -> {
@@ -124,9 +129,9 @@ class DownloadCommand(
                         media.type,
                         ctx.chatId,
                         input,
-                        caption = props.promoText,
+                        caption = if (sendPromo) props.promoText else null,
                         replyToMessageId = replyTo,
-                        replyMarkup = share,
+                        replyMarkup = if (sendPromo) share else null,
                     )
                 }
 
