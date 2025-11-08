@@ -9,5 +9,5 @@ class BotProperties(
     val defaultCommand: String = "download",
     val shareText: String,
     val promoText: String = "\u200B",
-    val promoEveryN: Int = 1
+    val promoEveryN: Int = 1,
 )

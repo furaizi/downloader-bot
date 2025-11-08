@@ -39,7 +39,7 @@ class DownloadCommand(
     private val validator: UrlValidator,
     private val cachePort: CachePort<String, List<Media>>,
     private val props: BotProperties,
-    private val promoService: PromoService
+    private val promoService: PromoService,
 ) : BotCommand {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -106,13 +106,14 @@ class DownloadCommand(
             when (val res = sendAlbum(ctx, inputs, replyTo, chunked)) {
                 is GatewayResult.Ok -> {
                     val sentPhotos = res.value
-                    if (sendPromo)
+                    if (sendPromo) {
                         botPort.sendText(
                             ctx.chatId,
                             props.promoText,
                             replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
                             replyMarkup = share,
                         )
+                    }
                     sentPhotos
                 }
                 is GatewayResult.Err -> {

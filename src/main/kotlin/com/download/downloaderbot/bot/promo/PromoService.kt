@@ -6,11 +6,12 @@ import org.springframework.stereotype.Component
 @Component
 class PromoService(
     private val props: BotProperties,
-    private val counter: PromoCounter
+    private val counter: PromoCounter,
 ) {
     fun shouldSend(chatId: Long): Boolean {
-        if (props.promoText.isBlank())
+        if (props.promoText.isBlank()) {
             return false
+        }
         val n = props.promoEveryN.coerceAtLeast(1)
         val current = counter.incrementAndGet(chatId)
         return current % n == 0L
