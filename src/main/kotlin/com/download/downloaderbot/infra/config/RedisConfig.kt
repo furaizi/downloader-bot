@@ -1,5 +1,6 @@
 package com.download.downloaderbot.infra.config
 
+import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.infra.cache.AsyncRedisMediaCacheAdapter
@@ -16,8 +17,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 @Configuration
 class RedisConfig {
     @Bean
-    fun asyncRedisMediaCache(mediaTemplate: ReactiveRedisTemplate<String, List<Media>>): CachePort<String, List<Media>> =
-        AsyncRedisMediaCacheAdapter(mediaTemplate)
+    fun asyncRedisMediaCache(
+        mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
+        cacheProps: CacheProperties
+    ): CachePort<String, List<Media>> =
+        AsyncRedisMediaCacheAdapter(mediaTemplate, cacheProps.schemaVersion)
 
     @Bean
     fun mediaRedisTemplate(
