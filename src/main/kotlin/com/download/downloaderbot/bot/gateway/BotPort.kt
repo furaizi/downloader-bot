@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.gateway
 import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.ReplyMarkup
+import kotlinx.coroutines.delay
 
 interface BotPort {
     suspend fun sendText(
@@ -95,7 +96,10 @@ interface BotPort {
         for ((idx, part) in files.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
             when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
-                is GatewayResult.Ok -> all += res.value
+                is GatewayResult.Ok -> {
+                    all += res.value
+                    delay(1200L) // heuristic delay to avoid Telegram limits
+                }
                 is GatewayResult.Err -> return res
             }
         }
