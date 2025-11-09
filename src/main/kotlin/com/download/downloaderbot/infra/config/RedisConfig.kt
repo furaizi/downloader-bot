@@ -19,9 +19,8 @@ class RedisConfig {
     @Bean
     fun asyncRedisMediaCache(
         mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
-        cacheProps: CacheProperties
-    ): CachePort<String, List<Media>> =
-        AsyncRedisMediaCacheAdapter(mediaTemplate, cacheProps.schemaVersion)
+        cacheProps: CacheProperties,
+    ): CachePort<String, List<Media>> = AsyncRedisMediaCacheAdapter(mediaTemplate, cacheProps.schemaVersion)
 
     @Bean
     fun mediaRedisTemplate(

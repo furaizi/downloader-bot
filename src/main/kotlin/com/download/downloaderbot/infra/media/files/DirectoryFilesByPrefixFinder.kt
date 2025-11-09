@@ -45,7 +45,7 @@ class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
                         leadingNumber.find(it.fileName.toString())
                             ?.groupValues?.get(1)
                             ?.toLongOrNull() ?: Long.MAX_VALUE
-                    }.thenBy { it.fileName.toString() }
+                    }.thenBy { it.fileName.toString() },
                 )
                 .toList()
         }
