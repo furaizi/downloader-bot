@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
+import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.UrlValidator
 import com.download.downloaderbot.bot.config.properties.BotProperties
@@ -35,10 +36,11 @@ private val log = KotlinLogging.logger {}
 class DownloadCommand(
     private val service: MediaService,
     private val botPort: BotPort,
+    private val props: BotProperties,
     private val rateLimitGuard: RateLimitGuard,
     private val validator: UrlValidator,
     private val cachePort: CachePort<String, List<Media>>,
-    private val props: BotProperties,
+    private val cacheProps: CacheProperties,
     private val promoService: PromoService,
 ) : BotCommand {
     private companion object {
@@ -169,7 +171,7 @@ class DownloadCommand(
             mediaList.zip(messages)
                 .map { (media, message) -> media.updateWith(message) }
         if (updated.any { it.lastFileId != null }) {
-            cachePort.put(url, updated)
+            cachePort.put(url, updated, cacheProps.mediaTtl)
         }
     }
 

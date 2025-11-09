@@ -60,10 +60,9 @@ class MediaServiceImpl(
 
     private suspend fun CachePort<String, List<Media>>.awaitGet(url: String): List<Media>? {
         val end = System.nanoTime() + cacheProps.waitTimeout.toNanos()
-        val stepMs = cacheProps.waitTimeout.toMillis().coerceAtLeast(100)
         while (System.nanoTime() < end) {
             this.getWithLog(url)?.let { return it }
-            delay(stepMs)
+            delay(cacheProps.waitPoll.toMillis())
         }
         return null
     }

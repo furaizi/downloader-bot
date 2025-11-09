@@ -66,6 +66,7 @@ downloader:
     session-file: ${INSTALOADER_SESSION_FILE:}
     user-agent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile'
   cache:
+    schema-version: 2
     media-ttl: 180d
     lock-ttl: 60s
     wait-timeout: 60s

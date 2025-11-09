@@ -8,8 +8,9 @@ import java.time.Duration
 
 class AsyncRedisMediaCacheAdapter(
     private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
+    private val schemaVersion: Int,
 ) : CachePort<String, List<Media>> {
-    private fun key(url: String) = "media:url:$url"
+    private fun key(url: String) = "media:v$schemaVersion:url:$url"
 
     override suspend fun get(id: String): List<Media>? =
         mediaTemplate.opsForValue()

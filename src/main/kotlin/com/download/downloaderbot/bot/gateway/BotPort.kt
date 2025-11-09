@@ -3,6 +3,10 @@ package com.download.downloaderbot.bot.gateway
 import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.ReplyMarkup
+import kotlinx.coroutines.delay
+
+private const val ALBUM_LIMIT = 10
+private const val ALBUM_COOLDOWN_MS = 1200L
 
 interface BotPort {
     suspend fun sendText(
@@ -87,7 +91,7 @@ interface BotPort {
     suspend fun sendPhotoAlbumChunked(
         chatId: Long,
         files: List<InputFile>,
-        chunk: Int = 10,
+        chunk: Int = ALBUM_LIMIT,
         caption: String? = null,
         replyToMessageId: Long? = null,
     ): GatewayResult<List<Message>> {
@@ -95,7 +99,10 @@ interface BotPort {
         for ((idx, part) in files.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
             when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
-                is GatewayResult.Ok -> all += res.value
+                is GatewayResult.Ok -> {
+                    all += res.value
+                    delay(ALBUM_COOLDOWN_MS) // heuristic delay to avoid Telegram limits
+                }
                 is GatewayResult.Err -> return res
             }
         }

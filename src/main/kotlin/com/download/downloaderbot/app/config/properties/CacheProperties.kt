@@ -5,6 +5,7 @@ import java.time.Duration
 
 @ConfigurationProperties(prefix = "downloader.cache")
 data class CacheProperties(
+    val schemaVersion: Int,
     val mediaTtl: Duration = Duration.ofDays(7),
     val lockTtl: Duration = Duration.ofSeconds(60),
     val waitTimeout: Duration = Duration.ofSeconds(60),
