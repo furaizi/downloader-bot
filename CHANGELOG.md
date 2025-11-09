@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/furaizi/downloader-bot/compare/v0.8.0...v0.8.1) (2025-11-09)
+
+
+### Bug Fixes
+
+* **bot:** photo album sending does not work properly ([#131](https://github.com/furaizi/downloader-bot/issues/131)) ([3ff738f](https://github.com/furaizi/downloader-bot/commit/3ff738ff34ffe6959919c19e45c7d298a4df740d))
+
 ## [0.8.0](https://github.com/furaizi/downloader-bot/compare/v0.7.1...v0.8.0) (2025-11-08)
 
 
