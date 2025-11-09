@@ -9,6 +9,7 @@ import kotlin.io.path.isRegularFile
 import kotlin.streams.asSequence
 
 private val log = KotlinLogging.logger {}
+private val leadingNumber = Regex("^(\\d+)\\b")
 
 @Component
 @ForGalleryDl
@@ -40,7 +41,11 @@ class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
             stream.asSequence()
                 .filter { it.isRegularFile() }
                 .sortedWith(
-                    compareBy<Path> { it.fileName.toString() },
+                    compareBy<Path> {
+                        leadingNumber.find(it.fileName.toString())
+                            ?.groupValues?.get(1)
+                            ?.toLongOrNull() ?: Long.MAX_VALUE
+                    }.thenBy { it.fileName.toString() }
                 )
                 .toList()
         }
