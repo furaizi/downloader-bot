@@ -10,14 +10,15 @@ class BotIdentityInitializer(
     private val botIdentity: BotIdentity,
     private val bot: Bot,
 ) : SmartInitializingSingleton {
-
     override fun afterSingletonsInstantiated() {
-        val botUser = bot.getMe()
-            .getOrNull()
-            ?: error("Failed to get bot info from Telegram API")
+        val botUser =
+            bot.getMe()
+                .getOrNull()
+                ?: error("Failed to get bot info from Telegram API")
 
-        val botUsername = (botUser.username ?: error("Bot has no username"))
-            .removePrefix("@")
+        val botUsername =
+            (botUser.username ?: error("Bot has no username"))
+                .removePrefix("@")
 
         botIdentity.username = botUsername
     }

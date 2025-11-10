@@ -16,7 +16,7 @@ class StartCommand(
     private val botPort: BotPort,
     private val rateLimitGuard: RateLimitGuard,
     private val props: BotProperties,
-    private val botIdentity: BotIdentity
+    private val botIdentity: BotIdentity,
 ) : BotCommand {
     override val name = "start"
 

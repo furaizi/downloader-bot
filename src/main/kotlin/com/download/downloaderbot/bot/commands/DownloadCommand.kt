@@ -43,7 +43,7 @@ class DownloadCommand(
     private val cachePort: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val promoService: PromoService,
-    private val botIdentity: BotIdentity
+    private val botIdentity: BotIdentity,
 ) : BotCommand {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10

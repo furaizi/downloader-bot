@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class BotIdentityConfig {
-
     @Bean
     fun botIdentity() = BotIdentity("<uninitialized>")
-
 }

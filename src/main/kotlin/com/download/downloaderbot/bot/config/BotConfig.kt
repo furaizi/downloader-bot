@@ -53,7 +53,7 @@ class BotConfig(
     private fun Dispatcher.commandForBot(
         name: String,
         username: String,
-        block: CommandHandlerEnvironment.() -> Unit
+        block: CommandHandlerEnvironment.() -> Unit,
     ) = command(name) {
         when (update.addressing(username)) {
             CommandAddressing.OTHER -> return@command
@@ -63,7 +63,7 @@ class BotConfig(
 
     private fun Dispatcher.textForBot(
         username: String,
-        block: TextHandlerEnvironment.() -> Unit
+        block: TextHandlerEnvironment.() -> Unit,
     ) = text {
         when (update.addressing(username)) {
             CommandAddressing.OTHER -> return@text
