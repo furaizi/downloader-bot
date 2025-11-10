@@ -53,7 +53,6 @@ jobs:
           REPO_REF:    ${{ steps.tag.outputs.repo_ref }}
           SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
           TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_BOT_USERNAME:  ${{ vars.TELEGRAM_BOT_USERNAME }}
           GRAFANA_ADMIN_USER:     ${{ vars.GRAFANA_ADMIN_USER }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           REPOSITORY: ${{ github.repository }}
@@ -136,7 +135,6 @@ jobs:
           --arg repo "$REPOSITORY" \
           --arg repo_ref "$REPO_REF" \
           --arg tok  "$TELEGRAM_BOT_TOKEN" \
-          --arg name "$TELEGRAM_BOT_USERNAME" \
           --arg prof "$SPRING_PROFILES_ACTIVE" \
           --arg gfu  "$GRAFANA_ADMIN_USER" \
           --arg gfp  "$GRAFANA_ADMIN_PASSWORD" \
@@ -149,7 +147,6 @@ jobs:
               ("export REPOSITORY=\"" + $repo + "\""),
               ("export REPO_REF=\"" + $repo_ref + "\""),
               ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
-              ("export TELEGRAM_BOT_USERNAME=\"" + $name + "\""),
               ("export GRAFANA_ADMIN_USER=\"" + $gfu + "\""),
               ("export GRAFANA_ADMIN_PASSWORD=\"" + $gfp + "\""),
               ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
