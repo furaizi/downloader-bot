@@ -18,8 +18,16 @@ class TestBotConfig {
 
     @Primary
     @Bean
-    fun testBot(): Bot =
-        mockk(relaxed = true) {
-            every { getMe() } returns TelegramBotResult.Success(User(id = 0L, isBot = true, firstName = "t", username = "test-bot"))
+    fun testBot(): Bot {
+        val me = User(
+            id = 0L,
+            isBot = true,
+            firstName = "t",
+            username = "test-bot"
+        )
+
+        return mockk(relaxed = true) {
+            every { getMe() } returns TelegramBotResult.Success(me)
         }
+    }
 }
