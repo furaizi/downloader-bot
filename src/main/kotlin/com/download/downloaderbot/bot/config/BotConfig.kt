@@ -38,12 +38,12 @@ class BotConfig(
 
             dispatch {
                 commands.byName.forEach { (name, handler) ->
-                    commandForBot(name, botIdentity.username) {
+                    commandForBot(name) {
                         botScope.launchHandler(update, args, handler)
                     }
                 }
 
-                textForBot(botIdentity.username) {
+                textForBot {
                     val args = text.trim().split("\\s+".toRegex())
                     botScope.launchHandler(update, args, commands.default)
                 }
@@ -52,20 +52,18 @@ class BotConfig(
 
     private fun Dispatcher.commandForBot(
         name: String,
-        username: String,
         block: CommandHandlerEnvironment.() -> Unit,
     ) = command(name) {
-        when (update.addressing(username)) {
+        when (update.addressing(botIdentity.username)) {
             CommandAddressing.OTHER -> return@command
             else -> block()
         }
     }
 
     private fun Dispatcher.textForBot(
-        username: String,
         block: TextHandlerEnvironment.() -> Unit,
     ) = text {
-        when (update.addressing(username)) {
+        when (update.addressing(botIdentity.username)) {
             CommandAddressing.OTHER -> return@text
             else -> block()
         }
