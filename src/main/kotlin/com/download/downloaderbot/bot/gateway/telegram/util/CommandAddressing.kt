@@ -11,6 +11,7 @@ enum class CommandAddressing {
     OTHER,
 }
 
+@Suppress("ReturnCount")
 private fun Message.firstCommandToken(): String? {
     val messageEntity =
         (entities ?: emptyList())
@@ -27,6 +28,7 @@ private fun Message.firstCommandToken(): String? {
     return src.substring(messageEntity.offset, end)
 }
 
+@Suppress("ReturnCount")
 fun Update.addressing(username: String): CommandAddressing {
     val msg =
         message
