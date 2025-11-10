@@ -12,15 +12,14 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class TestBotConfig {
-
     @Primary
     @Bean
     fun testBotIdentity() = BotIdentity("test-bot")
 
     @Primary
     @Bean
-    fun testBot(): Bot = mockk(relaxed = true) {
-        every { getMe() } returns TelegramBotResult.Success(User(id = 0L, isBot = true, firstName = "t", username = "test-bot"))
-    }
-
+    fun testBot(): Bot =
+        mockk(relaxed = true) {
+            every { getMe() } returns TelegramBotResult.Success(User(id = 0L, isBot = true, firstName = "t", username = "test-bot"))
+        }
 }

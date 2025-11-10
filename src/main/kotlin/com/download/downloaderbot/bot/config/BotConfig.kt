@@ -30,7 +30,6 @@ class BotConfig(
     val commands: CommandRegistry,
     private val botMetrics: BotMetrics,
 ) {
-
     @Bean
     fun telegramBot(botIdentity: BotIdentity): Bot =
         bot {
@@ -68,11 +67,11 @@ class BotConfig(
         botIdentity: BotIdentity,
         block: TextHandlerEnvironment.() -> Unit,
     ) = text {
-            when (update.addressing(botIdentity.username)) {
-                CommandAddressing.OTHER -> return@text
-                else -> block()
-            }
+        when (update.addressing(botIdentity.username)) {
+            CommandAddressing.OTHER -> return@text
+            else -> block()
         }
+    }
 
     private fun CoroutineScope.launchHandler(
         update: Update,
