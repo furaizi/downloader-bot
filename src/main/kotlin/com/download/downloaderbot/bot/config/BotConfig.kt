@@ -60,14 +60,13 @@ class BotConfig(
         }
     }
 
-    private fun Dispatcher.textForBot(
-        block: TextHandlerEnvironment.() -> Unit,
-    ) = text {
-        when (update.addressing(botIdentity.username)) {
-            CommandAddressing.OTHER -> return@text
-            else -> block()
+    private fun Dispatcher.textForBot(block: TextHandlerEnvironment.() -> Unit) =
+        text {
+            when (update.addressing(botIdentity.username)) {
+                CommandAddressing.OTHER -> return@text
+                else -> block()
+            }
         }
-    }
 
     private fun CoroutineScope.launchHandler(
         update: Update,
