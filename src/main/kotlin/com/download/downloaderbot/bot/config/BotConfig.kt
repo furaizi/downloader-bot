@@ -29,29 +29,33 @@ class BotConfig(
     val botScope: CoroutineScope,
     val commands: CommandRegistry,
     private val botMetrics: BotMetrics,
-    private val botIdentity: BotIdentity,
 ) {
+
     @Bean
-    fun telegramBot(): Bot =
+    fun telegramBot(botIdentity: BotIdentity): Bot =
         bot {
             token = botProperties.token
 
             dispatch {
                 commands.byName.forEach { (name, handler) ->
-                    commandForBot(name) {
+                    commandForBot(name, botIdentity) {
                         botScope.launchHandler(update, args, handler)
                     }
                 }
 
-                textForBot {
+                textForBot(botIdentity) {
                     val args = text.trim().split("\\s+".toRegex())
                     botScope.launchHandler(update, args, commands.default)
                 }
             }
         }
 
+    @Bean
+    fun botIdentity() = BotIdentity("<uninitialized>")
+
     private fun Dispatcher.commandForBot(
         name: String,
+        botIdentity: BotIdentity,
         block: CommandHandlerEnvironment.() -> Unit,
     ) = command(name) {
         when (update.addressing(botIdentity.username)) {
@@ -60,8 +64,10 @@ class BotConfig(
         }
     }
 
-    private fun Dispatcher.textForBot(block: TextHandlerEnvironment.() -> Unit) =
-        text {
+    private fun Dispatcher.textForBot(
+        botIdentity: BotIdentity,
+        block: TextHandlerEnvironment.() -> Unit,
+    ) = text {
             when (update.addressing(botIdentity.username)) {
                 CommandAddressing.OTHER -> return@text
                 else -> block()
