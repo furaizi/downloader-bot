@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/furaizi/downloader-bot/compare/v0.8.1...v0.8.2) (2025-11-10)
+
+
+### Bug Fixes
+
+* **bot:** bot reacts to commands addressed to other bots in group chats ([#134](https://github.com/furaizi/downloader-bot/issues/134)) ([42ad390](https://github.com/furaizi/downloader-bot/commit/42ad390b8e3ac199fe1c397b72c1f4f13603472f))
+
 ## [0.8.1](https://github.com/furaizi/downloader-bot/compare/v0.8.0...v0.8.1) (2025-11-09)
 
 
