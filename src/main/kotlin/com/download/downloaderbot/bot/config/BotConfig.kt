@@ -3,12 +3,18 @@ package com.download.downloaderbot.bot.config
 import com.download.downloaderbot.bot.commands.BotCommand
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.CommandRegistry
+import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.gateway.telegram.util.CommandAddressing
+import com.download.downloaderbot.bot.gateway.telegram.util.addressing
 import com.download.downloaderbot.infra.metrics.BotMetrics
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
+import com.github.kotlintelegrambot.dispatcher.Dispatcher
 import com.github.kotlintelegrambot.dispatcher.command
+import com.github.kotlintelegrambot.dispatcher.handlers.CommandHandlerEnvironment
+import com.github.kotlintelegrambot.dispatcher.handlers.TextHandlerEnvironment
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.Update
 import io.micrometer.core.instrument.Timer
@@ -25,23 +31,47 @@ class BotConfig(
     private val botMetrics: BotMetrics,
 ) {
     @Bean
-    fun telegramBot(): Bot =
+    fun telegramBot(botIdentity: BotIdentity): Bot =
         bot {
             token = botProperties.token
 
             dispatch {
                 commands.byName.forEach { (name, handler) ->
-                    command(name) {
+                    commandForBot(name, botIdentity) {
                         botScope.launchHandler(update, args, handler)
                     }
                 }
 
-                text {
+                textForBot(botIdentity) {
                     val args = text.trim().split("\\s+".toRegex())
                     botScope.launchHandler(update, args, commands.default)
                 }
             }
         }
+
+    @Bean
+    fun botIdentity() = BotIdentity("<uninitialized>")
+
+    private fun Dispatcher.commandForBot(
+        name: String,
+        botIdentity: BotIdentity,
+        block: CommandHandlerEnvironment.() -> Unit,
+    ) = command(name) {
+        when (update.addressing(botIdentity.username)) {
+            CommandAddressing.OTHER -> return@command
+            else -> block()
+        }
+    }
+
+    private fun Dispatcher.textForBot(
+        botIdentity: BotIdentity,
+        block: TextHandlerEnvironment.() -> Unit,
+    ) = text {
+        when (update.addressing(botIdentity.username)) {
+            CommandAddressing.OTHER -> return@text
+            else -> block()
+        }
+    }
 
     private fun CoroutineScope.launchHandler(
         update: Update,

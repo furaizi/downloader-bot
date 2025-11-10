@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.commands
 
+import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
@@ -15,10 +16,11 @@ class StartCommand(
     private val botPort: BotPort,
     private val rateLimitGuard: RateLimitGuard,
     private val props: BotProperties,
+    private val botIdentity: BotIdentity,
 ) : BotCommand {
     override val name = "start"
 
-    private val share by lazy { shareKeyboard(props.username, props.shareText) }
+    private val share by lazy { shareKeyboard(botIdentity.username, props.shareText) }
 
     override suspend fun handle(ctx: CommandContext) {
         log.info { "Executing command /$name" }

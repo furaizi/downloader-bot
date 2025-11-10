@@ -3,6 +3,7 @@ package com.download.downloaderbot.bot.commands
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.UrlValidator
+import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
@@ -42,6 +43,7 @@ class DownloadCommand(
     private val cachePort: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val promoService: PromoService,
+    private val botIdentity: BotIdentity,
 ) : BotCommand {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -49,7 +51,7 @@ class DownloadCommand(
 
     override val name: String = "download"
 
-    private val share by lazy { shareKeyboard(props.username, props.shareText) }
+    private val share by lazy { shareKeyboard(botIdentity.username, props.shareText) }
 
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
