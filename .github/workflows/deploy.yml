@@ -101,6 +101,18 @@ jobs:
           chmod 0644 config/sources.yml || true
           find monitoring -type f -name "*.yml" -exec chmod 0644 {} \; || true
           find monitoring -type f -name "*.json" -exec chmod 0644 {} \; || true
+          
+          min_free_mb=${MIN_FREE_MB:-2048}
+          free_mb=$(df -Pm / | awk 'NR==2{print $4}')
+          echo "Free space on /: ${free_mb} MB (need >= ${min_free_mb} MB)"
+          if [ "$free_mb" -lt "$min_free_mb" ]; then
+              docker container prune -f || true
+              docker image prune -af || true
+              docker builder prune -af || true
+              docker volume prune -f || true
+              sudo journalctl --vacuum-time=7d || true
+              sudo apt-get clean || true
+          fi
 
           docker compose pull
           docker compose --profile monitoring up -d --remove-orphans
@@ -151,10 +163,10 @@ jobs:
               ("export GRAFANA_ADMIN_PASSWORD=\"" + $gfp + "\""),
               ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
               ("export APP_DIR=\"" + $dir + "\""),
-        
+          
               ("echo " + $b64 + " | base64 -d > /tmp/deploy.sh"),
               "chmod +x /tmp/deploy.sh",
-        
+          
               "/usr/bin/env bash -euo pipefail /tmp/deploy.sh"
             ],
             executionTimeout: ["3600"]
