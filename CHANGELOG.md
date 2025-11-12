@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3](https://github.com/furaizi/downloader-bot/compare/v0.8.2...v0.8.3) (2025-11-12)
+
+
+### Bug Fixes
+
+* **deploy:** add pre-pull disk cleanup and free space check ([#136](https://github.com/furaizi/downloader-bot/issues/136)) ([a530e5c](https://github.com/furaizi/downloader-bot/commit/a530e5cb50076541348a5125c2c43cc8d6d08b57))
+
 ## [0.8.2](https://github.com/furaizi/downloader-bot/compare/v0.8.1...v0.8.2) (2025-11-10)
 
 
