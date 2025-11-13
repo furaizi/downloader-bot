@@ -13,17 +13,18 @@ permissions:
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     environment:
       name: production
 
     steps:
-      - name: Resolve IMAGE_TAG
+      - name: Resolve image tag and repo ref
         id: tag
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
@@ -35,9 +36,6 @@ jobs:
             echo "repo_ref=main"      >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -48,14 +46,16 @@ jobs:
         env:
           EC2_INSTANCE_ID: ${{ vars.INSTANCE_ID }}
           EC2_APP_DIR:     ${{ vars.APP_DIR }}
+
           EC2_IMAGE_NAME:  ${{ env.IMAGE_NAME }}
           EC2_IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
           EC2_REPO_REF:    ${{ steps.tag.outputs.repo_ref }}
+          EC2_REPOSITORY: ${{ github.repository }}
+
           EC2_SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
           EC2_TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
           EC2_GRAFANA_ADMIN_USER:     ${{ vars.GRAFANA_ADMIN_USER }}
           EC2_GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-          EC2_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
         
@@ -98,7 +98,10 @@ jobs:
             --command-id "$COMMAND_ID" \
             --instance-id "$EC2_INSTANCE_ID"
           
-          RES_JSON=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --details --output json)
+          RES_JSON=$(aws ssm list-command-invocations \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --output json)
           STATUS=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].Status')
           EXIT_CODE=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].ResponseCode')
           OUT=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // ""')
