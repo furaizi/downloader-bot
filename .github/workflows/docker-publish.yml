@@ -61,3 +61,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
+
+      - name: Package DevOps config
+        run: |
+          mkdir -p out
+          tar -czf out/config.tar.gz compose.yml prometheus.yml monitoring config
+          sha256sum out/config.tar.gz | tee out/config.tar.gz.sha256
+
+      - name: Attach config.tar.gz to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            out/config.tar.gz
+            out/config.tar.gz.sha256
