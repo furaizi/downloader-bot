@@ -62,7 +62,7 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
 
-      - name: Package DevOps config
+      - name: Package configs
         run: |
           mkdir -p out
           tar -czf out/config.tar.gz compose.yml prometheus.yml monitoring config
