@@ -78,7 +78,8 @@ jobs:
               "set +a",
               "curl -fsSL '$DEPLOY_URL' -o '$TEMP_DEPLOY.sh'",
               "chmod +x '$TEMP_DEPLOY.sh'",
-              "/usr/bin/env bash -euo pipefail '$TEMP_DEPLOY.sh'"
+              "/usr/bin/env bash -euo pipefail '$TEMP_DEPLOY.sh'",
+              "rm -f '$TEMP_DEPLOY.env' '$TEMP_DEPLOY.sh'"
             ],
             "executionTimeout": ["3600"]
           }
