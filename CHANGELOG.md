@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/furaizi/downloader-bot/compare/v0.10.0...v0.10.1) (2025-11-14)
+
+
+### Bug Fixes
+
+* **compose:** re-enable Grafana provisioning volumes ([#150](https://github.com/furaizi/downloader-bot/issues/150)) ([c7758f8](https://github.com/furaizi/downloader-bot/commit/c7758f888b07670bb70074fd1f86d1b9768bd189))
+
 ## [0.10.0](https://github.com/furaizi/downloader-bot/compare/v0.9.3...v0.10.0) (2025-11-14)
 
 
