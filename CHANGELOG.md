@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0](https://github.com/furaizi/downloader-bot/compare/v0.9.3...v0.10.0) (2025-11-14)
+
+
+### Features
+
+* **monitoring:** enhance Bot Monitoring dashboard ([2165887](https://github.com/furaizi/downloader-bot/commit/216588768dcb5e26d3b1a2daeeb08be65ae6fb10))
+* **monitoring:** enhance Bot Monitoring dashboard ([#147](https://github.com/furaizi/downloader-bot/issues/147)) ([588cf09](https://github.com/furaizi/downloader-bot/commit/588cf095592e95d4f47d64840547f4db5b9eccfb))
+
 ## [0.9.3](https://github.com/furaizi/downloader-bot/compare/v0.9.2...v0.9.3) (2025-11-14)
 
 
