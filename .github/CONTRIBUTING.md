@@ -15,7 +15,6 @@ Any contribution - bug reports, ideas, or pull requests - is appreciated.
     ```bash
     cat <<EOF > .env
     TELEGRAM_BOT_TOKEN=<your_bot_token>
-    TELEGRAM_BOT_USERNAME=<your_bot_username>
     EOF
     ```
 You have to create a bot via [BotFather](https://t.me/BotFather) to get a token.
