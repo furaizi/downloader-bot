@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/furaizi/downloader-bot/compare/v0.9.0...v0.9.1) (2025-11-14)
+
+
+### Bug Fixes
+
+* **ci:** enable Docker publish workflow to write contents ([#141](https://github.com/furaizi/downloader-bot/issues/141)) ([4275b1b](https://github.com/furaizi/downloader-bot/commit/4275b1b6fee8e90a4c7c22fe1d6fecea3c68d134))
+
 ## [0.9.0](https://github.com/furaizi/downloader-bot/compare/v0.8.3...v0.9.0) (2025-11-14)
 
 
