@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/furaizi/downloader-bot/compare/v0.8.3...v0.9.0) (2025-11-14)
+
+
+### Features
+
+* **docs:** update README ([#139](https://github.com/furaizi/downloader-bot/issues/139)) ([7e7dd99](https://github.com/furaizi/downloader-bot/commit/7e7dd99a4d84ee44565183c3e70ec7aa809a1e4f))
+
 ## [0.8.3](https://github.com/furaizi/downloader-bot/compare/v0.8.2...v0.8.3) (2025-11-12)
 
 

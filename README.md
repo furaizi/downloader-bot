@@ -10,6 +10,7 @@ The official repository for [Zavantazhnyk (Завантажник) bot](https://
 ## Supported Sources
 - TikTok
 - Instagram Reels
+- YouTube Shorts
 
 ## Requirements
 No dependencies required on the host system.  
@@ -36,7 +37,6 @@ You only need `Docker` and `Docker Compose`.
     ```bash
     cat <<EOF > .env
     TELEGRAM_BOT_TOKEN=<your_bot_token>
-    TELEGRAM_BOT_USERNAME=<your_bot_username>
     EOF
 
     ```
