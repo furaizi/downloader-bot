@@ -13,17 +13,18 @@ permissions:
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     environment:
       name: production
 
     steps:
-      - name: Resolve IMAGE_TAG
+      - name: Resolve image tag and repo ref
         id: tag
         run: |
           if [[ "${{ github.event_name }}" == "release" ]]; then
@@ -35,9 +36,6 @@ jobs:
             echo "repo_ref=main"      >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -46,158 +44,78 @@ jobs:
 
       - name: Deploy via SSM
         env:
-          INSTANCE_ID: ${{ vars.INSTANCE_ID }}
-          APP_DIR:     ${{ vars.APP_DIR }}
-          IMAGE_NAME:  ${{ env.IMAGE_NAME }}
-          IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
-          REPO_REF:    ${{ steps.tag.outputs.repo_ref }}
-          SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
-          TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          GRAFANA_ADMIN_USER:     ${{ vars.GRAFANA_ADMIN_USER }}
-          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
-          REPOSITORY: ${{ github.repository }}
+          EC2_INSTANCE_ID: ${{ vars.INSTANCE_ID }}
+          EC2_APP_DIR:     ${{ vars.APP_DIR }}
+
+          EC2_IMAGE_NAME:  ${{ env.IMAGE_NAME }}
+          EC2_IMAGE_TAG:   ${{ steps.tag.outputs.image_tag }}
+          EC2_REPO_REF:    ${{ steps.tag.outputs.repo_ref }}
+          EC2_REPOSITORY: ${{ github.repository }}
+
+          EC2_SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
+          EC2_TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          EC2_GRAFANA_ADMIN_USER:     ${{ vars.GRAFANA_ADMIN_USER }}
+          EC2_GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         run: |
           set -euo pipefail
-
-          SCRIPT=$(cat <<'EOS'
-          set -eo pipefail
-
-          mkdir -p "$APP_DIR"
-          cd "$APP_DIR"
-          
-          mkdir -p config
-          mkdir -p monitoring/grafana/datasources
-          mkdir -p monitoring/grafana/dashboards
-          mkdir -p monitoring/prometheus
-
-          if [ ! -f .env ]; then
-            umask 077
-            : > .env
-          fi
-
-          curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/compose.yml" || \
-          curl -fsSL -o compose.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/compose.yml"
-
-          curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/prometheus.yml" || \
-          curl -fsSL -o prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/prometheus.yml"
-          
-          curl -fsSL -o monitoring/prometheus/rules.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/prometheus/rules.yml" || \
-          curl -fsSL -o monitoring/prometheus/rules.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/prometheus/rules.yml"
-
-          curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/config/sources.yml" || \
-          curl -fsSL -o config/sources.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/config/sources.yml"
-          
-          curl -fsSL -o monitoring/grafana/datasources/prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/datasources/prometheus.yml" || \
-          curl -fsSL -o monitoring/grafana/datasources/prometheus.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/datasources/prometheus.yml"
-          
-          curl -fsSL -o monitoring/grafana/dashboards.yml "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/dashboards.yml" || \
-          curl -fsSL -o monitoring/grafana/dashboards.yml "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/dashboards.yml"
-          
-          for f in downloader-bot.json jvm-micrometer.json redis.json; do
-            curl -fsSL -o "monitoring/grafana/dashboards/${f}" "https://raw.githubusercontent.com/${REPOSITORY}/${REPO_REF}/monitoring/grafana/dashboards/${f}" || \
-            curl -fsSL -o "monitoring/grafana/dashboards/${f}" "https://raw.githubusercontent.com/${REPOSITORY}/main/monitoring/grafana/dashboards/${f}"
-          done
-
-          chmod 0644 config/sources.yml || true
-          find monitoring -type f -name "*.yml" -exec chmod 0644 {} \; || true
-          find monitoring -type f -name "*.json" -exec chmod 0644 {} \; || true
-          
-          min_free_mb=${MIN_FREE_MB:-2048}
-          free_mb=$(df -Pm / | awk 'NR==2{print $4}')
-          echo "Free space on /: ${free_mb} MB (need >= ${min_free_mb} MB)"
-          if [ "$free_mb" -lt "$min_free_mb" ]; then
-              docker container prune -f || true
-              docker image prune -af || true
-              docker builder prune -af || true
-              docker volume prune -f || true
-              sudo journalctl --vacuum-time=7d || true
-              sudo apt-get clean || true
-          fi
-
-          docker compose pull
-          docker compose --profile monitoring up -d --remove-orphans
-
-          ok=0
-          for i in $(seq 1 24); do
-            CID="$(docker compose ps -q app 2>/dev/null || true)"
-            STATUS="unknown"
-            if [ -n "${CID:-}" ]; then
-              STATUS="$(docker inspect --format '{{.State.Health.Status}}' "$CID" 2>/dev/null || echo unknown)"
-            fi
-            echo "app health=$STATUS"
-            if [ "$STATUS" = "healthy" ]; then ok=1; break; fi
-            sleep 5
-          done
-
-          if [ "$ok" -ne 1 ]; then
-            echo "!! unhealthy after update"
-            docker compose logs --no-color --since=10m app || true
-            exit 1
-          fi
-
-          docker image prune -f || true
-          EOS
+        
+          TEMP_DEPLOY="/tmp/deploy"
+          DEPLOY_ENV=$(
+            for v in $(compgen -A variable | grep '^EC2_'); do
+              clean="${v#EC2_}"
+              printf "%s=%s\n" "$clean" "${!v}"
+            done
           )
+          ENV_B64=$(printf '%s' "$DEPLOY_ENV" | base64 -w0)
+          DEPLOY_URL="https://raw.githubusercontent.com/$EC2_REPOSITORY/$EC2_REPO_REF/scripts/deploy.sh"
 
-          SCRIPT_B64=$(printf '%s' "$SCRIPT" | base64 -w0)
-
-          PARAMS_JSON=$(jq -n \
-          --arg img  "$IMAGE_NAME" \
-          --arg tag  "$IMAGE_TAG" \
-          --arg repo "$REPOSITORY" \
-          --arg repo_ref "$REPO_REF" \
-          --arg tok  "$TELEGRAM_BOT_TOKEN" \
-          --arg prof "$SPRING_PROFILES_ACTIVE" \
-          --arg gfu  "$GRAFANA_ADMIN_USER" \
-          --arg gfp  "$GRAFANA_ADMIN_PASSWORD" \
-          --arg dir  "$APP_DIR" \
-          --arg b64  "$SCRIPT_B64" \
-          '{
-            commands: [
-              ("export IMAGE_NAME=\"" + $img + "\""),
-              ("export IMAGE_TAG=\"" + $tag + "\""),
-              ("export REPOSITORY=\"" + $repo + "\""),
-              ("export REPO_REF=\"" + $repo_ref + "\""),
-              ("export TELEGRAM_BOT_TOKEN=\"" + $tok + "\""),
-              ("export GRAFANA_ADMIN_USER=\"" + $gfu + "\""),
-              ("export GRAFANA_ADMIN_PASSWORD=\"" + $gfp + "\""),
-              ("export SPRING_PROFILES_ACTIVE=\"" + $prof + "\""),
-              ("export APP_DIR=\"" + $dir + "\""),
-          
-              ("echo " + $b64 + " | base64 -d > /tmp/deploy.sh"),
-              "chmod +x /tmp/deploy.sh",
-          
-              "/usr/bin/env bash -euo pipefail /tmp/deploy.sh"
+          read -r -d '' PARAMS_JSON <<EOF || true
+          {
+            "commands": [
+              "echo '$ENV_B64' | base64 -d > '$TEMP_DEPLOY.env'",
+              "set -a",
+              "source '$TEMP_DEPLOY.env'",
+              "set +a",
+              "curl -fsSL '$DEPLOY_URL' -o '$TEMP_DEPLOY.sh'",
+              "chmod +x '$TEMP_DEPLOY.sh'",
+              "/usr/bin/env bash -euo pipefail '$TEMP_DEPLOY.sh'"
             ],
-            executionTimeout: ["3600"]
-          }')
-
-
+            "executionTimeout": ["3600"]
+          }
+          EOF
+          
           COMMAND_ID=$(aws ssm send-command \
             --cli-binary-format raw-in-base64-out \
-            --instance-ids "$INSTANCE_ID" \
+            --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy downloader-bot ${IMAGE_NAME}:${IMAGE_TAG}" \
+            --comment "Deploy downloader-bot $EC2_IMAGE_NAME:$EC2_IMAGE_TAG" \
             --parameters "$PARAMS_JSON" \
             --query "Command.CommandId" \
             --output text)
-
+          
           echo "SSM CommandId: $COMMAND_ID"
-          aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"
-
-          RES_JSON=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" --details --output json)
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$EC2_INSTANCE_ID"
+          
+          RES_JSON=$(aws ssm list-command-invocations \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --output json)
           STATUS=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].Status')
           EXIT_CODE=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].ResponseCode')
           OUT=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output // ""')
-          ERRURL=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorUrl // empty')
-
+          ERR_URL=$(echo "$RES_JSON" | jq -r '.CommandInvocations[0].CommandPlugins[0].StandardErrorUrl // empty')
+          
           echo "SSM Status: $STATUS"
           echo "ExitCode: ${EXIT_CODE:-unknown}"
           echo "----- STDOUT -----"
           echo "$OUT"
-          [ -n "$ERRURL" ] && echo "STDERR URL: $ERRURL"
+          [ -n "$ERR_URL" ] && echo "STDERR URL: $ERR_URL"
 
           if [ "$STATUS" != "Success" ] || [ "${EXIT_CODE:-0}" -ne 0 ]; then
             echo "Deployment failed via SSM"
             exit 1
           fi
+          
+          

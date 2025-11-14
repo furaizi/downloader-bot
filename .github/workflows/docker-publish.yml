@@ -12,12 +12,13 @@ permissions:
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -43,12 +44,14 @@ jobs:
           images: ${{ env.IMAGE_NAME }}
           labels: |
             org.opencontainers.image.title=downloader-bot
+            org.opencontainers.image.description=Telegram media downloader bot
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
           tags: |
             type=ref,event=tag
             type=semver,pattern={{version}}
+            type=raw,value=latest
 
       - name: Build & Push
         uses: docker/build-push-action@v6
@@ -61,3 +64,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
+
+      - name: Package configs
+        run: |
+          mkdir -p out
+          tar -czf out/config.tar.gz compose.yml prometheus.yml monitoring config
+          sha256sum out/config.tar.gz | tee out/config.tar.gz.sha256
+
+      - name: Attach config.tar.gz to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            out/config.tar.gz
+            out/config.tar.gz.sha256
