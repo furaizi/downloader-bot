@@ -27,11 +27,13 @@ import org.springframework.context.annotation.Configuration
 class BotConfig(
     val botProperties: BotProperties,
     val botScope: CoroutineScope,
-    val commands: CommandRegistry,
     private val botMetrics: BotMetrics,
 ) {
     @Bean
-    fun telegramBot(botIdentity: BotIdentity): Bot =
+    fun telegramBot(
+        commands: CommandRegistry,
+        botIdentity: BotIdentity,
+    ): Bot =
         bot {
             token = botProperties.token
 
