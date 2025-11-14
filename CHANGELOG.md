@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.2](https://github.com/furaizi/downloader-bot/compare/v0.9.1...v0.9.2) (2025-11-14)
+
+
+### Bug Fixes
+
+* update CONTRIBUTING.md ([#143](https://github.com/furaizi/downloader-bot/issues/143)) ([0bad9b2](https://github.com/furaizi/downloader-bot/commit/0bad9b22b4db54a4a53c604620f50099f6b3de6a))
+
 ## [0.9.1](https://github.com/furaizi/downloader-bot/compare/v0.9.0...v0.9.1) (2025-11-14)
 
 
