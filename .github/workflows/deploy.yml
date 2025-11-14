@@ -74,7 +74,7 @@ jobs:
             "commands": [
               "echo '$ENV_B64' | base64 -d > '$TEMP_DEPLOY.env'",
               "set -a",
-              "source '$TEMP_DEPLOY.env'",
+              ". '$TEMP_DEPLOY.env'",
               "set +a",
               "curl -fsSL '$DEPLOY_URL' -o '$TEMP_DEPLOY.sh'",
               "chmod +x '$TEMP_DEPLOY.sh'",
