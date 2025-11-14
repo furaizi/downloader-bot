@@ -98,10 +98,10 @@ services:
         - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-#      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-#      - ./monitoring/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/downloader-bot.yml
-#      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
-#      - ./monitoring/grafana/alerting:/etc/grafana/provisioning/alerting
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/downloader-bot.yml
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/alerting:/etc/grafana/provisioning/alerting
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
