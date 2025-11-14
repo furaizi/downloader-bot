@@ -29,7 +29,7 @@ fetch_configs() {
   local asset_url="https://github.com/${REPOSITORY}/releases/download/${REPO_REF}/config.tar.gz"
   local temp_path="/tmp/config.tar.gz"
 
-  curl -fsSL -o "$temp_path" "$asset_url"
+  curl -fsSL "$asset_url" -o "$temp_path"
   tar -xzf "$temp_path" --no-same-owner
   rm -f "$temp_path"
 }
