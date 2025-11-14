@@ -66,7 +66,7 @@ If you’d like a new feature (e.g., "add YouTube Shorts support"):
 1. Fork the repository.
 2. Create a branch:
     ```bash
-    git checkout -b feature/your-feature-name
+    git checkout -b feat/your-feature-name
     ```
 3. Follow Conventional Commits naming:
     ```bash
