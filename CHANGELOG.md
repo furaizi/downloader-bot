@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.3](https://github.com/furaizi/downloader-bot/compare/v0.9.2...v0.9.3) (2025-11-14)
+
+
+### Bug Fixes
+
+* **ci:** replace 'source' with POSIX '.' for SSM shell compatibility ([f30fe48](https://github.com/furaizi/downloader-bot/commit/f30fe48b0b7cda3ebcdc43f53f126ab782848866))
+* **deploy:** clean temp files after execution and fix curl arg order ([#146](https://github.com/furaizi/downloader-bot/issues/146)) ([fbc5f26](https://github.com/furaizi/downloader-bot/commit/fbc5f26beb9361f4c5fc04bcf8c53484b246e95e))
+
 ## [0.9.2](https://github.com/furaizi/downloader-bot/compare/v0.9.1...v0.9.2) (2025-11-14)
 
 
