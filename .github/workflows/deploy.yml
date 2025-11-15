@@ -67,7 +67,7 @@ jobs:
             done
           )
           ENV_B64=$(printf '%s' "$DEPLOY_ENV" | base64 -w0)
-          DEPLOY_URL="https://raw.githubusercontent.com/$EC2_REPOSITORY/$EC2_REPO_REF/scripts/deploy.sh"
+          DEPLOY_SH_URL="https://raw.githubusercontent.com/$EC2_REPOSITORY/$EC2_REPO_REF/scripts/deploy.sh"
 
           read -r -d '' PARAMS_JSON <<EOF || true
           {
@@ -76,7 +76,7 @@ jobs:
               "set -a",
               ". '$TEMP_DEPLOY.env'",
               "set +a",
-              "curl -fsSL '$DEPLOY_URL' -o '$TEMP_DEPLOY.sh'",
+              "curl -fsSL '$DEPLOY_SH_URL' -o '$TEMP_DEPLOY.sh'",
               "chmod +x '$TEMP_DEPLOY.sh'",
               "/usr/bin/env bash -euo pipefail '$TEMP_DEPLOY.sh'",
               "rm -f '$TEMP_DEPLOY.env' '$TEMP_DEPLOY.sh'"

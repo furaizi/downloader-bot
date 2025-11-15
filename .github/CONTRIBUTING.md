@@ -13,11 +13,16 @@ Any contribution - bug reports, ideas, or pull requests - is appreciated.
 
 2. Set up environment variables:
     ```bash
-    cat <<EOF > .env
-    TELEGRAM_BOT_TOKEN=<your_bot_token>
-    EOF
+    export TELEGRAM_BOT_TOKEN=<your_bot_token>
     ```
 You have to create a bot via [BotFather](https://t.me/BotFather) to get a token.
+
+Also you can create a `.env` file in the project root to not set env variables every time.
+```bash
+cat <<EOF > .env
+TELEGRAM_BOT_TOKEN=<your_bot_token>
+EOF
+```
 
 > `.env` file is included in `.gitignore`, so it won't be committed.
 
@@ -31,7 +36,12 @@ You have to create a bot via [BotFather](https://t.me/BotFather) to get a token.
 
    **Using Docker Compose:**
      - Go to `compose.yml`. 
-     - Comment out the `image` section in the `app` service and uncomment the `build` section.
+       - Comment out the `image` section in the `app` service and uncomment the `build` section.
+        ```yaml
+        app:
+        # image: ghcr.io/furaizi/downloader-bot:${IMAGE_TAG:-latest}
+        build: .
+        ``` 
      - Then run:
        ```bash
        docker compose up -d
@@ -94,9 +104,8 @@ The project uses automated tools:
 ## Docker & Deployment
 For testing production behavior locally:
 ```bash
-docker compose up -d
+SPRING_PROFILES_ACTIVE=prod docker compose --profile monitoring up -d
 ```
-Make sure you have your own `.env` file with the bot token.  
 Production deployment runs automatically via GitHub Actions and AWS SSM when a release tag (v*) is created.
 
 ## Tips
