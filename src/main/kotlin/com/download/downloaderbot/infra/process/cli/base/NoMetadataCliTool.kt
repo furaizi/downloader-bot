@@ -6,11 +6,8 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.process.cli.api.CliTool
-import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
-import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyPhotoMedia
-import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyVideoMedia
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import mu.KotlinLogging
 import java.nio.file.Path
@@ -67,17 +64,19 @@ class NoMetadataCliTool(
     }
 
     private fun inferMediaType(path: Path): MediaType {
-        val ext = path.fileName.toString()
-            .substringAfterLast('.', "")
-            .lowercase()
+        val ext =
+            path.fileName.toString()
+                .substringAfterLast('.', "")
+                .lowercase()
 
         return when (ext) {
             "jpg", "jpeg", "png", "webp", "gif", "bmp" -> MediaType.IMAGE
             "mp4", "m4v", "mov", "webm", "mkv", "avi" -> MediaType.VIDEO
-            else -> when (toolId) {
-                ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
-                ToolId.GALLERY_DL -> MediaType.IMAGE
-            }
+            else ->
+                when (toolId) {
+                    ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
+                    ToolId.GALLERY_DL -> MediaType.IMAGE
+                }
         }
     }
 }
