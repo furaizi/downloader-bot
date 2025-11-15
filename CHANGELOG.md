@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/furaizi/downloader-bot/compare/v0.10.1...v0.11.0) (2025-11-15)
+
+
+### Features
+
+* **bot:** allow external application.yml override ([#152](https://github.com/furaizi/downloader-bot/issues/152)) ([49d6abc](https://github.com/furaizi/downloader-bot/commit/49d6abc676c85ba4c61181d0ee9eb3ff72224440))
+
 ## [0.10.1](https://github.com/furaizi/downloader-bot/compare/v0.10.0...v0.10.1) (2025-11-14)
 
 
