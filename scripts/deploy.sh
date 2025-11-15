@@ -12,7 +12,12 @@ APP_DIR="${APP_DIR:?}"
 REPOSITORY="${REPOSITORY:?}"
 REPO_REF="${REPO_REF:-}"
 
+log() {
+  echo "[deploy] $1"
+}
+
 set_up_app_dir() {
+  log "Creating and entering app directory: $APP_DIR"
   mkdir -p "$APP_DIR"
   cd "$APP_DIR"
 }
@@ -21,18 +26,22 @@ fetch_configs() {
   local temp_path="/tmp/config.tar.gz"
   local asset_url
 
-  if [ -n "$REPO_REF" ]; then
-    asset_url="https://github.com/${REPOSITORY}/releases/download/${REPO_REF}/config.tar.gz"
-  else
+  if [ -z "$REPO_REF" ] || [ "$REPO_REF" = "main" ]; then
     asset_url="https://github.com/${REPOSITORY}/releases/latest/download/config.tar.gz"
+  else
+    asset_url="https://github.com/${REPOSITORY}/releases/download/${REPO_REF}/config.tar.gz"
   fi
 
+  log "Downloading configs from: $asset_url"
   curl -fsSL "$asset_url" -o "$temp_path"
+
+  log "Extracting configs..."
   tar -xzf "$temp_path" --no-same-owner
   rm -f "$temp_path"
 }
 
 set_up_permissions() {
+  log "Applying file and directory permissions..."
   find . -type f -exec chmod 644 {} \;
   find . -type d -exec chmod 755 {} \;
 }
@@ -40,32 +49,44 @@ set_up_permissions() {
 cleanup_disk() {
   local min_free_mb="${MIN_FREE_MB:-2048}"
   local free_mb=$(df -Pm / | awk 'NR==2{print $4}')
-  echo "Free space on /: ${free_mb} MB (need >= ${min_free_mb} MB)"
+  echo "Free space on /: ${free_mb} MB (required >= ${min_free_mb} MB)"
 
   if [ "$free_mb" -lt "$min_free_mb" ]; then
+    log "Low disk space - cleaning up unused Docker objects and system logs..."
     docker container prune -f || true
     docker image prune -f || true
     docker builder prune -af || true
     journalctl --vacuum-time=7d || true
     apt-get clean || true
+  else
+    log "Disk space is sufficient"
   fi
 }
 
 start_application() {
+  log "Pulling Docker images..."
   docker compose pull
+
+  log "Starting application with Docker Compose..."
   docker compose --profile monitoring up -d \
     --remove-orphans \
     --wait \
     --wait-timeout 120
+
+  log "Cleaning up unused Docker images..."
   docker image prune -f || true
+
+  log "Application started successfully"
 }
 
 main() {
+  log "=== Starting deployment ==="
   set_up_app_dir
   fetch_configs
   set_up_permissions
   cleanup_disk
   start_application
+  log "=== Deployment completed successfully ==="
 }
 
 main "$@"
