@@ -2,6 +2,7 @@ package com.download.downloaderbot.infra.process.cli.base
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.process.cli.api.CliTool
@@ -12,6 +13,7 @@ import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyPhot
 import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyVideoMedia
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import mu.KotlinLogging
+import java.nio.file.Path
 
 private val log = KotlinLogging.logger {}
 
@@ -31,26 +33,20 @@ class NoMetadataCliTool(
         val (basePrefix, outputPath) = pathGenerator.generate(url)
         log.debug { "Generated path prefix=$basePrefix, outputPath=$outputPath" }
 
-        val metaData =
-            when (toolId) {
-                ToolId.YT_DLP, ToolId.INSTALOADER -> EmptyVideoMedia()
-                ToolId.GALLERY_DL -> EmptyPhotoMedia()
-            }
-
         val cmd = cmdBuilder.downloadCommand(url, outputPath)
         log.debug { "Running download command: ${cmd.joinToString(" ")}" }
 
         runner.run(cmd, url)
 
-        return resolveDownloadedMedia(basePrefix, url, metaData)
+        return resolveDownloadedMedia(basePrefix, url)
     }
 
     private suspend fun resolveDownloadedMedia(
         basePrefix: String,
         sourceUrl: String,
-        metaData: MediaConvertible,
     ): List<Media> {
         val files = fileFinder.find(basePrefix, props.basePath)
+
         when (files.size) {
             1 -> log.info { "Download finished: $sourceUrl -> ${files.first()}" }
             else ->
@@ -58,6 +54,30 @@ class NoMetadataCliTool(
                     log.info { "Download finished [${i + 1}/${files.size}]: $sourceUrl -> $path" }
                 }
         }
-        return files.map { path -> metaData.toMedia(path, sourceUrl) }
+
+        return files.map { path ->
+            val mediaType = inferMediaType(path)
+            Media(
+                type = mediaType,
+                fileUrl = path.toAbsolutePath().toString(),
+                sourceUrl = sourceUrl,
+                title = "",
+            )
+        }
+    }
+
+    private fun inferMediaType(path: Path): MediaType {
+        val ext = path.fileName.toString()
+            .substringAfterLast('.', "")
+            .lowercase()
+
+        return when (ext) {
+            "jpg", "jpeg", "png", "webp", "gif", "bmp" -> MediaType.IMAGE
+            "mp4", "m4v", "mov", "webm", "mkv", "avi" -> MediaType.VIDEO
+            else -> when (toolId) {
+                ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
+                ToolId.GALLERY_DL -> MediaType.IMAGE
+            }
+        }
     }
 }
