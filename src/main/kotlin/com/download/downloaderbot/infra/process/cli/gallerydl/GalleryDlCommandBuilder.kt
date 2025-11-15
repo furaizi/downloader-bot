@@ -29,7 +29,10 @@ class GalleryDlCommandBuilder(
 
     private fun buildOutputFilenameArgs() = listOf("-f", "{num}.{extension}")
 
-    private fun buildFilterArgs() = listOf("--filter", "type in ['image', 'video']")
+    private fun buildFilterArgs() = listOf(
+        "--filter",
+        "extension in ['jpg','jpeg','png','webp','gif','mp4','mov','webm','heic']"
+    )
 
     private fun buildCookiesArgs() =
         if (props.cookiesFile.isNotBlank()) {
