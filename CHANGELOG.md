@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/furaizi/downloader-bot/compare/v0.11.0...v0.12.0) (2025-11-15)
+
+
+### Features
+
+* add Instagram Posts support ([#154](https://github.com/furaizi/downloader-bot/issues/154)) ([e84c248](https://github.com/furaizi/downloader-bot/commit/e84c248229a136cc6ebed5e4dcb7621bd56cb70f))
+
 ## [0.11.0](https://github.com/furaizi/downloader-bot/compare/v0.10.1...v0.11.0) (2025-11-15)
 
 
