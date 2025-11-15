@@ -10,23 +10,23 @@ private val log = KotlinLogging.logger {}
 
 @Configuration
 class ConfigLocationLogger(
-    private val environment: ConfigurableEnvironment
+    private val environment: ConfigurableEnvironment,
 ) {
-
-
     @EventListener(ApplicationReadyEvent::class)
     fun logConfigSources() {
-        val sources = environment.propertySources
-            .iterator()
-            .asSequence()
-            .toList()
+        val sources =
+            environment.propertySources
+                .iterator()
+                .asSequence()
+                .toList()
 
-        val relevantNames = sources
-            .map { it.name }
-            .filter { name ->
-                name.contains("application", ignoreCase = true)
-                        || name.contains("Config resource", ignoreCase = true)
-            }
+        val relevantNames =
+            sources
+                .map { it.name }
+                .filter { name ->
+                    name.contains("application", ignoreCase = true) ||
+                        name.contains("Config resource", ignoreCase = true)
+                }
 
         if (relevantNames.isEmpty()) {
             log.info("No application configuration property sources detected.")
@@ -45,5 +45,4 @@ class ConfigLocationLogger(
             log.info("Using only packaged application.yml from the JAR (no external application.yml found).")
         }
     }
-
 }
