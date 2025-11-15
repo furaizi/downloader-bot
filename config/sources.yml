@@ -18,6 +18,10 @@ sources:
         tool: yt-dlp
         url-patterns:
           - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
+      posts:
+        tool: gallery-dl
+        url-patterns:
+          - ^https?://([a-z0-9-]+\.)?instagram\.com/p/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
   some-extraordinary-source:
     enabled: false
     subresources:
