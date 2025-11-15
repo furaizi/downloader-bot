@@ -38,7 +38,6 @@ You only need `Docker` and `Docker Compose`.
     cat <<EOF > .env
     TELEGRAM_BOT_TOKEN=<your_bot_token>
     EOF
-
     ```
 
 3. Start up the application:
@@ -59,6 +58,12 @@ You only need `Docker` and `Docker Compose`.
 ## Configuration Reference
 Only the token is required to start. Other settings are optional with sensible defaults.  
 Look up [`application.yml`](./src/main/resources/application.yml) for more details.
+
+### External Configuration
+The bot ships with a default external config at [`config/application.yml`](./config/application.yml).  
+When running via Docker Compose, this file is mounted into the container.  
+This means you can freely edit `config/application.yml` locally and the bot will use it without rebuilding the image.  
+If the file is removed, the application falls back to the internal defaults packaged inside the JAR.
 
 ## Deployment
 Each release tag (`v*`) triggers automatic deployment to an AWS EC2 instance via GitHub Actions and AWS SSM.
