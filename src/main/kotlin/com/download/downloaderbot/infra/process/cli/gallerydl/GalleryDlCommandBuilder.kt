@@ -11,6 +11,8 @@ class GalleryDlCommandBuilder(
         output: String,
     ) = buildList {
         add(props.bin)
+        addAll(buildCookiesArgs())
+        addAll(buildUserAgentArgs())
         addAll(buildOutputDirectoryArgs(output))
         addAll(buildOutputFilenameArgs())
         addAll(buildFilterArgs())
@@ -27,5 +29,23 @@ class GalleryDlCommandBuilder(
 
     private fun buildOutputFilenameArgs() = listOf("-f", "{num}.{extension}")
 
-    private fun buildFilterArgs() = listOf("--filter", "type == 'image'")
+    private fun buildFilterArgs() =
+        listOf(
+            "--filter",
+            "extension in ['jpg','jpeg','png','webp','gif','mp4','mov','webm','heic']",
+        )
+
+    private fun buildCookiesArgs() =
+        if (props.cookiesFile.isNotBlank()) {
+            listOf("--cookies", props.cookiesFile)
+        } else {
+            emptyList()
+        }
+
+    private fun buildUserAgentArgs() =
+        if (props.userAgent.isNotBlank()) {
+            listOf("--user-agent", props.userAgent)
+        } else {
+            emptyList()
+        }
 }
