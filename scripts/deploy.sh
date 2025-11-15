@@ -1,40 +1,38 @@
 #!/usr/bin/env bash
 
-# 1. Create all necessary directories
-# 2. Create a stub .env
-# 3. Download DevOps and other config files from a remote repository
-# 4. Setup necessary permissions for files
-# 5. Ensure enough free disk space
-# 6. Pull image and run application
+# 1. Set up the application directory
+# 2. Download DevOps and configuration files from the remote repository
+# 3. Set up required file permissions
+# 4. Ensure sufficient free disk space
+# 5. Pull the Docker image and start the application
 
 set -euo pipefail
 
 APP_DIR="${APP_DIR:?}"
 REPOSITORY="${REPOSITORY:?}"
-REPO_REF="${REPO_REF:?}"
+REPO_REF="${REPO_REF:-}"
 
-prepare_dirs() {
+set_up_app_dir() {
   mkdir -p "$APP_DIR"
   cd "$APP_DIR"
 }
 
-create_env_stub() {
-  if [ ! -f .env ]; then
-    umask 077
-    : > .env
-  fi
-}
-
 fetch_configs() {
-  local asset_url="https://github.com/${REPOSITORY}/releases/download/${REPO_REF}/config.tar.gz"
   local temp_path="/tmp/config.tar.gz"
+  local asset_url
+
+  if [ -n "$REPO_REF" ]; then
+    asset_url="https://github.com/${REPOSITORY}/releases/download/${REPO_REF}/config.tar.gz"
+  else
+    asset_url="https://github.com/${REPOSITORY}/releases/latest/download/config.tar.gz"
+  fi
 
   curl -fsSL "$asset_url" -o "$temp_path"
   tar -xzf "$temp_path" --no-same-owner
   rm -f "$temp_path"
 }
 
-setup_permissions() {
+set_up_permissions() {
   find . -type f -exec chmod 644 {} \;
   find . -type d -exec chmod 755 {} \;
 }
@@ -48,12 +46,12 @@ cleanup_disk() {
     docker container prune -f || true
     docker image prune -f || true
     docker builder prune -af || true
-    sudo journalctl --vacuum-time=7d || true
-    sudo apt-get clean || true
+    journalctl --vacuum-time=7d || true
+    apt-get clean || true
   fi
 }
 
-run_application() {
+start_application() {
   docker compose pull
   docker compose --profile monitoring up -d \
     --remove-orphans \
@@ -63,12 +61,11 @@ run_application() {
 }
 
 main() {
-  prepare_dirs
-  create_env_stub
+  set_up_app_dir
   fetch_configs
-  setup_permissions
+  set_up_permissions
   cleanup_disk
-  run_application
+  start_application
 }
 
 main "$@"
