@@ -34,4 +34,6 @@ data class InstaloaderMedia(
         sourceUrl = sourceUrl,
         title = this.node.title,
     )
+
+    override fun mediaType() = MediaType.VIDEO
 }

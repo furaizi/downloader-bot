@@ -27,6 +27,7 @@ data class YtDlpMedia(
     val hasAudio: Boolean = false,
     @JsonProperty("vcodec") val videoCodec: String?,
     @JsonProperty("acodec") val audioCodec: String?,
+    @JsonProperty("tbr") val totalBitrateKbps: Double = 0.0,
 ) : MediaConvertible {
     override fun toMedia(
         filePath: Path,
@@ -37,4 +38,22 @@ data class YtDlpMedia(
         sourceUrl = sourceUrl,
         title = this.title,
     )
+
+    override fun mediaType() = MediaType.fromString(this.type)
+
+    override fun estimatedSizeBytes(): Long? {
+        if (filesize > 0)
+            return filesize
+
+        if (approximateFileSize > 0)
+            return approximateFileSize
+
+        if (duration > 0 && totalBitrateKbps > 0.0) {
+            val bitsPerSecond = totalBitrateKbps * 1000.0
+            val totalBits = bitsPerSecond * duration
+            return (totalBits / 8.0).toLong()
+        }
+
+        return null
+    }
 }

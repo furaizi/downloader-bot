@@ -15,4 +15,6 @@ data class GalleryDlMedia(val title: String = "") : MediaConvertible {
         sourceUrl = sourceUrl,
         title = this.title,
     )
+
+    override fun mediaType() = MediaType.IMAGE
 }
