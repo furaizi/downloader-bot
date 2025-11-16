@@ -9,7 +9,9 @@ import java.nio.file.Path
 
 // I have observed that the bitrate-based estimation is on average
 // about 2x higher than the actual file size for YouTube videos.
-private const val BITRATE_SIZE_ADJUSTMENT = 0.555
+private const val BITRATE_SIZE_ADJUSTMENT = 1.8
+private const val BITS_IN_KILOBIT = 1000.0
+private const val BITS_IN_BYTE = 8.0
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class YtDlpMedia(
@@ -45,24 +47,16 @@ data class YtDlpMedia(
 
     override fun mediaType() = MediaType.fromString(this.type)
 
-    override fun estimatedSizeBytes(): Long? {
-        if (filesize > 0) {
-            return filesize
+    override fun estimatedSizeBytes(): Long? =
+        when {
+            filesize > 0 -> filesize
+            approximateFileSize > 0 -> approximateFileSize
+            duration > 0 && totalBitrateKbps > 0.0 -> {
+                val bitsPerSecond = totalBitrateKbps * BITS_IN_KILOBIT
+                val totalBits = bitsPerSecond * duration
+                val rawBytes = totalBits / BITS_IN_BYTE
+                (rawBytes * BITRATE_SIZE_ADJUSTMENT).toLong()
+            }
+            else -> null
         }
-
-        if (approximateFileSize > 0) {
-            return approximateFileSize
-        }
-
-        if (duration > 0 && totalBitrateKbps > 0.0) {
-            val bitsPerSecond = totalBitrateKbps * 1000.0
-            val totalBits = bitsPerSecond * duration
-            val rawBytes = totalBits / 8.0
-
-            // Empirical coefficient
-            return (rawBytes * BITRATE_SIZE_ADJUSTMENT).toLong()
-        }
-
-        return null
-    }
 }
