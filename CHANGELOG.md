@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/furaizi/downloader-bot/compare/v0.13.0...v0.14.0) (2025-11-16)
+
+
+### Features
+
+* add YouTube Videos support ([#158](https://github.com/furaizi/downloader-bot/issues/158)) ([4c4f755](https://github.com/furaizi/downloader-bot/commit/4c4f7554af589a946a78382fdb95ddd679424777))
+
 ## [0.13.0](https://github.com/furaizi/downloader-bot/compare/v0.12.0...v0.13.0) (2025-11-16)
 
 
