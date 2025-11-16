@@ -18,11 +18,8 @@ class YtDlpCommandBuilder(
         output: String,
     ) = buildList {
         add(props.bin)
-        addAll(buildCookiesArgs())
-        addAll(buildUserAgentArgs())
+        addAll(buildConfigArgs())
         addAll(buildOutputArgs(output))
-        addAll(buildFormatArgs())
-        addAll(props.extraArgs)
         add(url)
     }
 
@@ -31,27 +28,14 @@ class YtDlpCommandBuilder(
         output: String?,
     ) = buildList {
         add(props.bin)
+        addAll(buildConfigArgs())
         addAll(JSON_ONLY_ARGS)
         add(url)
     }
 
-    private fun buildCookiesArgs() =
-        if (props.cookiesFile.isNotBlank()) {
-            listOf("--cookies", props.cookiesFile)
-        } else {
-            emptyList()
-        }
-
-    private fun buildUserAgentArgs() =
-        if (props.userAgent.isNotBlank()) {
-            listOf("--user-agent", props.userAgent)
-        } else {
-            emptyList()
-        }
-
-    private fun buildFormatArgs() =
-        if (props.format.isNotBlank()) {
-            listOf("-f", props.format)
+    private fun buildConfigArgs(): List<String> =
+        if (props.configFile.isNotBlank()) {
+            listOf("--config-locations", props.configFile)
         } else {
             emptyList()
         }
