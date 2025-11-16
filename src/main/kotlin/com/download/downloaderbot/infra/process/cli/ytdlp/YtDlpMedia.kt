@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.nio.file.Path
 
+// I have observed that the bitrate-based estimation is on average
+// about 2x higher than the actual file size for YouTube videos.
+private const val BITRATE_SIZE_ADJUSTMENT = 0.555
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class YtDlpMedia(
     val title: String,
@@ -51,7 +55,10 @@ data class YtDlpMedia(
         if (duration > 0 && totalBitrateKbps > 0.0) {
             val bitsPerSecond = totalBitrateKbps * 1000.0
             val totalBits = bitsPerSecond * duration
-            return (totalBits / 8.0).toLong()
+            val rawBytes = totalBits / 8.0
+
+            // Empirical coefficient
+            return (rawBytes * BITRATE_SIZE_ADJUSTMENT).toLong()
         }
 
         return null
