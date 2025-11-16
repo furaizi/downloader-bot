@@ -45,6 +45,6 @@ sources:
         tool: yt-dlp
         format: bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/b[ext=mp4]
         url-patterns:
-          - ^https?://(?:www\.|m\.)?youtube\.com/watch\?v=[A-Za-z0-9_-]{11}(?:[^\s]*)?$
+          - ^https?://(?:www\.|m\.)?youtube\.com/watch\?(?:[^\s]*&)*v=[A-Za-z0-9_-]{11}(?:[^\s]*)?$
           - ^https?://(?:www\.|m\.)?youtube\.com/embed/[A-Za-z0-9_-]{11}(?:[^\s]*)?$
           - ^https?://youtu\.be/[A-Za-z0-9_-]{11}(?:[^\s]*)?$
