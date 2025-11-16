@@ -34,7 +34,7 @@ services:
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
       SPRING_DATA_REDIS_HOST: redis
       INSTALOADER_SESSION_FILE: /app/secrets/instaloader-session
-      YTDLP_COOKIES_FILE: /app/secrets/ytdlp-cookies.txt
+      YTDLP_COOKIES_FILE: /app/secrets/cookies.txt
     mem_limit: 1500m
     cpus: "1.5"
     pids_limit: 256
