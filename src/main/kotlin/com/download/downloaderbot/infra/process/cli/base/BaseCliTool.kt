@@ -30,7 +30,10 @@ open class BaseCliTool<META : MediaConvertible>(
 ) : CliTool {
     private val toolName = toolId.label
 
-    override suspend fun download(url: String): List<Media> {
+    override suspend fun download(
+        url: String,
+        formatOverride: String,
+    ): List<Media> {
         log.info { "Starting download: tool=$toolName, url=$url" }
 
         val (basePrefix, outputPath) = pathGenerator.generate(url)
@@ -47,7 +50,7 @@ open class BaseCliTool<META : MediaConvertible>(
                     },
                 )
 
-        val cmd = cmdBuilder.downloadCommand(url, outputPath)
+        val cmd = cmdBuilder.downloadCommand(url, outputPath, formatOverride)
         log.debug { "Running download command: ${cmd.joinToString(" ")}" }
 
         runner.run(cmd, url)
@@ -58,8 +61,9 @@ open class BaseCliTool<META : MediaConvertible>(
     protected suspend fun probe(
         url: String,
         output: String?,
+        formatOverride: String = "",
     ): META {
-        val cmd = cmdBuilder.probeCommand(url, output)
+        val cmd = cmdBuilder.probeCommand(url, output, formatOverride)
         log.debug { "Running probe command: ${cmd.joinToString(" ")}" }
 
         val processOutput = runner.run(cmd, url)

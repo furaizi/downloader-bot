@@ -4,6 +4,7 @@ sources:
     subresources:
       video:
         tool: yt-dlp
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+/?(?:[?#].*)?$
           - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+/?(?:[?#].*)?$
@@ -16,6 +17,7 @@ sources:
     subresources:
       reels:
         tool: yt-dlp
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
       posts:
@@ -35,6 +37,7 @@ sources:
     subresources:
       shorts:
         tool: yt-dlp
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://(?:www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
           - ^https?://(?:www\.|m\.)?youtube\.com/@[^/]+/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$

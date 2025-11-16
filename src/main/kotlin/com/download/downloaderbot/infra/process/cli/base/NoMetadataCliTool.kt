@@ -24,13 +24,16 @@ class NoMetadataCliTool(
 ) : CliTool {
     private val toolName = toolId.label
 
-    override suspend fun download(url: String): List<Media> {
+    override suspend fun download(
+        url: String,
+        formatOverride: String,
+    ): List<Media> {
         log.info { "Starting download: tool=$toolName, url=$url" }
 
         val (basePrefix, outputPath) = pathGenerator.generate(url)
         log.debug { "Generated path prefix=$basePrefix, outputPath=$outputPath" }
 
-        val cmd = cmdBuilder.downloadCommand(url, outputPath)
+        val cmd = cmdBuilder.downloadCommand(url, outputPath, formatOverride)
         log.debug { "Running download command: ${cmd.joinToString(" ")}" }
 
         runner.run(cmd, url)

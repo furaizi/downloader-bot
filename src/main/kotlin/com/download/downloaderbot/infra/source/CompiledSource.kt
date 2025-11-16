@@ -10,10 +10,12 @@ data class CompiledSource(
 data class CompiledSubresource(
     val tool: String,
     val patterns: List<Pattern>,
+    val format: String = "",
 )
 
 data class SourceMatch(
     val source: String,
     val subresource: String,
     val tool: String,
+    val format: String = "",
 )

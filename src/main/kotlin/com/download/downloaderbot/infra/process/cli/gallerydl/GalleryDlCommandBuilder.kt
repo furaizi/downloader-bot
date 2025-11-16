@@ -9,6 +9,7 @@ class GalleryDlCommandBuilder(
     override fun downloadCommand(
         url: String,
         output: String,
+        formatOverride: String,
     ) = buildList {
         add(props.bin)
         addAll(buildConfigArgs())
@@ -19,6 +20,7 @@ class GalleryDlCommandBuilder(
     override fun probeCommand(
         url: String,
         output: String?,
+        formatOverride: String,
     ) = emptyList<String>()
 
     private fun buildConfigArgs(): List<String> =
