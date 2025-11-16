@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/furaizi/downloader-bot/compare/v0.12.0...v0.13.0) (2025-11-16)
+
+
+### Features
+
+* **core:** externalize yt-dlp and gallery-dl configuration into standalone config files ([#156](https://github.com/furaizi/downloader-bot/issues/156)) ([042244a](https://github.com/furaizi/downloader-bot/commit/042244a8927d015e0c99fa950592b0215f8f34ac))
+
 ## [0.12.0](https://github.com/furaizi/downloader-bot/compare/v0.11.0...v0.12.0) (2025-11-15)
 
 
