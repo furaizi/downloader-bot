@@ -6,9 +6,6 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "downloader.yt-dlp")
 data class YtDlpProperties(
     val bin: String,
-    val format: String = "",
-    val cookiesFile: String = "",
-    val userAgent: String = "",
+    val configFile: String = "",
     val timeout: Duration = Duration.ofMinutes(2),
-    val extraArgs: List<String> = emptyList(),
 )

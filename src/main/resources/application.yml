@@ -49,17 +49,13 @@ downloader:
   yt-dlp:
     enabled: true
     bin: yt-dlp
-    format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
+    config-file: ./config/yt-dlp.conf
     timeout: 2m
-    cookies-file: ${YTDLP_COOKIES_FILE:}
-    user-agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
   gallery-dl:
     enabled: true
     bin: gallery-dl
+    config-file: ./config/gallery-dl.json
     timeout: 1m
-    cookies-file: ${YTDLP_COOKIES_FILE:}
-    user-agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
-    extra-args: []
   instaloader:
     enabled: false
     bin: instaloader
