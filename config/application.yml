@@ -13,10 +13,12 @@ downloader:
   yt-dlp:
     enabled: true
     bin: yt-dlp
+    config-file: ./config/yt-dlp.conf
     timeout: 2m
   gallery-dl:
     enabled: true
     bin: gallery-dl
+    config-file: ./config/gallery-dl.json
     timeout: 1m
   instaloader:
     enabled: false
