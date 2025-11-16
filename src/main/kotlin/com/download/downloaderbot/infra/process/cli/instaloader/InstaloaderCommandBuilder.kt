@@ -28,6 +28,7 @@ class InstaloaderCommandBuilder(
     override fun downloadCommand(
         url: String,
         output: String,
+        formatOverride: String,
     ) = buildList {
         val path = output.toPath()
         add(props.bin)
@@ -43,6 +44,7 @@ class InstaloaderCommandBuilder(
     override fun probeCommand(
         url: String,
         output: String?,
+        formatOverride: String,
     ) = buildList {
         require(output != null) { "Output path is required for probing" }
         val path = output.toPath()

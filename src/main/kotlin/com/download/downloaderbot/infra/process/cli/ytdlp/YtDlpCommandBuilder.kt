@@ -16,9 +16,11 @@ class YtDlpCommandBuilder(
     override fun downloadCommand(
         url: String,
         output: String,
+        formatOverride: String,
     ) = buildList {
         add(props.bin)
         addAll(buildConfigArgs())
+        addAll(buildFormatArgs(formatOverride))
         addAll(buildOutputArgs(output))
         add(url)
     }
@@ -26,9 +28,11 @@ class YtDlpCommandBuilder(
     override fun probeCommand(
         url: String,
         output: String?,
+        formatOverride: String,
     ) = buildList {
         add(props.bin)
         addAll(buildConfigArgs())
+        addAll(buildFormatArgs(formatOverride))
         addAll(JSON_ONLY_ARGS)
         add(url)
     }
@@ -36,6 +40,13 @@ class YtDlpCommandBuilder(
     private fun buildConfigArgs(): List<String> =
         if (props.configFile.isNotBlank()) {
             listOf("--config-locations", props.configFile)
+        } else {
+            emptyList()
+        }
+
+    private fun buildFormatArgs(formatOverride: String): List<String> =
+        if (formatOverride.isNotBlank()) {
+            listOf("-f", formatOverride)
         } else {
             emptyList()
         }

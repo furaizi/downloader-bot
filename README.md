@@ -9,8 +9,8 @@ The official repository for [Zavantazhnyk (Завантажник) bot](https://
 
 ## Supported Sources
 - TikTok
-- Instagram Reels/Posts
-- YouTube Shorts
+- Instagram Posts/Reels
+- YouTube Videos/Shorts
 
 ## Requirements
 No dependencies required on the host system.  

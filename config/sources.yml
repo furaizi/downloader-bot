@@ -4,6 +4,8 @@ sources:
     subresources:
       video:
         tool: yt-dlp
+        # best format
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/video/\d+/?(?:[?#].*)?$
           - ^https?://([a-z0-9-]+\.)?tiktok\.com/video/\d+/?(?:[?#].*)?$
@@ -16,6 +18,8 @@ sources:
     subresources:
       reels:
         tool: yt-dlp
+        # best format
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://([a-z0-9-]+\.)?instagram\.com/reels?/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$
       posts:
@@ -35,6 +39,16 @@ sources:
     subresources:
       shorts:
         tool: yt-dlp
+        # best format
+        format: 137+140/136+140/135+140/134+140/18/b[ext=mp4]/b
         url-patterns:
           - ^https?://(?:www\.|m\.)?youtube\.com/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
           - ^https?://(?:www\.|m\.)?youtube\.com/@[^/]+/shorts/[A-Za-z0-9_-]{11}/?(?:[?#].*)?$
+      videos:
+        tool: yt-dlp
+        # max 720p
+        format: bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/b[ext=mp4]
+        url-patterns:
+          - ^https?://(?:www\.|m\.)?youtube\.com/watch\?(?:[^\s]*&)*v=[A-Za-z0-9_-]{11}(?:[^\s]*)?$
+          - ^https?://(?:www\.|m\.)?youtube\.com/embed/[A-Za-z0-9_-]{11}(?:[^\s]*)?$
+          - ^https?://youtu\.be/[A-Za-z0-9_-]{11}(?:[^\s]*)?$

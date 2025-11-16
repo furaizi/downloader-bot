@@ -19,6 +19,7 @@ data class SourceDef(
 data class SubresourceDef(
     val enabled: Boolean = true,
     val tool: String,
+    val format: String = "",
     @field:NotEmpty
     val urlPatterns: List<String>,
 )

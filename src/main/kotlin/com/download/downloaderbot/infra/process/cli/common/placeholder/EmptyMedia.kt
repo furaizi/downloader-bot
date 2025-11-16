@@ -15,6 +15,8 @@ data class EmptyPhotoMedia(val title: String = "") : MediaConvertible {
         sourceUrl = sourceUrl,
         title = this.title,
     )
+
+    override fun mediaType() = MediaType.IMAGE
 }
 
 data class EmptyVideoMedia(val title: String = "") : MediaConvertible {
@@ -27,4 +29,6 @@ data class EmptyVideoMedia(val title: String = "") : MediaConvertible {
         sourceUrl = sourceUrl,
         title = this.title,
     )
+
+    override fun mediaType() = MediaType.VIDEO
 }

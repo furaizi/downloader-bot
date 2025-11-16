@@ -2,6 +2,8 @@ package com.download.downloaderbot.infra.process.cli.base
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.core.domain.MediaType
+import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.infra.media.files.FilesByPrefixFinder
 import com.download.downloaderbot.infra.media.path.PathGenerator
 import com.download.downloaderbot.infra.process.cli.api.CliTool
@@ -30,7 +32,10 @@ open class BaseCliTool<META : MediaConvertible>(
 ) : CliTool {
     private val toolName = toolId.label
 
-    override suspend fun download(url: String): List<Media> {
+    override suspend fun download(
+        url: String,
+        formatOverride: String,
+    ): List<Media> {
         log.info { "Starting download: tool=$toolName, url=$url" }
 
         val (basePrefix, outputPath) = pathGenerator.generate(url)
@@ -47,7 +52,9 @@ open class BaseCliTool<META : MediaConvertible>(
                     },
                 )
 
-        val cmd = cmdBuilder.downloadCommand(url, outputPath)
+        checkEstimatedSizeOrThrow(url, metaData)
+
+        val cmd = cmdBuilder.downloadCommand(url, outputPath, formatOverride)
         log.debug { "Running download command: ${cmd.joinToString(" ")}" }
 
         runner.run(cmd, url)
@@ -58,8 +65,9 @@ open class BaseCliTool<META : MediaConvertible>(
     protected suspend fun probe(
         url: String,
         output: String?,
+        formatOverride: String = "",
     ): META {
-        val cmd = cmdBuilder.probeCommand(url, output)
+        val cmd = cmdBuilder.probeCommand(url, output, formatOverride)
         log.debug { "Running probe command: ${cmd.joinToString(" ")}" }
 
         val processOutput = runner.run(cmd, url)
@@ -69,6 +77,29 @@ open class BaseCliTool<META : MediaConvertible>(
         log.trace { "Extracted JSON: ${json.preview()}" }
 
         return jsonParser.parse(json)
+    }
+
+    private fun checkEstimatedSizeOrThrow(
+        url: String,
+        meta: MediaConvertible,
+    ) {
+        val estimated = meta.estimatedSizeBytes() ?: return
+        val mediaType = meta.mediaType()
+
+        val limitBytes =
+            when (mediaType) {
+                MediaType.IMAGE -> props.maxSize.photo.toBytes()
+                MediaType.VIDEO -> props.maxSize.video.toBytes()
+                MediaType.AUDIO -> props.maxSize.video.toBytes()
+            }
+
+        if (estimated > limitBytes) {
+            throw MediaTooLargeException(
+                url,
+                actualSize = estimated,
+                limit = limitBytes,
+            )
+        }
     }
 
     private suspend fun resolveDownloadedMedia(

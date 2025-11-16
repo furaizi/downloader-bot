@@ -16,7 +16,12 @@ class SourceRegistry(
         for (src in snapshot) {
             for ((subName, sub) in src.subresources) {
                 if (sub.patterns.any { it.matcher(url).find() }) {
-                    return SourceMatch(src.name, subName, sub.tool)
+                    return SourceMatch(
+                        source = src.name,
+                        subresource = subName,
+                        tool = sub.tool,
+                        format = sub.format,
+                    )
                 }
             }
         }
@@ -39,6 +44,7 @@ class SourceRegistry(
                         .mapValues { (_, sub) ->
                             CompiledSubresource(
                                 tool = sub.tool,
+                                format = sub.format,
                                 patterns = sub.urlPatterns.map { Pattern.compile(it) },
                             )
                         }

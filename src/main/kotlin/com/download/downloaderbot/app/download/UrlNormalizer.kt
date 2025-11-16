@@ -25,7 +25,11 @@ class UrlNormalizer {
         if (scheme != "http" && scheme != "https") return s
 
         val host = uri.host?.lowercase() ?: return s
-        val dropAllQuery = hostMatches(host, "tiktok.com") || hostMatches(host, "instagram.com")
+        val isTiktok = hostMatches(host, "tiktok.com")
+        val isInstagram = hostMatches(host, "instagram.com")
+        val isYoutube = hostMatches(host, "youtube.com") || hostMatches(host, "youtu.be")
+
+        val dropAllQuery = isTiktok || isInstagram
 
         val port =
             when {
@@ -44,12 +48,20 @@ class UrlNormalizer {
         val query =
             when {
                 dropAllQuery -> null
-                else ->
-                    buildQuery(
+                else -> {
+                    val params =
                         parseQuery(uri.rawQuery)
                             .filterNot { isNoise(it.first) }
-                            .sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" })),
-                    )
+
+                    val normalizedParams =
+                        if (isYoutube && path == "/watch") {
+                            normalizeYoutubeParams(params)
+                        } else {
+                            params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+                        }
+
+                    buildQuery(normalizedParams)
+                }
             }
 
         return runCatching {
@@ -57,17 +69,32 @@ class UrlNormalizer {
         }.getOrElse { s }
     }
 
+    private fun normalizeYoutubeParams(params: List<Pair<String, String?>>): List<Pair<String, String?>> {
+        if (params.isEmpty()) return params
+
+        val cleaned = params.filterNot { isNoise(it.first) }
+        val (vParams, others) = cleaned.partition { it.first.equals("v", ignoreCase = true) }
+        val v = vParams.firstOrNull()
+
+        val sortedOthers = others.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+
+        return listOfNotNull(v) + sortedOthers
+    }
+
     private fun parseQuery(q: String?): List<Pair<String, String?>> {
         if (q.isNullOrBlank()) return emptyList()
         val utf8 = StandardCharsets.UTF_8
-        return q.split('&').filter { it.isNotBlank() }.map { pair ->
-            val i = pair.indexOf('=')
-            if (i < 0) {
-                URLDecoder.decode(pair, utf8) to null
-            } else {
-                URLDecoder.decode(pair.substring(0, i), utf8) to URLDecoder.decode(pair.substring(i + 1), utf8)
+        return q.split('&')
+            .filter { it.isNotBlank() }
+            .map { pair ->
+                val i = pair.indexOf('=')
+                if (i < 0) {
+                    URLDecoder.decode(pair, utf8) to null
+                } else {
+                    URLDecoder.decode(pair.take(i), utf8) to
+                        URLDecoder.decode(pair.substring(i + 1), utf8)
+                }
             }
-        }
     }
 
     private fun buildQuery(params: List<Pair<String, String?>>): String? {
