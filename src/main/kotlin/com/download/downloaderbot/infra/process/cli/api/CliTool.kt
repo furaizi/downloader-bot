@@ -7,6 +7,6 @@ interface CliTool {
 
     suspend fun download(
         url: String,
-        formatOverride: String = ""
+        formatOverride: String = "",
     ): List<Media>
 }

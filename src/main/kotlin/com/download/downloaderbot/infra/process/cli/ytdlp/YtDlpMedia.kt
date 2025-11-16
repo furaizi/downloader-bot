@@ -46,11 +46,13 @@ data class YtDlpMedia(
     override fun mediaType() = MediaType.fromString(this.type)
 
     override fun estimatedSizeBytes(): Long? {
-        if (filesize > 0)
+        if (filesize > 0) {
             return filesize
+        }
 
-        if (approximateFileSize > 0)
+        if (approximateFileSize > 0) {
             return approximateFileSize
+        }
 
         if (duration > 0 && totalBitrateKbps > 0.0) {
             val bitsPerSecond = totalBitrateKbps * 1000.0

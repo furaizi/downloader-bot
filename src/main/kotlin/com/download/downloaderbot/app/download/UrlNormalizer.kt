@@ -10,11 +10,12 @@ private val DROP_EXACT = setOf("fbclid", "gclid", "msclkid", "dclid", "igshid")
 
 @Component
 class UrlNormalizer {
-    private fun isNoise(name: String) =
-        name.startsWith("utm_", ignoreCase = true) || name.lowercase() in DROP_EXACT
+    private fun isNoise(name: String) = name.startsWith("utm_", ignoreCase = true) || name.lowercase() in DROP_EXACT
 
-    private fun hostMatches(host: String?, base: String) =
-        host != null && (host == base || host.endsWith(".$base"))
+    private fun hostMatches(
+        host: String?,
+        base: String,
+    ) = host != null && (host == base || host.endsWith(".$base"))
 
     fun normalize(url: String): String {
         val s = url.trim()
@@ -48,8 +49,9 @@ class UrlNormalizer {
             when {
                 dropAllQuery -> null
                 else -> {
-                    val params = parseQuery(uri.rawQuery)
-                        .filterNot { isNoise(it.first) }
+                    val params =
+                        parseQuery(uri.rawQuery)
+                            .filterNot { isNoise(it.first) }
 
                     val normalizedParams =
                         if (isYoutube && path == "/watch") {
@@ -67,9 +69,7 @@ class UrlNormalizer {
         }.getOrElse { s }
     }
 
-    private fun normalizeYoutubeParams(
-        params: List<Pair<String, String?>>,
-    ): List<Pair<String, String?>> {
+    private fun normalizeYoutubeParams(params: List<Pair<String, String?>>): List<Pair<String, String?>> {
         if (params.isEmpty()) return params
 
         val cleaned = params.filterNot { isNoise(it.first) }
@@ -92,7 +92,7 @@ class UrlNormalizer {
                     URLDecoder.decode(pair, utf8) to null
                 } else {
                     URLDecoder.decode(pair.take(i), utf8) to
-                            URLDecoder.decode(pair.substring(i + 1), utf8)
+                        URLDecoder.decode(pair.substring(i + 1), utf8)
                 }
             }
     }

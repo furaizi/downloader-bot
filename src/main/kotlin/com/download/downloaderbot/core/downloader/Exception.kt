@@ -3,6 +3,7 @@ package com.download.downloaderbot.core.downloader
 import java.time.Duration
 
 private const val BYTES_IN_MB = 1024 * 1024
+
 fun Long.toMB() = this / BYTES_IN_MB
 
 open class MediaDownloaderToolException(

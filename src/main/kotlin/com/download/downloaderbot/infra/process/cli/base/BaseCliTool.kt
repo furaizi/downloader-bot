@@ -79,7 +79,6 @@ open class BaseCliTool<META : MediaConvertible>(
         return jsonParser.parse(json)
     }
 
-
     private fun checkEstimatedSizeOrThrow(
         url: String,
         meta: MediaConvertible,
@@ -94,12 +93,13 @@ open class BaseCliTool<META : MediaConvertible>(
                 MediaType.AUDIO -> props.maxSize.video.toBytes()
             }
 
-        if (estimated > limitBytes)
+        if (estimated > limitBytes) {
             throw MediaTooLargeException(
                 url,
                 actualSize = estimated,
                 limit = limitBytes,
             )
+        }
     }
 
     private suspend fun resolveDownloadedMedia(

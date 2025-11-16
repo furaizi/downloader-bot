@@ -11,5 +11,6 @@ interface MediaConvertible {
     ): Media
 
     fun estimatedSizeBytes(): Long? = null
+
     fun mediaType(): MediaType
 }

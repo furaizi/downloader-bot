@@ -20,13 +20,14 @@ class DynamicMediaProvider(
     override suspend fun download(url: String): List<Media> {
         val match = sources.match(url) ?: throw UnsupportedSourceException(url)
         val tool = tools.get(match.tool)
-        val matchInfo = buildString {
-            append("Matched url=$url -> ")
-            append("source=${match.source}, subresource=${match.subresource}, tool=${match.tool}")
-            if (match.format.isNotBlank()) {
-                append(", format=${match.format}")
+        val matchInfo =
+            buildString {
+                append("Matched url=$url -> ")
+                append("source=${match.source}, subresource=${match.subresource}, tool=${match.tool}")
+                if (match.format.isNotBlank()) {
+                    append(", format=${match.format}")
+                }
             }
-        }
         log.info { matchInfo }
         return tool.download(url, match.format)
     }
