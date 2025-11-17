@@ -55,7 +55,7 @@ data class YtDlpMedia(
                 val bitsPerSecond = totalBitrateKbps * BITS_IN_KILOBIT
                 val totalBits = bitsPerSecond * duration
                 val rawBytes = totalBits / BITS_IN_BYTE
-                (rawBytes * BITRATE_SIZE_ADJUSTMENT).toLong()
+                (rawBytes / BITRATE_SIZE_ADJUSTMENT).toLong()
             }
             else -> null
         }
