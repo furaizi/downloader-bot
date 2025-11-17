@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://github.com/furaizi/downloader-bot/compare/v0.14.0...v0.14.1) (2025-11-17)
+
+
+### Bug Fixes
+
+* **core:** YouTube probing ([#160](https://github.com/furaizi/downloader-bot/issues/160)) ([60cc924](https://github.com/furaizi/downloader-bot/commit/60cc924a51b8eec6778fb09e2a4af6179708b68f))
+
 ## [0.14.0](https://github.com/furaizi/downloader-bot/compare/v0.13.0...v0.14.0) (2025-11-16)
 
 
