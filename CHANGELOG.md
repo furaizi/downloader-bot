@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.3](https://github.com/furaizi/downloader-bot/compare/v0.14.2...v0.14.3) (2025-11-17)
+
+
+### Bug Fixes
+
+* **ytdlp:** correct bitrate-based size estimation coefficient ([#164](https://github.com/furaizi/downloader-bot/issues/164)) ([0948eaf](https://github.com/furaizi/downloader-bot/commit/0948eaf95b868d0fa35f51030553cca27441d25d))
+
 ## [0.14.2](https://github.com/furaizi/downloader-bot/compare/v0.14.1...v0.14.2) (2025-11-17)
 
 
