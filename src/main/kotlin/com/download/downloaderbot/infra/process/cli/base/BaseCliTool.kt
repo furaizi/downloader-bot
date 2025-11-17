@@ -42,7 +42,7 @@ open class BaseCliTool<META : MediaConvertible>(
         log.debug { "Generated path prefix=$basePrefix, outputPath=$outputPath" }
 
         val metaData =
-            runCatching { probe(url, outputPath) }
+            runCatching { probe(url, outputPath, formatOverride) }
                 .onSuccess { log.debug { "Probe succeeded for url=$url" } }
                 .onFailure { log.warn { "Probe failed for url=$url, using EmptyMedia" } }
                 .getOrDefault(
