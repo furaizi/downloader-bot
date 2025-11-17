@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://github.com/furaizi/downloader-bot/compare/v0.14.1...v0.14.2) (2025-11-17)
+
+
+### Bug Fixes
+
+* **config:** quote formats and url patterns in sources.yml ([#162](https://github.com/furaizi/downloader-bot/issues/162)) ([721e8ca](https://github.com/furaizi/downloader-bot/commit/721e8ca74e8b209f8301b0c94075289761654d5b))
+
 ## [0.14.1](https://github.com/furaizi/downloader-bot/compare/v0.14.0...v0.14.1) (2025-11-17)
 
 
