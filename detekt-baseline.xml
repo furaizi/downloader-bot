@@ -9,10 +9,6 @@
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, caption: String? = null, durationSeconds: Int? = null, width: Int? = null, height: Int? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, durationSeconds: Int? = null, performer: String? = null, title: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( type: MediaType, chatId: Long, file: InputFile, caption: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
-    <ID>MaxLineLength:ConfigUtils.kt$inline fun &lt;reified T&gt; createJsonParser(mapper: ObjectMapper): JsonParser&lt;T&gt;</ID>
-    <ID>MaxLineLength:RateLimitProperties.kt$global = global.copy(refill = global.refill.copy(period = Duration.ofMillis(global.refill.period.toMillis())))</ID>
-    <ID>MaxLineLength:RedisConfig.kt$RedisConfig$fun</ID>
-    <ID>NestedBlockDepth:MediaCleanupService.kt$MediaCleanupService$suspend fun cleanup(): MediaCleanupReport</ID>
     <ID>TooGenericExceptionCaught:Bucket4jRateLimiter.kt$Bucket4jRateLimiter$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ConcurrencyConfig.kt$ConcurrencyConfig.BotCoroutineExceptionHandler$e: Exception</ID>
   </CurrentIssues>

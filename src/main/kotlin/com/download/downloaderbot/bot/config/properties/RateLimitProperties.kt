@@ -48,12 +48,15 @@ data class RateLimitProperties(
 fun RateLimitProperties.fingerprint(mapper: ObjectMapper): String {
     val norm =
         copy(
-            global = global.copy(refill = global.refill.copy(period = Duration.ofMillis(global.refill.period.toMillis()))),
-            chat = chat.copy(refill = chat.refill.copy(period = Duration.ofMillis(chat.refill.period.toMillis()))),
-            group = group.copy(refill = group.refill.copy(period = Duration.ofMillis(group.refill.period.toMillis()))),
+            global = global.normalizeRefillPeriod(),
+            chat = chat.normalizeRefillPeriod(),
+            group = group.normalizeRefillPeriod(),
         )
     val bytes = mapper.writeValueAsBytes(norm)
     val hash = MessageDigest.getInstance("SHA-256").digest(bytes)
     return hash.joinToString("") { "%02x".format(it) }
         .take(FINGERPRINT_LENGTH)
 }
+
+private fun RateLimitProperties.Bucket.normalizeRefillPeriod(): RateLimitProperties.Bucket =
+    copy(refill = refill.copy(period = Duration.ofMillis(refill.period.toMillis())))
