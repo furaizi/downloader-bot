@@ -16,6 +16,8 @@ import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 
 private val log = KotlinLogging.logger {}
+private const val MIN_DELAY_MS = 1L
+private const val NANOS_PER_MILLISECOND = 1_000_000L
 
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
@@ -39,7 +41,7 @@ class Bucket4jRateLimiter(
                 log.debug { "[rate-limit] global OK key=$key remaining=${probe.remainingTokens}" }
                 return
             }
-            val ms = max(1L, probe.nanosToWaitForRefill / 1_000_000)
+            val ms = max(MIN_DELAY_MS, probe.nanosToWaitForRefill / NANOS_PER_MILLISECOND)
             log.info { "[rate-limit] global THROTTLE key=$key wait=${ms}ms remaining=${probe.remainingTokens}" }
             delay(ms)
         }
