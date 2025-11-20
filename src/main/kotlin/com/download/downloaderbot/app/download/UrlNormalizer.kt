@@ -22,54 +22,58 @@ class UrlNormalizer {
 
     fun normalize(url: String): String {
         val s = url.trim()
-        val uri = runCatching { URI(s) }.getOrElse { return s }
 
-        val scheme = uri.scheme?.lowercase() ?: return s
-        if (scheme != "http" && scheme != "https") return s
+        val normalized =
+            runCatching {
+                val uri = URI(s)
 
-        val host = uri.host?.lowercase() ?: return s
-        val isTiktok = hostMatches(host, "tiktok.com")
-        val isInstagram = hostMatches(host, "instagram.com")
-        val isYoutube = hostMatches(host, "youtube.com") || hostMatches(host, "youtu.be")
+                val scheme = uri.scheme?.lowercase() ?: return@runCatching s
+                if (scheme != "http" && scheme != "https") return@runCatching s
 
-        val dropAllQuery = isTiktok || isInstagram
+                val host = uri.host?.lowercase() ?: return@runCatching s
+                val isTiktok = hostMatches(host, "tiktok.com")
+                val isInstagram = hostMatches(host, "instagram.com")
+                val isYoutube = hostMatches(host, "youtube.com") || hostMatches(host, "youtu.be")
 
-        val port =
-            when {
-                uri.port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
-                scheme == "http" && uri.port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
-                scheme == "https" && uri.port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
-                else -> uri.port
-            }
+                val dropAllQuery = isTiktok || isInstagram
 
-        val rawPath = uri.rawPath ?: "/"
-        val path =
-            URI(null, null, if (rawPath.isEmpty()) "/" else rawPath, null)
-                .normalize().path
-                .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
+                val port =
+                    when {
+                        uri.port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
+                        scheme == "http" && uri.port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
+                        scheme == "https" && uri.port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
+                        else -> uri.port
+                    }
 
-        val query =
-            when {
-                dropAllQuery -> null
-                else -> {
-                    val params =
-                        parseQuery(uri.rawQuery)
-                            .filterNot { isNoise(it.first) }
+                val rawPath = uri.rawPath ?: "/"
+                val path =
+                    URI(null, null, rawPath.ifEmpty { "/" }, null)
+                        .normalize().path
+                        .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
 
-                    val normalizedParams =
-                        if (isYoutube && path == "/watch") {
-                            normalizeYoutubeParams(params)
-                        } else {
-                            params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+                val query =
+                    when {
+                        dropAllQuery -> null
+                        else -> {
+                            val params =
+                                parseQuery(uri.rawQuery)
+                                    .filterNot { isNoise(it.first) }
+
+                            val normalizedParams =
+                                if (isYoutube && path == "/watch") {
+                                    normalizeYoutubeParams(params)
+                                } else {
+                                    params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+                                }
+
+                            buildQuery(normalizedParams)
                         }
+                    }
 
-                    buildQuery(normalizedParams)
-                }
-            }
+                URI(scheme, uri.userInfo, host, port, path, query, null).toASCIIString()
+            }.getOrElse { s }
 
-        return runCatching {
-            URI(scheme, uri.userInfo, host, port, path, query, null).toASCIIString()
-        }.getOrElse { s }
+        return normalized
     }
 
     private fun normalizeYoutubeParams(params: List<Pair<String, String?>>): List<Pair<String, String?>> {

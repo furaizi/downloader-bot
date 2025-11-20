@@ -33,19 +33,25 @@ class MediaServiceImpl(
         cache.getWithLog(finalUrl)?.let { return it }
 
         var token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
-        if (token == null) {
-            cache.awaitGet(finalUrl)?.let { return it }
-            token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
-                ?: throw DownloadInProgressException(finalUrl)
-        }
+        val cachedAfterWait = if (token == null) cache.awaitGet(finalUrl) else null
 
-        return try {
-            slots.withSlotOrThrow(url) {
-                provider.download(finalUrl)
-            }
-        } finally {
-            urlLock.release(finalUrl, token)
-        }
+        val result =
+            cachedAfterWait
+                ?: run {
+                    if (token == null) {
+                        token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
+                            ?: throw DownloadInProgressException(finalUrl)
+                    }
+                    try {
+                        slots.withSlotOrThrow(url) {
+                            provider.download(finalUrl)
+                        }
+                    } finally {
+                        urlLock.release(finalUrl, token)
+                    }
+                }
+
+        return result
     }
 
     private suspend fun CachePort<String, List<Media>>.getWithLog(

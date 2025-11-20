@@ -13,10 +13,6 @@
     <ID>MaxLineLength:RateLimitProperties.kt$global = global.copy(refill = global.refill.copy(period = Duration.ofMillis(global.refill.period.toMillis())))</ID>
     <ID>MaxLineLength:RedisConfig.kt$RedisConfig$fun</ID>
     <ID>NestedBlockDepth:MediaCleanupService.kt$MediaCleanupService$suspend fun cleanup(): MediaCleanupReport</ID>
-    <ID>ReturnCount:Mappers.kt$fun &lt;T : Any&gt; Pair&lt;HttpResponse&lt;TgEnvelope&lt;T&gt;?&gt;?, Exception?&gt;.toGateway(): GatewayResult&lt;T&gt;</ID>
-    <ID>ReturnCount:MediaCleanupService.kt$MediaCleanupService$@SuppressWarnings("TooGenericExceptionCaught") private fun toMediaFile(path: Path): MediaFile?</ID>
-    <ID>ReturnCount:MediaServiceImpl.kt$MediaServiceImpl$override suspend fun download(url: String): List&lt;Media&gt;</ID>
-    <ID>ReturnCount:UrlNormalizer.kt$UrlNormalizer$fun normalize(url: String): String</ID>
     <ID>TooGenericExceptionCaught:Bucket4jRateLimiter.kt$Bucket4jRateLimiter$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ConcurrencyConfig.kt$ConcurrencyConfig.BotCoroutineExceptionHandler$e: Exception</ID>
   </CurrentIssues>

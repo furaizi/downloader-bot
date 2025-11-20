@@ -85,23 +85,15 @@ class MediaCleanupService(
         }
 
     @SuppressWarnings("TooGenericExceptionCaught")
-    private fun toMediaFile(path: Path): MediaFile? {
-        val size =
-            try {
-                Files.size(path)
-            } catch (t: Exception) {
-                log.warn(t) { "Unable to read size of $path" }
-                return null
-            }
-        val lastModified =
-            try {
-                Files.getLastModifiedTime(path).toInstant()
-            } catch (t: Exception) {
-                log.warn(t) { "Unable to read lastModified of $path" }
-                return null
-            }
-        return MediaFile(path, size, lastModified)
-    }
+    private fun toMediaFile(path: Path): MediaFile? =
+        runCatching {
+            val size = Files.size(path)
+            val lastModified = Files.getLastModifiedTime(path).toInstant()
+            MediaFile(path, size, lastModified)
+        }.getOrElse { ex ->
+            log.warn(ex) { "Unable to read metadata of $path" }
+            null
+        }
 
     private suspend fun deleteFile(file: MediaFile): Boolean =
         withContext(Dispatchers.IO) {
