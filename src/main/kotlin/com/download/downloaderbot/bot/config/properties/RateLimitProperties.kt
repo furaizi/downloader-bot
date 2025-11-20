@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import java.security.MessageDigest
 import java.time.Duration
 
+private const val FINGERPRINT_LENGTH = 8
+
 @ConfigurationProperties(prefix = "downloader.ratelimit")
 data class RateLimitProperties(
     val enabled: Boolean = true,
@@ -53,5 +55,5 @@ fun RateLimitProperties.fingerprint(mapper: ObjectMapper): String {
     val bytes = mapper.writeValueAsBytes(norm)
     val hash = MessageDigest.getInstance("SHA-256").digest(bytes)
     return hash.joinToString("") { "%02x".format(it) }
-        .take(8)
+        .take(FINGERPRINT_LENGTH)
 }

@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
 
+private const val OKHTTP_CALL_TIMEOUT_SECONDS = 20L
+
 @Configuration
 class OkHttpConfig {
     @Bean
@@ -12,6 +14,6 @@ class OkHttpConfig {
         OkHttpClient.Builder()
             .followRedirects(true)
             .followSslRedirects(true)
-            .callTimeout(Duration.ofSeconds(20))
+            .callTimeout(Duration.ofSeconds(OKHTTP_CALL_TIMEOUT_SECONDS))
             .build()
 }

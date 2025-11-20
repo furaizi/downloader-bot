@@ -9,18 +9,6 @@
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, caption: String? = null, durationSeconds: Int? = null, width: Int? = null, height: Int? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, durationSeconds: Int? = null, performer: String? = null, title: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( type: MediaType, chatId: Long, file: InputFile, caption: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
-    <ID>MagicNumber:DurationUtils.kt$1000.0</ID>
-    <ID>MagicNumber:DurationUtils.kt$1_000_000</ID>
-    <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$10</ID>
-    <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$5</ID>
-    <ID>MagicNumber:MediaProperties.kt$MediaCleanupProperties$7</ID>
-    <ID>MagicNumber:MediaProperties.kt$MediaSizeLimits$10</ID>
-    <ID>MagicNumber:MediaProperties.kt$MediaSizeLimits$50</ID>
-    <ID>MagicNumber:MediaServiceImpl.kt$MediaServiceImpl$100</ID>
-    <ID>MagicNumber:OkHttpConfig.kt$OkHttpConfig$20</ID>
-    <ID>MagicNumber:RateLimitProperties.kt$8</ID>
-    <ID>MagicNumber:UrlNormalizer.kt$UrlNormalizer$443</ID>
-    <ID>MagicNumber:UrlNormalizer.kt$UrlNormalizer$80</ID>
     <ID>MaxLineLength:ConfigUtils.kt$inline fun &lt;reified T&gt; createJsonParser(mapper: ObjectMapper): JsonParser&lt;T&gt;</ID>
     <ID>MaxLineLength:RateLimitProperties.kt$global = global.copy(refill = global.refill.copy(period = Duration.ofMillis(global.refill.period.toMillis())))</ID>
     <ID>MaxLineLength:RedisConfig.kt$RedisConfig$fun</ID>

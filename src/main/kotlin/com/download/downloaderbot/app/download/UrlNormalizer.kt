@@ -6,6 +6,9 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+private const val UNSPECIFIED_PORT = -1
+private const val HTTP_DEFAULT_PORT = 80
+private const val HTTPS_DEFAULT_PORT = 443
 private val DROP_EXACT = setOf("fbclid", "gclid", "msclkid", "dclid", "igshid")
 
 @Component
@@ -33,9 +36,9 @@ class UrlNormalizer {
 
         val port =
             when {
-                uri.port == -1 -> -1
-                scheme == "http" && uri.port == 80 -> -1
-                scheme == "https" && uri.port == 443 -> -1
+                uri.port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
+                scheme == "http" && uri.port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
+                scheme == "https" && uri.port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
                 else -> uri.port
             }
 
