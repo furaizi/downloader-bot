@@ -9,7 +9,5 @@
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, caption: String? = null, durationSeconds: Int? = null, width: Int? = null, height: Int? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( chatId: Long, file: InputFile, durationSeconds: Int? = null, performer: String? = null, title: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
     <ID>LongParameterList:BotPort.kt$BotPort$( type: MediaType, chatId: Long, file: InputFile, caption: String? = null, replyToMessageId: Long? = null, replyMarkup: ReplyMarkup? = null, )</ID>
-    <ID>TooGenericExceptionCaught:Bucket4jRateLimiter.kt$Bucket4jRateLimiter$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ConcurrencyConfig.kt$ConcurrencyConfig.BotCoroutineExceptionHandler$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>
