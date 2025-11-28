@@ -8,6 +8,7 @@ import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.InputFile
+import com.download.downloaderbot.bot.gateway.MessageOptions
 import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.fileId
@@ -129,13 +130,17 @@ class DownloadCommand(
             val results =
                 mediaList.map { media ->
                     val input = media.toInputFile()
+                    val options =
+                        MessageOptions(
+                            caption = if (sendPromo) props.promoText else null,
+                            replyToMessageId = replyTo,
+                            replyMarkup = if (sendPromo) share else null,
+                        )
                     botPort.sendMedia(
                         media.type,
                         ctx.chatId,
                         input,
-                        caption = if (sendPromo) props.promoText else null,
-                        replyToMessageId = replyTo,
-                        replyMarkup = if (sendPromo) share else null,
+                        options = options,
                     )
                 }
 

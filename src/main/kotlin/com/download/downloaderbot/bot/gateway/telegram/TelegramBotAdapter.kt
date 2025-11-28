@@ -1,9 +1,12 @@
 package com.download.downloaderbot.bot.gateway.telegram
 
 import com.download.downloaderbot.bot.commands.CommandContext
+import com.download.downloaderbot.bot.gateway.AudioOptions
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.InputFile
+import com.download.downloaderbot.bot.gateway.MessageOptions
+import com.download.downloaderbot.bot.gateway.VideoOptions
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
@@ -37,71 +40,60 @@ class TelegramBotAdapter(
     override suspend fun sendPhoto(
         chatId: Long,
         file: InputFile,
-        caption: String?,
-        replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?,
+        options: MessageOptions,
     ): GatewayResult<Message> =
         bot.sendPhoto(
             chatId = ChatId.fromId(chatId),
             photo = file.toTelegram(),
-            caption = caption,
-            replyToMessageId = replyToMessageId,
-            replyMarkup = replyMarkup,
+            caption = options.caption,
+            replyToMessageId = options.replyToMessageId,
+            replyMarkup = options.replyMarkup,
         ).toGateway()
 
     override suspend fun sendVideo(
         chatId: Long,
         file: InputFile,
-        caption: String?,
-        durationSeconds: Int?,
-        width: Int?,
-        height: Int?,
-        replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?,
+        messageOptions: MessageOptions,
+        videoOptions: VideoOptions,
     ): GatewayResult<Message> =
         bot.sendVideo(
             chatId = ChatId.fromId(chatId),
             video = file.toTelegram(),
-            caption = caption,
-            duration = durationSeconds,
-            width = width,
-            height = height,
-            replyToMessageId = replyToMessageId,
-            replyMarkup = replyMarkup,
+            caption = messageOptions.caption,
+            duration = videoOptions.durationSeconds,
+            width = videoOptions.width,
+            height = videoOptions.height,
+            replyToMessageId = messageOptions.replyToMessageId,
+            replyMarkup = messageOptions.replyMarkup,
         ).toGateway()
 
     override suspend fun sendAudio(
         chatId: Long,
         file: InputFile,
-        durationSeconds: Int?,
-        performer: String?,
-        title: String?,
-        replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?,
+        messageOptions: MessageOptions,
+        audioOptions: AudioOptions,
     ): GatewayResult<Message> =
         bot.sendAudio(
             chatId = ChatId.fromId(chatId),
             audio = file.toTelegram(),
-            duration = durationSeconds,
-            performer = performer,
-            title = title,
-            replyToMessageId = replyToMessageId,
-            replyMarkup = replyMarkup,
+            duration = audioOptions.durationSeconds,
+            performer = audioOptions.performer,
+            title = audioOptions.title,
+            replyToMessageId = messageOptions.replyToMessageId,
+            replyMarkup = messageOptions.replyMarkup,
         ).toGateway()
 
     override suspend fun sendDocument(
         chatId: Long,
         file: InputFile,
-        caption: String?,
-        replyToMessageId: Long?,
-        replyMarkup: ReplyMarkup?,
+        options: MessageOptions,
     ): GatewayResult<Message> =
         bot.sendDocument(
             chatId = ChatId.fromId(chatId),
             document = file.toTelegram(),
-            caption = caption,
-            replyToMessageId = replyToMessageId,
-            replyMarkup = replyMarkup,
+            caption = options.caption,
+            replyToMessageId = options.replyToMessageId,
+            replyMarkup = options.replyMarkup,
         ).toGateway()
 
     @Suppress("SpreadOperator")
