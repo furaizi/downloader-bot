@@ -19,7 +19,6 @@ class DefaultUpdateHandler(
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
 ) : UpdateHandler {
-
     override suspend fun handle(update: Update) {
         if (update.addressing(botIdentity.username) == CommandAddressing.OTHER) return
 
@@ -27,33 +26,30 @@ class DefaultUpdateHandler(
         val context = CommandContext(update, args)
 
         botMetrics.updates.increment()
-        val sample = Timer.start()
-        try {
-            botMetrics.commandCounter(handler.name).increment()
-
+        measureCommand(handler.name) {
             withContext(Dispatchers.IO) {
                 handler.handle(context)
             }
-        } finally {
-            sample.stop(botMetrics.commandTimer(handler.name))
         }
     }
 
     private fun Update.resolveHandler(): Pair<BotCommand, List<String>>? {
-        val tokens = message
-            ?.text
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
-            ?.split(WHITESPACE_REGEX)
-            ?: return null
+        val tokens =
+            message
+                ?.text
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?.split(WHITESPACE_REGEX)
+                ?: return null
 
         val firstToken = tokens.first()
 
         return if (firstToken.startsWith(COMMAND_PREFIX)) {
             // /download@username_bot arg1 arg2
-            val commandName = firstToken
-                .removePrefix(COMMAND_PREFIX)
-                .substringBefore(USERNAME_SEPARATOR)
+            val commandName =
+                firstToken
+                    .removePrefix(COMMAND_PREFIX)
+                    .substringBefore(USERNAME_SEPARATOR)
 
             val handler = commandRegistry.byName[commandName] ?: commandRegistry.default
             handler to tokens.drop(1)
@@ -61,6 +57,19 @@ class DefaultUpdateHandler(
             // default text
             val handler = commandRegistry.default
             handler to tokens
+        }
+    }
+
+    private suspend fun <T> measureCommand(
+        commandName: String,
+        block: suspend () -> T,
+    ): T {
+        val sample = Timer.start()
+        return try {
+            botMetrics.commandCounter(commandName).increment()
+            block()
+        } finally {
+            sample.stop(botMetrics.commandTimer(commandName))
         }
     }
 
