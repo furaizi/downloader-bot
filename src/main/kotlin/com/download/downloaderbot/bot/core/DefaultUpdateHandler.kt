@@ -15,18 +15,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class DefaultUpdateHandler(
-    private val commands: CommandRegistry,
+    private val commandRegistry: CommandRegistry,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
 ) : UpdateHandler {
+
     override suspend fun handle(update: Update) {
-        if (update.addressing(botIdentity.username) == CommandAddressing.OTHER) {
-            return
-        }
+        if (update.addressing(botIdentity.username) == CommandAddressing.OTHER) return
 
-        val (handler, args) = resolveHandler(update) ?: return
-
-        val ctx = CommandContext(update, args)
+        val (handler, args) = update.resolveHandler() ?: return
+        val context = CommandContext(update, args)
 
         botMetrics.updates.increment()
         val sample = Timer.start()
@@ -34,37 +32,41 @@ class DefaultUpdateHandler(
             botMetrics.commandCounter(handler.name).increment()
 
             withContext(Dispatchers.IO) {
-                handler.handle(ctx)
+                handler.handle(context)
             }
         } finally {
             sample.stop(botMetrics.commandTimer(handler.name))
         }
     }
 
-    private fun resolveHandler(update: Update): Pair<BotCommand, List<String>>? {
-        val message = update.message ?: return null
-        val rawText = message.text?.trim().orEmpty()
-        if (rawText.isEmpty()) return null
+    private fun Update.resolveHandler(): Pair<BotCommand, List<String>>? {
+        val tokens = message
+            ?.text
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?.split(WHITESPACE_REGEX)
+            ?: return null
 
-        val tokens = rawText.split("\\s+".toRegex())
-        if (tokens.isEmpty()) return null
+        val firstToken = tokens.first()
 
-        val first = tokens.first()
-
-        return if (first.startsWith("/")) {
+        return if (firstToken.startsWith(COMMAND_PREFIX)) {
             // /download@username_bot arg1 arg2
-            val cmdName =
-                first
-                    .removePrefix("/")
-                    .substringBefore("@")
+            val commandName = firstToken
+                .removePrefix(COMMAND_PREFIX)
+                .substringBefore(USERNAME_SEPARATOR)
 
-            val handler = commands.byName[cmdName] ?: commands.default
-            val args = tokens.drop(1)
-            handler to args
+            val handler = commandRegistry.byName[commandName] ?: commandRegistry.default
+            handler to tokens.drop(1)
         } else {
             // default text
-            val handler = commands.default
+            val handler = commandRegistry.default
             handler to tokens
         }
+    }
+
+    private companion object {
+        private val WHITESPACE_REGEX = Regex("\\s+")
+        private const val COMMAND_PREFIX = "/"
+        private const val USERNAME_SEPARATOR = '@'
     }
 }
