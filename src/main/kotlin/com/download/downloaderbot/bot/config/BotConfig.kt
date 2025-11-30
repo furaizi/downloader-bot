@@ -5,6 +5,7 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.commands.CommandRegistry
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.gateway.telegram.util.CommandAddressing
 import com.download.downloaderbot.bot.gateway.telegram.util.addressing
 import com.download.downloaderbot.infra.metrics.BotMetrics
@@ -27,26 +28,20 @@ import org.springframework.context.annotation.Configuration
 class BotConfig(
     val botProperties: BotProperties,
     val botScope: CoroutineScope,
-    private val botMetrics: BotMetrics,
+    private val updateHandler: UpdateHandler,
 ) {
     @Bean
-    fun telegramBot(
-        commands: CommandRegistry,
-        botIdentity: BotIdentity,
-    ): Bot =
+    fun telegramBot(): Bot =
         bot {
             token = botProperties.token
 
             dispatch {
-                commands.byName.forEach { (name, handler) ->
-                    commandForBot(name, botIdentity) {
-                        botScope.launchHandler(update, args, handler)
-                    }
-                }
-
-                textForBot(botIdentity) {
+                text {
+                    update.consume()
                     val args = text.trim().split("\\s+".toRegex())
-                    botScope.launchHandler(update, args, commands.default)
+                    botScope.launch(ConcurrencyConfig.BotContext(CommandContext(update, args))) {
+                        updateHandler.handle(update)
+                    }
                 }
             }
         }
@@ -54,43 +49,4 @@ class BotConfig(
     @Bean
     fun botIdentity() = BotIdentity("<uninitialized>")
 
-    private fun Dispatcher.commandForBot(
-        name: String,
-        botIdentity: BotIdentity,
-        block: CommandHandlerEnvironment.() -> Unit,
-    ) = command(name) {
-        when (update.addressing(botIdentity.username)) {
-            CommandAddressing.OTHER -> return@command
-            else -> block()
-        }
-    }
-
-    private fun Dispatcher.textForBot(
-        botIdentity: BotIdentity,
-        block: TextHandlerEnvironment.() -> Unit,
-    ) = text {
-        when (update.addressing(botIdentity.username)) {
-            CommandAddressing.OTHER -> return@text
-            else -> block()
-        }
-    }
-
-    private fun CoroutineScope.launchHandler(
-        update: Update,
-        args: List<String>,
-        handler: BotCommand,
-    ) {
-        val ctx = CommandContext(update, args)
-        update.consume()
-        botMetrics.updates.increment()
-        launch(ConcurrencyConfig.BotContext(ctx)) {
-            val sample = Timer.start()
-            try {
-                botMetrics.commandCounter(handler.name).increment()
-                handler.handle(ctx)
-            } finally {
-                sample.stop(botMetrics.commandTimer(handler.name))
-            }
-        }
-    }
 }
