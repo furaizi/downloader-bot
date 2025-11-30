@@ -144,7 +144,6 @@ class DownloadCommand(
                     )
                 }
 
-            // TODO: handle many videos properly
             results.mapNotNull { result ->
                 result.onErr { log.warn(it.cause) { it.description } }
                     .getOrNull()

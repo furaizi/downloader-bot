@@ -15,65 +15,80 @@ private val DROP_EXACT = setOf("fbclid", "gclid", "msclkid", "dclid", "igshid")
 class UrlNormalizer {
     private fun isNoise(name: String) = name.startsWith("utm_", ignoreCase = true) || name.lowercase() in DROP_EXACT
 
-    private fun hostMatches(
-        host: String?,
-        base: String,
-    ) = host != null && (host == base || host.endsWith(".$base"))
+    private data class Platforms(
+        val isTiktok: Boolean,
+        val isInstagram: Boolean,
+        val isYoutube: Boolean,
+    ) {
+        val dropAllQuery: Boolean get() = isTiktok || isInstagram
+    }
 
     fun normalize(url: String): String {
-        val s = url.trim()
+        val trimmed = url.trim()
+        return runCatching { normalizedUrl(trimmed) }
+            .getOrDefault(trimmed)
+    }
 
-        val normalized =
-            runCatching {
-                val uri = URI(s)
+    private fun normalizedUrl(trimmed: String): String {
+        val uri = URI(trimmed)
+        val scheme = requireNotNull(uri.scheme?.lowercase()) { "Missing scheme" }
+        require(scheme == "http" || scheme == "https") { "Unsupported scheme" }
 
-                val scheme = uri.scheme?.lowercase() ?: return@runCatching s
-                if (scheme != "http" && scheme != "https") return@runCatching s
+        val host = requireNotNull(uri.host?.lowercase()) { "Missing host" }
+        val platforms = detectPlatforms(host)
 
-                val host = uri.host?.lowercase() ?: return@runCatching s
-                val isTiktok = hostMatches(host, "tiktok.com")
-                val isInstagram = hostMatches(host, "instagram.com")
-                val isYoutube = hostMatches(host, "youtube.com") || hostMatches(host, "youtu.be")
+        val port = normalizePort(scheme, uri.port)
+        val path = normalizePath(uri.rawPath)
+        val query = buildNormalizedQuery(uri.rawQuery, path, platforms)
 
-                val dropAllQuery = isTiktok || isInstagram
+        return URI(scheme, uri.userInfo, host, port, path, query, null).toASCIIString()
+    }
 
-                val port =
-                    when {
-                        uri.port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
-                        scheme == "http" && uri.port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
-                        scheme == "https" && uri.port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
-                        else -> uri.port
-                    }
+    private fun detectPlatforms(host: String): Platforms {
+        fun matches(base: String) = host == base || host.endsWith(".$base")
 
-                val rawPath = uri.rawPath ?: "/"
-                val path =
-                    URI(null, null, rawPath.ifEmpty { "/" }, null)
-                        .normalize().path
-                        .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
+        return Platforms(
+            isTiktok = matches("tiktok.com"),
+            isInstagram = matches("instagram.com"),
+            isYoutube = matches("youtube.com") || matches("youtu.be"),
+        )
+    }
 
-                val query =
-                    when {
-                        dropAllQuery -> null
-                        else -> {
-                            val params =
-                                parseQuery(uri.rawQuery)
-                                    .filterNot { isNoise(it.first) }
+    private fun normalizePort(
+        scheme: String,
+        port: Int,
+    ): Int =
+        when {
+            port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
+            scheme == "http" && port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
+            scheme == "https" && port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
+            else -> port
+        }
 
-                            val normalizedParams =
-                                if (isYoutube && path == "/watch") {
-                                    normalizeYoutubeParams(params)
-                                } else {
-                                    params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
-                                }
+    private fun normalizePath(rawPath: String?): String =
+        URI(null, null, (rawPath ?: "/").ifEmpty { "/" }, null)
+            .normalize().path
+            .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
 
-                            buildQuery(normalizedParams)
-                        }
-                    }
+    private fun buildNormalizedQuery(
+        rawQuery: String?,
+        path: String,
+        platforms: Platforms,
+    ): String? {
+        if (platforms.dropAllQuery) return null
 
-                URI(scheme, uri.userInfo, host, port, path, query, null).toASCIIString()
-            }.getOrElse { s }
+        val params =
+            parseQuery(rawQuery)
+                .filterNot { isNoise(it.first) }
 
-        return normalized
+        val normalizedParams =
+            if (platforms.isYoutube && path == "/watch") {
+                normalizeYoutubeParams(params)
+            } else {
+                params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+            }
+
+        return buildQuery(normalizedParams)
     }
 
     private fun normalizeYoutubeParams(params: List<Pair<String, String?>>): List<Pair<String, String?>> {

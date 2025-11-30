@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>CyclomaticComplexMethod:UrlNormalizer.kt$UrlNormalizer$fun normalize(url: String): String</ID>
-    <ID>EmptyFunctionBlock:DownloaderBotApplicationTests.kt$DownloaderBotApplicationTests${ }</ID>
-    <ID>ForbiddenComment:DownloadCommand.kt$DownloadCommand$// TODO: handle many videos properly</ID>
-  </CurrentIssues>
-</SmellBaseline>
