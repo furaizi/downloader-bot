@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
@@ -21,51 +22,17 @@ class MediaCleanupService(
 ) {
     suspend fun cleanup(): MediaCleanupReport {
         val cleanupProps = mediaProperties.cleanup
-        val basePath = mediaProperties.basePath
+        val threshold = computeThreshold(cleanupProps.maxAge)
 
-        val maxAge = cleanupProps.maxAge
-        require(!maxAge.isNegative) { "downloader.media.cleanup.max-age must not be negative: $maxAge" }
+        val remaining = loadFiles(mediaProperties.basePath).toMutableList()
 
-        val threshold: Instant? =
-            if (maxAge.isZero) {
-                null
-            } else {
-                Instant.now().minus(maxAge)
-            }
+        val expired = removeExpired(remaining, threshold)
+        val trimmed = trimToMaxSize(remaining, cleanupProps.maxTotalSize.toBytes())
 
-        var deletedFiles = 0
-        var freedBytes = 0L
-
-        val remaining = loadFiles(basePath).toMutableList()
-
-        if (threshold != null) {
-            val expired = remaining.filter { it.lastModified.isBefore(threshold) }
-            for (file in expired) {
-                if (deleteFile(file)) {
-                    deletedFiles += 1
-                    freedBytes += file.size
-                    remaining.remove(file)
-                }
-            }
-        }
-
-        val maxBytes = cleanupProps.maxTotalSize.toBytes()
-        if (maxBytes > 0) {
-            var totalSize = remaining.sumOf { it.size }
-            if (totalSize > maxBytes) {
-                val orderedByAge = remaining.sortedBy { it.lastModified }
-                for (file in orderedByAge) {
-                    if (totalSize <= maxBytes) break
-                    if (deleteFile(file)) {
-                        deletedFiles += 1
-                        freedBytes += file.size
-                        totalSize -= file.size
-                    }
-                }
-            }
-        }
-
-        return MediaCleanupReport(deletedFiles, freedBytes)
+        return MediaCleanupReport(
+            deletedFiles = expired.files + trimmed.files,
+            freedBytes = expired.bytes + trimmed.bytes,
+        )
     }
 
     private suspend fun loadFiles(basePath: Path): List<MediaFile> =
@@ -84,24 +51,62 @@ class MediaCleanupService(
             }
         }
 
-    @SuppressWarnings("TooGenericExceptionCaught")
-    private fun toMediaFile(path: Path): MediaFile? {
-        val size =
-            try {
-                Files.size(path)
-            } catch (t: Exception) {
-                log.warn(t) { "Unable to read size of $path" }
-                return null
-            }
-        val lastModified =
-            try {
-                Files.getLastModifiedTime(path).toInstant()
-            } catch (t: Exception) {
-                log.warn(t) { "Unable to read lastModified of $path" }
-                return null
-            }
-        return MediaFile(path, size, lastModified)
+    private fun computeThreshold(maxAge: Duration): Instant? {
+        require(!maxAge.isNegative) { "downloader.media.cleanup.max-age must not be negative: $maxAge" }
+        return if (maxAge.isZero) null else Instant.now().minus(maxAge)
     }
+
+    private suspend fun removeExpired(
+        remaining: MutableList<MediaFile>,
+        threshold: Instant?,
+    ): CleanupDelta {
+        if (threshold == null) return CleanupDelta.ZERO
+
+        var deletedFiles = 0
+        var freedBytes = 0L
+        val expired = remaining.filter { it.lastModified.isBefore(threshold) }
+        for (file in expired) {
+            if (deleteFile(file)) {
+                deletedFiles += 1
+                freedBytes += file.size
+                remaining.remove(file)
+            }
+        }
+        return CleanupDelta(deletedFiles, freedBytes)
+    }
+
+    private suspend fun trimToMaxSize(
+        remaining: MutableList<MediaFile>,
+        maxBytes: Long,
+    ): CleanupDelta {
+        var totalSize = remaining.sumOf { it.size }
+        if (maxBytes <= 0 || totalSize <= maxBytes) return CleanupDelta.ZERO
+
+        var deletedFiles = 0
+        var freedBytes = 0L
+        val orderedByAge = remaining.sortedBy { it.lastModified }
+        for (file in orderedByAge) {
+            if (totalSize <= maxBytes) break
+            if (deleteFile(file)) {
+                deletedFiles += 1
+                freedBytes += file.size
+                totalSize -= file.size
+                remaining.remove(file)
+            }
+        }
+        return CleanupDelta(deletedFiles, freedBytes)
+    }
+
+    @SuppressWarnings("TooGenericExceptionCaught")
+    private fun toMediaFile(path: Path): MediaFile? =
+        runCatching {
+            val size = Files.size(path)
+            val lastModified = Files.getLastModifiedTime(path).toInstant()
+            MediaFile(path, size, lastModified)
+        }.getOrElse { ex ->
+            log.warn(ex) { "Unable to read metadata of $path" }
+            null
+        }
 
     private suspend fun deleteFile(file: MediaFile): Boolean =
         withContext(Dispatchers.IO) {
@@ -122,6 +127,15 @@ class MediaCleanupService(
         val size: Long,
         val lastModified: Instant,
     )
+
+    private data class CleanupDelta(
+        val files: Int,
+        val bytes: Long,
+    ) {
+        companion object {
+            val ZERO = CleanupDelta(0, 0L)
+        }
+    }
 }
 
 data class MediaCleanupReport(

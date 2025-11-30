@@ -20,14 +20,15 @@ import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 open class BaseCliTool<META : MediaConvertible>(
-    val props: MediaProperties,
-    val pathGenerator: PathGenerator,
-    val cmdBuilder: CommandBuilder,
-    val runner: ProcessRunner,
-    val jsonExtractor: JsonExtractor,
-    val jsonParser: JsonParser<META>,
-    val fileFinder: FilesByPrefixFinder,
+    private val props: MediaProperties,
+    private val pathGenerator: PathGenerator,
+    private val cmdBuilder: CommandBuilder,
+    private val runner: ProcessRunner,
+    private val jsonExtractor: JsonExtractor,
+    private val jsonParser: JsonParser<META>,
+    private val fileFinder: FilesByPrefixFinder,
     override val toolId: ToolId,
 ) : CliTool {
     private val toolName = toolId.label

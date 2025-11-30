@@ -44,58 +44,47 @@ fun <T : Any> TelegramBotResult<T>.toGateway(): GatewayResult<T> =
 
 fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.toGateway(): GatewayResult<T> {
     val (http, ex) = this
-    if (ex != null) {
-        return GatewayResult.Err(
-            kind = GatewayResult.Err.Kind.EXCEPTION,
-            cause = ex,
-            description = ex.message,
-        )
-    }
-    if (http == null) {
-        return GatewayResult.Err(
-            kind = GatewayResult.Err.Kind.UNKNOWN,
-            description = "HTTP response is null",
-        )
-    }
+    val code = http?.code()
+    val envelope = http?.body()
 
-    val code = http.code()
-    if (!http.isSuccessful) {
-        val bodyText =
-            try {
-                http.errorBody()?.string()
-            } catch (_: Throwable) {
-                null
-            }
-        return GatewayResult.Err(
-            kind = GatewayResult.Err.Kind.HTTP,
-            httpCode = code,
-            description = bodyText ?: http.message(),
-        )
-    }
-
-    val envelope =
-        http.body()
-            ?: return GatewayResult.Err(
+    return when {
+        ex != null ->
+            GatewayResult.Err(
+                kind = GatewayResult.Err.Kind.EXCEPTION,
+                cause = ex,
+                description = ex.message,
+            )
+        http == null ->
+            GatewayResult.Err(
+                kind = GatewayResult.Err.Kind.UNKNOWN,
+                description = "HTTP response is null",
+            )
+        !http.isSuccessful -> {
+            val bodyText = runCatching { http.errorBody()?.string() }.getOrNull()
+            GatewayResult.Err(
+                kind = GatewayResult.Err.Kind.HTTP,
+                httpCode = code,
+                description = bodyText ?: http.message(),
+            )
+        }
+        envelope == null ->
+            GatewayResult.Err(
                 kind = GatewayResult.Err.Kind.INVALID_RESPONSE,
                 httpCode = code,
                 description = "Empty body",
             )
-
-    if (!envelope.ok) {
-        return GatewayResult.Err(
-            kind = GatewayResult.Err.Kind.TELEGRAM,
-            telegramCode = envelope.errorCode,
-            description = envelope.errorDescription,
-        )
-    }
-
-    val payload =
-        envelope.result
-            ?: return GatewayResult.Err(
+        !envelope.ok ->
+            GatewayResult.Err(
+                kind = GatewayResult.Err.Kind.TELEGRAM,
+                telegramCode = envelope.errorCode,
+                description = envelope.errorDescription,
+            )
+        envelope.result == null ->
+            GatewayResult.Err(
                 kind = GatewayResult.Err.Kind.INVALID_RESPONSE,
                 httpCode = code,
                 description = "Result is null",
             )
-
-    return GatewayResult.Ok(payload)
+        else -> GatewayResult.Ok(requireNotNull(envelope.result))
+    }
 }

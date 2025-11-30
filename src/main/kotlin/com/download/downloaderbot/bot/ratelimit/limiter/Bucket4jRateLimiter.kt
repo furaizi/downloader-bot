@@ -13,9 +13,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import mu.KotlinLogging
 import java.util.concurrent.CompletableFuture
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 
 private val log = KotlinLogging.logger {}
+private const val MIN_DELAY_MS = 1L
+private const val NANOS_PER_MILLISECOND = 1_000_000L
 
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
@@ -39,7 +42,7 @@ class Bucket4jRateLimiter(
                 log.debug { "[rate-limit] global OK key=$key remaining=${probe.remainingTokens}" }
                 return
             }
-            val ms = max(1L, probe.nanosToWaitForRefill / 1_000_000)
+            val ms = max(MIN_DELAY_MS, probe.nanosToWaitForRefill / NANOS_PER_MILLISECOND)
             log.info { "[rate-limit] global THROTTLE key=$key wait=${ms}ms remaining=${probe.remainingTokens}" }
             delay(ms)
         }
@@ -54,7 +57,7 @@ class Bucket4jRateLimiter(
                 keyChat(chatId) to props.chat
             }
         val bucket = asyncBucket(key, cfg)
-        return try {
+        return runCatching {
             val ok = bucket.tryConsume(1).await()
             if (ok) {
                 log.debug { "[rate-limit] local OK key=$key" }
@@ -62,8 +65,9 @@ class Bucket4jRateLimiter(
                 log.info { "[rate-limit] local REJECT key=$key" }
             }
             ok
-        } catch (e: Exception) {
-            log.warn(e) { "[rate-limit] local FAIL-OPEN key=$key (Redis error)" }
+        }.getOrElse { throwable ->
+            if (throwable is CancellationException) throw throwable
+            log.warn(throwable) { "[rate-limit] local FAIL-OPEN key=$key (Redis error)" }
             true
         }
     }
