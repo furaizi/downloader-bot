@@ -85,6 +85,6 @@ fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.toGateway(): Gatew
                 httpCode = code,
                 description = "Result is null",
             )
-        else -> GatewayResult.Ok(envelope.result)
+        else -> GatewayResult.Ok(requireNotNull(envelope.result))
     }
 }

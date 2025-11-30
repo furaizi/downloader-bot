@@ -32,16 +32,16 @@ class MediaServiceImpl(
 
         cache.getWithLog(finalUrl)?.let { return it }
 
-        var token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
-        val cachedAfterWait = if (token == null) cache.awaitGet(finalUrl) else null
+        val initialToken = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
+        val cachedAfterWait = if (initialToken == null) cache.awaitGet(finalUrl) else null
 
         val result =
             cachedAfterWait
                 ?: run {
-                    if (token == null) {
-                        token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
+                    val token =
+                        initialToken
+                            ?: urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
                             ?: throw DownloadInProgressException(finalUrl)
-                    }
                     try {
                         slots.withSlotOrThrow(url) {
                             provider.download(finalUrl)
