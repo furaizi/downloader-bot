@@ -19,7 +19,6 @@ class DefaultUpdateHandler(
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
 ) : UpdateHandler {
-
     override suspend fun handle(update: Update) {
         if (update.addressing(botIdentity.username) == CommandAddressing.OTHER) {
             return
@@ -54,9 +53,10 @@ class DefaultUpdateHandler(
 
         return if (first.startsWith("/")) {
             // /download@username_bot arg1 arg2
-            val cmdName = first
-                .removePrefix("/")
-                .substringBefore("@")
+            val cmdName =
+                first
+                    .removePrefix("/")
+                    .substringBefore("@")
 
             val handler = commands.byName[cmdName] ?: commands.default
             val args = tokens.drop(1)
