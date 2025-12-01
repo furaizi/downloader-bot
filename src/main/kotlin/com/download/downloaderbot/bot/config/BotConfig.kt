@@ -15,14 +15,13 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class BotConfig(
-    val botProperties: BotProperties,
-    val botScope: CoroutineScope,
-    private val updateHandler: UpdateHandler,
+    private val props: BotProperties,
+    private val botScope: CoroutineScope,
 ) {
     @Bean
-    fun telegramBot(): Bot =
+    fun telegramBot(updateHandler: UpdateHandler): Bot =
         bot {
-            token = botProperties.token
+            token = props.token
 
             dispatch {
                 text {
