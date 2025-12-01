@@ -4,8 +4,10 @@ import com.download.downloaderbot.app.config.properties.ConcurrencyProperties
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 
+@Primary
 @Component
 class InMemoryDownloadJobQueue(
     private val props: ConcurrencyProperties,
