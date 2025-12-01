@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 class InlineDownloadJobQueue(
     private val executor: DownloadJobExecutor,
 ) : DownloadJobQueue {
-
     override suspend fun submit(job: DownloadJob) {
         executor.execute(job)
     }

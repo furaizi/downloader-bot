@@ -37,7 +37,6 @@ class DefaultDownloadJobExecutor(
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
 ) : DownloadJobExecutor {
-
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
     }
@@ -156,11 +155,9 @@ class DefaultDownloadJobExecutor(
             fileUniqueId = message.fileUniqueId ?: fileUniqueId,
         )
 
-    private fun List<Media>.isImageAlbum(): Boolean =
-        this.size >= 2 && this.first().type == MediaType.IMAGE
+    private fun List<Media>.isImageAlbum(): Boolean = this.size >= 2 && this.first().type == MediaType.IMAGE
 
-    private fun List<Media>.allHaveFileId(): Boolean =
-        all { it.lastFileId != null }
+    private fun List<Media>.allHaveFileId(): Boolean = all { it.lastFileId != null }
 
     private fun List<Media>.toInputFiles(): List<InputFile> =
         if (allHaveFileId()) {

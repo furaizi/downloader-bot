@@ -23,7 +23,6 @@ class DownloadCommand(
     private val validator: UrlValidator,
     private val downloadJobQueue: DownloadJobQueue,
 ) : BotCommand {
-
     override val name: String = "download"
 
     override suspend fun handle(ctx: CommandContext) {
@@ -52,11 +51,12 @@ class DownloadCommand(
         log.info { "Scheduling /$name command with url: $url" }
 
         rateLimitGuard.runOrReject(ctx) {
-            val job = DownloadJob(
-                sourceUrl = url,
-                chatId = ctx.chatId,
-                replyToMessageId = replyTo,
-            )
+            val job =
+                DownloadJob(
+                    sourceUrl = url,
+                    chatId = ctx.chatId,
+                    replyToMessageId = replyTo,
+                )
             downloadJobQueue.submit(job)
         }
     }

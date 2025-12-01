@@ -6,5 +6,5 @@ data class DownloadJob(
     val id: UUID = UUID.randomUUID(),
     val sourceUrl: String,
     val chatId: Long,
-    val replyToMessageId: Long?
+    val replyToMessageId: Long?,
 )

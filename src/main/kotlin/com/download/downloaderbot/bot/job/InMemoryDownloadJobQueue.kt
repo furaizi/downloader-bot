@@ -14,7 +14,6 @@ class InMemoryDownloadJobQueue(
     private val executor: DownloadJobExecutor,
     private val botScope: CoroutineScope,
 ) : DownloadJobQueue {
-
     private val channel = Channel<DownloadJob>(capacity = Channel.UNLIMITED)
 
     init {
