@@ -45,23 +45,19 @@ class DefaultDownloadJobExecutor(
     private val share by lazy { shareKeyboard(botIdentity.username, props.shareText) }
 
     override suspend fun execute(job: DownloadJob) {
-        val chatId = job.chatId
-        val replyTo = job.replyToMessageId
-        val url = job.sourceUrl
-
-        log.info { "Executing download job id=${job.id} url=$url chatId=$chatId" }
+        log.info { "Executing download job id=${job.id} url=${job.sourceUrl} chatId=${job.chatId}" }
 
         val mediaList =
             withContext(Dispatchers.IO) {
-                service.download(url)
+                service.download(job.sourceUrl)
             }
 
         if (mediaList.isEmpty()) {
-            throw MediaNotFoundException(url)
+            throw MediaNotFoundException(job.sourceUrl)
         }
 
         val normalizedUrl = mediaList.first().sourceUrl
-        val messages = sendMediaSmart(chatId, mediaList, replyTo)
+        val messages = sendMediaSmart(job.chatId, mediaList, job.replyToMessageId)
         updateCache(normalizedUrl, mediaList, messages)
 
         log.info {
