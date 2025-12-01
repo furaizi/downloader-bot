@@ -1,4 +1,4 @@
-package com.download.downloaderbot.app.download
+package com.download.downloaderbot.app.download.media
 
 import org.springframework.stereotype.Component
 import java.net.URI

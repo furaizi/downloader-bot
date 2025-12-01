@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
-import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.app.download.media.MediaService
 import com.download.downloaderbot.bot.commands.util.UrlValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties

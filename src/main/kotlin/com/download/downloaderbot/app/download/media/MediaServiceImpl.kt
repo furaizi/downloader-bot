@@ -1,4 +1,4 @@
-package com.download.downloaderbot.app.download
+package com.download.downloaderbot.app.download.media
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.core.cache.CachePort

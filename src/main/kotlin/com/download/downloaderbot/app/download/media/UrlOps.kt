@@ -1,4 +1,4 @@
-package com.download.downloaderbot.app.download
+package com.download.downloaderbot.app.download.media
 
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import org.springframework.stereotype.Component
