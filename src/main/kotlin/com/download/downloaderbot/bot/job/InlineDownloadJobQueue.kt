@@ -1,4 +1,4 @@
-package com.download.downloaderbot.app.download.job
+package com.download.downloaderbot.bot.job
 
 import org.springframework.stereotype.Component
 
