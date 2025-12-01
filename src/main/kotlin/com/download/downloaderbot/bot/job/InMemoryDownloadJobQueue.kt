@@ -4,6 +4,7 @@ import com.download.downloaderbot.app.config.properties.ConcurrencyProperties
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 
@@ -20,7 +21,9 @@ class InMemoryDownloadJobQueue(
         repeat(props.maxDownloads) {
             botScope.launch {
                 for (job in channel) {
-                    executor.execute(job)
+                    withContext(job.botContext) {
+                        executor.execute(job)
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.download.downloaderbot.bot.job
 
+import com.download.downloaderbot.bot.config.ConcurrencyConfig
 import java.util.UUID
 
 data class DownloadJob(
@@ -7,4 +8,5 @@ data class DownloadJob(
     val sourceUrl: String,
     val chatId: Long,
     val replyToMessageId: Long?,
+    val botContext: ConcurrencyConfig.BotContext,
 )
