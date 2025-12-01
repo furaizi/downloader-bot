@@ -27,7 +27,8 @@ class BotConfig(
                 text {
                     update.consume()
                     val args = text.trim().split("\\s+".toRegex())
-                    botScope.launch(ConcurrencyConfig.BotContext(CommandContext(update, args))) {
+                    val botContext = ConcurrencyConfig.BotContext(CommandContext(update, args))
+                    botScope.launch(botContext) {
                         updateHandler.handle(update)
                     }
                 }
