@@ -27,6 +27,7 @@ import java.io.File
 
 private val log = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 @Component
 class DefaultDownloadJobExecutor(
     private val service: MediaService,
