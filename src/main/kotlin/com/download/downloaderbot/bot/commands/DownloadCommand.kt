@@ -2,6 +2,7 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.UrlValidator
+import com.download.downloaderbot.bot.config.ConcurrencyConfig
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
@@ -10,7 +11,6 @@ import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.job.DownloadJob
 import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
-import com.download.downloaderbot.bot.config.ConcurrencyConfig
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import kotlin.coroutines.coroutineContext
