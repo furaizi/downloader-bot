@@ -2,7 +2,6 @@ package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.core.cache.CachePort
-import com.download.downloaderbot.core.concurrency.DownloadSlots
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaProvider
@@ -20,7 +19,6 @@ class MediaServiceImpl(
     private val cache: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val urlLock: UrlLockManager,
-    private val slots: DownloadSlots,
 ) : MediaService {
     override suspend fun supports(url: String): Boolean {
         val finalUrl = urlOps.finalOf(url)
@@ -43,9 +41,7 @@ class MediaServiceImpl(
                             ?: urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
                             ?: throw DownloadInProgressException(finalUrl)
                     try {
-                        slots.withSlotOrThrow(url) {
-                            provider.download(finalUrl)
-                        }
+                        provider.download(finalUrl)
                     } finally {
                         urlLock.release(finalUrl, token)
                     }
