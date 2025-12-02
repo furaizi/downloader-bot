@@ -4,6 +4,7 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.core.UpdateHandler
+import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
@@ -15,21 +16,24 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class BotConfig(
-    val botProperties: BotProperties,
-    val botScope: CoroutineScope,
-    private val updateHandler: UpdateHandler,
+    private val props: BotProperties,
+    private val botScope: CoroutineScope,
+    private val errorGuard: BotErrorGuard,
 ) {
     @Bean
-    fun telegramBot(): Bot =
+    fun telegramBot(updateHandler: UpdateHandler): Bot =
         bot {
-            token = botProperties.token
+            token = props.token
 
             dispatch {
                 text {
                     update.consume()
                     val args = text.trim().split("\\s+".toRegex())
-                    botScope.launch(ConcurrencyConfig.BotContext(CommandContext(update, args))) {
-                        updateHandler.handle(update)
+                    val ctx = CommandContext(update, args)
+                    botScope.launch {
+                        errorGuard.runSafely(ctx) {
+                            updateHandler.handle(update)
+                        }
                     }
                 }
             }
