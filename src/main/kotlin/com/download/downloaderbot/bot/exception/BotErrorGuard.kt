@@ -8,17 +8,17 @@ import kotlin.coroutines.cancellation.CancellationException
 class BotErrorGuard(
     private val exceptionHandler: GlobalTelegramExceptionHandler,
 ) {
+    @Suppress("TooGenericExceptionCaught")
     suspend fun <T> runSafely(
         ctx: CommandContext,
         block: suspend () -> T,
     ): T? =
         try {
             block()
-        } catch (e: Throwable) {
-            if (e is CancellationException) throw e
-
-            val ex = e as? Exception ?: Exception(e)
-            exceptionHandler.handle(ex, ctx)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            exceptionHandler.handle(e, ctx)
 
             null
         }
