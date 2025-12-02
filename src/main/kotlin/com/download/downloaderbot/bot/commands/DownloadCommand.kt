@@ -2,7 +2,6 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.UrlValidator
-import com.download.downloaderbot.bot.config.ConcurrencyConfig
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
@@ -13,7 +12,6 @@ import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
-import kotlin.coroutines.coroutineContext
 
 private val log = KotlinLogging.logger {}
 
@@ -53,16 +51,12 @@ class DownloadCommand(
         log.info { "Scheduling /$name command with url: $url" }
 
         rateLimitGuard.runOrReject(ctx) {
-            val botContext =
-                coroutineContext[ConcurrencyConfig.BotContext]
-                    ?: ConcurrencyConfig.BotContext(ctx)
-
             val job =
                 DownloadJob(
                     sourceUrl = url,
                     chatId = ctx.chatId,
                     replyToMessageId = replyTo,
-                    botContext = botContext,
+                    commandContext = ctx,
                 )
             downloadJobQueue.submit(job)
         }
