@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/furaizi/downloader-bot/compare/v0.14.3...v0.15.0) (2025-12-02)
+
+
+### Features
+
+* **bot:** implement download queue ([#168](https://github.com/furaizi/downloader-bot/issues/168)) ([4edf271](https://github.com/furaizi/downloader-bot/commit/4edf271505747e5205920bd40d02e89273768245))
+
 ## [0.14.3](https://github.com/furaizi/downloader-bot/compare/v0.14.2...v0.14.3) (2025-11-17)
 
 
