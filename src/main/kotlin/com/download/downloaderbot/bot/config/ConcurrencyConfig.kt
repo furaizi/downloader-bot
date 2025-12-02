@@ -11,7 +11,6 @@ private val log = KotlinLogging.logger {}
 
 @Configuration
 class ConcurrencyConfig {
-
     @Bean
     fun botScope() = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 

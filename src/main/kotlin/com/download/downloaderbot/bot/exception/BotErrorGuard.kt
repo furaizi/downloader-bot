@@ -8,7 +8,6 @@ import kotlin.coroutines.cancellation.CancellationException
 class BotErrorGuard(
     private val exceptionHandler: GlobalTelegramExceptionHandler,
 ) {
-
     suspend fun <T> runSafely(
         ctx: CommandContext,
         block: suspend () -> T,
@@ -23,5 +22,4 @@ class BotErrorGuard(
 
             null
         }
-
 }
