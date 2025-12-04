@@ -16,47 +16,53 @@ import io.kotest.property.checkAll
 import java.net.URI
 
 class UrlNormalizerPropertyTest : StringSpec() {
-
     private val normalizer = UrlNormalizer()
 
     private val tokenArb = Arb.string(3..10, Codepoint.alphanumeric())
 
-    private val tldArb = Arb.string(2..10, Codepoint.alphanumeric())
-        .filter { it.first().isLetter() }
+    private val tldArb =
+        Arb.string(2..10, Codepoint.alphanumeric())
+            .filter { it.first().isLetter() }
 
-    private val hostArb = Arb.list(tokenArb, 0..2)
-        .flatMap { subdomains ->
-            tldArb.map { tld ->
-                (subdomains + tld).joinToString(".")
+    private val hostArb =
+        Arb.list(tokenArb, 0..2)
+            .flatMap { subdomains ->
+                tldArb.map { tld ->
+                    (subdomains + tld).joinToString(".")
+                }
             }
-        }
 
-    private val pathArb = Arb.list(tokenArb, 0..4)
-        .map { "/" + it.joinToString("/") }
+    private val pathArb =
+        Arb.list(tokenArb, 0..4)
+            .map { "/" + it.joinToString("/") }
 
-    private val tikTokInstaHostArb = Arb.element(
-        "tiktok.com",
-        "www.tiktok.com",
-        "m.tiktok.com",
-        "instagram.com",
-        "www.instagram.com"
-    )
+    private val tikTokInstaHostArb =
+        Arb.element(
+            "tiktok.com",
+            "www.tiktok.com",
+            "m.tiktok.com",
+            "instagram.com",
+            "www.instagram.com",
+        )
 
     private val paramArb = tokenArb.map { name -> "$name=${name}val" }
 
-    private val queryArb = Arb.list(paramArb, 1..4).map { params ->
-        params.joinToString("&")
-    }
+    private val queryArb =
+        Arb.list(paramArb, 1..4).map { params ->
+            params.joinToString("&")
+        }
 
-    private val youtubeHostArb = Arb.element(
-        "youtube.com",
-        "www.youtube.com",
-        "m.youtube.com"
-    )
+    private val youtubeHostArb =
+        Arb.element(
+            "youtube.com",
+            "www.youtube.com",
+            "m.youtube.com",
+        )
 
-    private val otherNameArb = Arb
-        .string(1..5, Codepoint.alphanumeric())
-        .filter { !it.startsWith("utm_", ignoreCase = true) }
+    private val otherNameArb =
+        Arb
+            .string(1..5, Codepoint.alphanumeric())
+            .filter { !it.startsWith("utm_", ignoreCase = true) }
 
     init {
 
@@ -113,18 +119,19 @@ class UrlNormalizerPropertyTest : StringSpec() {
                 youtubeHostArb,
                 valueArb,
                 Arb.set(otherNameArb, 0..4),
-                Arb.list(valueArb, 0..4)
+                Arb.list(valueArb, 0..4),
             ) { host, videoId, otherNamesSet, otherValues ->
 
                 val otherNames = otherNamesSet.toList()
 
-                val params = buildList {
-                    add("v=$videoId")
-                    otherNames.forEachIndexed { index, name ->
-                        val value = otherValues.getOrNull(index) ?: "x"
-                        add("$name=$value")
-                    }
-                }.shuffled()
+                val params =
+                    buildList {
+                        add("v=$videoId")
+                        otherNames.forEachIndexed { index, name ->
+                            val value = otherValues.getOrNull(index) ?: "x"
+                            add("$name=$value")
+                        }
+                    }.shuffled()
 
                 val url = "https://$host/watch?${params.joinToString("&")}"
 
@@ -137,10 +144,11 @@ class UrlNormalizerPropertyTest : StringSpec() {
                     if (pairs.size > 1) {
                         val tail = pairs.drop(1)
 
-                        val sortedTail = tail.sortedWith(
-                            compareBy<Pair<String, String>> { it.first.lowercase() }
-                                .thenBy { it.second }
-                        )
+                        val sortedTail =
+                            tail.sortedWith(
+                                compareBy<Pair<String, String>> { it.first.lowercase() }
+                                    .thenBy { it.second },
+                            )
 
                         tail shouldBe sortedTail
                     }

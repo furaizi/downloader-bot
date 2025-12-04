@@ -26,8 +26,7 @@ class MediaServiceImplTest : FunSpec({
     lateinit var cache: CachePort<String, List<Media>>
     lateinit var urlLock: UrlLockManager
 
-    fun service(cacheProps: CacheProperties = DEFAULT_CACHE_PROPS) =
-        MediaServiceImpl(provider, urlOps, cache, cacheProps, urlLock)
+    fun service(cacheProps: CacheProperties = DEFAULT_CACHE_PROPS) = MediaServiceImpl(provider, urlOps, cache, cacheProps, urlLock)
 
     beforeTest {
         provider = mockk()
@@ -123,11 +122,12 @@ class MediaServiceImplTest : FunSpec({
         val downloaded = listOf(mockk<Media>())
 
         // To avoid waiting for the real timeout, make it zero.
-        val shortWaitProps = CacheProperties(
-            schemaVersion = 1,
-            waitTimeout = Duration.ZERO,
-            waitPoll = Duration.ZERO,
-        )
+        val shortWaitProps =
+            CacheProperties(
+                schemaVersion = 1,
+                waitTimeout = Duration.ZERO,
+                waitPoll = Duration.ZERO,
+            )
 
         coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
         coEvery { cache.get(finalUrl) } returns null
@@ -148,11 +148,12 @@ class MediaServiceImplTest : FunSpec({
         val rawUrl = "https://example.com/video"
         val finalUrl = "https://normalized.example.com/video"
 
-        val shortWaitProps = CacheProperties(
-            schemaVersion = 1,
-            waitTimeout = Duration.ZERO,
-            waitPoll = Duration.ZERO,
-        )
+        val shortWaitProps =
+            CacheProperties(
+                schemaVersion = 1,
+                waitTimeout = Duration.ZERO,
+                waitPoll = Duration.ZERO,
+            )
 
         coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
         coEvery { cache.get(finalUrl) } returns null
