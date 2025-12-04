@@ -1,195 +1,198 @@
 package com.download.downloaderbot.app.download
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class UrlNormalizerTest {
-    private val normalizer = UrlNormalizer()
+class UrlNormalizerTest : FunSpec({
 
-    @Nested
-    inner class SchemeNormalization {
-        @Test
-        fun `lowercases scheme`() {
-            assertEquals("https://example.com/", normalizer.normalize("HTTPS://example.com"))
+    val normalizer = UrlNormalizer()
+
+    context("fallback behaviour") {
+
+        test("trims url and returns original when scheme is unsupported") {
+            val input = "  ftp://example.com/resource  "
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "ftp://example.com/resource"
         }
 
-        @Test
-        fun `preserves http scheme`() {
-            assertEquals("http://example.com/", normalizer.normalize("http://example.com"))
-        }
-    }
+        test("returns trimmed original when scheme is missing") {
+            val input = " example.com/path "
 
-    @Nested
-    inner class HostNormalization {
-        @Test
-        fun `lowercases host`() {
-            assertEquals("https://example.com/", normalizer.normalize("https://EXAMPLE.COM"))
-        }
-    }
+            val result = normalizer.normalize(input)
 
-    @Nested
-    inner class PortNormalization {
-        @Test
-        fun `removes default https port 443`() {
-            assertEquals("https://example.com/", normalizer.normalize("https://example.com:443"))
+            result shouldBe "example.com/path"
         }
 
-        @Test
-        fun `removes default http port 80`() {
-            assertEquals("http://example.com/", normalizer.normalize("http://example.com:80"))
-        }
+        test("returns trimmed original when host is missing") {
+            val input = " https:///path "
 
-        @Test
-        fun `preserves non-default port`() {
-            assertEquals("https://example.com:8080/", normalizer.normalize("https://example.com:8080"))
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https:///path"
         }
     }
 
-    @Nested
-    inner class PathNormalization {
-        @Test
-        fun `normalizes dot segments`() {
-            assertEquals("https://example.com/b", normalizer.normalize("https://example.com/a/../b"))
-        }
+    context("scheme and host normalization") {
 
-        @Test
-        fun `removes trailing slash from path`() {
-            assertEquals("https://example.com/path", normalizer.normalize("https://example.com/path/"))
-        }
+        test("lowercases scheme and host") {
+            val input = "HTTPS://Example.COM/SomePath"
 
-        @Test
-        fun `preserves root path`() {
-            assertEquals("https://example.com/", normalizer.normalize("https://example.com/"))
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/SomePath"
         }
     }
 
-    @Nested
-    inner class QueryParamNormalization {
-        @Test
-        fun `removes utm parameters`() {
-            assertEquals(
-                "https://example.com/page",
-                normalizer.normalize("https://example.com/page?utm_source=google&utm_medium=cpc"),
-            )
+    context("port normalization") {
+
+        test("removes default http port 80") {
+            val input = "http://example.com:80/path"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "http://example.com/path"
         }
 
-        @Test
-        fun `removes tracking parameters`() {
-            assertEquals(
-                "https://example.com/page",
-                normalizer.normalize("https://example.com/page?fbclid=abc123"),
-            )
+        test("removes default https port 443") {
+            val input = "https://example.com:443/path"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/path"
         }
 
-        @Test
-        fun `sorts query params alphabetically`() {
-            assertEquals(
-                "https://example.com/page?a=1&b=2&c=3",
-                normalizer.normalize("https://example.com/page?c=3&a=1&b=2"),
-            )
-        }
+        test("keeps non-default ports") {
+            val input = "https://example.com:8443/path"
 
-        @Test
-        fun `preserves non-tracking params`() {
-            assertEquals(
-                "https://example.com/page?id=123",
-                normalizer.normalize("https://example.com/page?id=123&utm_campaign=test"),
-            )
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com:8443/path"
         }
     }
 
-    @Nested
-    inner class TikTokNormalization {
-        @Test
-        fun `removes all query params from tiktok`() {
-            assertEquals(
-                "https://www.tiktok.com/@user/video/123",
-                normalizer.normalize("https://www.tiktok.com/@user/video/123?is_copy_url=1&is_from_webapp=v1"),
-            )
+    context("path normalization") {
+
+        test("adds leading slash when path is absent") {
+            val input = "https://example.com"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/"
         }
 
-        @Test
-        fun `handles tiktok subdomain`() {
-            assertEquals(
-                "https://vm.tiktok.com/abc123",
-                normalizer.normalize("https://vm.tiktok.com/abc123?foo=bar"),
-            )
+        test("removes trailing slash for non-root path") {
+            val input = "https://example.com/some/path/"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/some/path"
+        }
+
+        test("normalizes dot segments in path") {
+            val input = "https://example.com/a/b/../c"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/a/c"
         }
     }
 
-    @Nested
-    inner class InstagramNormalization {
-        @Test
-        fun `removes all query params from instagram`() {
-            assertEquals(
-                "https://www.instagram.com/p/abc123",
-                normalizer.normalize("https://www.instagram.com/p/abc123?igshid=xyz"),
-            )
+    context("generic query normalization") {
+
+        test("sorts query parameters by name and value") {
+            val input = "https://example.com/path?b=2&a=3&a=1&c"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/path?a=1&a=3&b=2&c"
+        }
+
+        test("drops tracking parameters") {
+            val input =
+                "https://example.com/path?" +
+                        "utm_source=google&fbclid=123&gclid=321&msclkid=1&dclid=2&igshid=3&keep=1"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://example.com/path?keep=1"
         }
     }
 
-    @Nested
-    inner class YoutubeNormalization {
-        @Test
-        fun `preserves v parameter for youtube watch`() {
-            assertEquals(
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                normalizer.normalize("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
-            )
+    context("platform-specific behaviour") {
+
+        test("drops all query parameters for TikTok") {
+            val input = "https://www.tiktok.com/@user/video/123?lang=en&utm_source=foo"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://www.tiktok.com/@user/video/123"
         }
 
-        @Test
-        fun `puts v parameter first for youtube`() {
-            assertEquals(
-                "https://www.youtube.com/watch?v=abc&list=xyz",
-                normalizer.normalize("https://www.youtube.com/watch?list=xyz&v=abc"),
-            )
+        test("drops all query parameters for Instagram") {
+            val input = "https://instagram.com/p/abc/?utm_source=foo&igshid=bar"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://instagram.com/p/abc"
         }
 
-        @Test
-        fun `removes utm from youtube`() {
-            assertEquals(
-                "https://www.youtube.com/watch?v=abc",
-                normalizer.normalize("https://www.youtube.com/watch?v=abc&utm_source=share"),
-            )
+        context("youtube watch urls") {
+
+            test("keeps v param first and removes tracking params") {
+                val input =
+                    "https://www.youtube.com/watch?" +
+                            "utm_source=google&v=videoId&fbclid=123&hl=en"
+
+                val result = normalizer.normalize(input)
+
+                result shouldBe "https://www.youtube.com/watch?v=videoId&hl=en"
+            }
+
+            test("keeps only first v parameter") {
+                val input =
+                    "https://www.youtube.com/watch?v=first&v=second&hl=en"
+
+                val result = normalizer.normalize(input)
+
+                result shouldBe "https://www.youtube.com/watch?v=first&hl=en"
+            }
+
+            test("sorts other parameters after v") {
+                val input =
+                    "https://www.youtube.com/watch?z=1&b=2&v=videoId&a=3"
+
+                val result = normalizer.normalize(input)
+
+                result shouldBe "https://www.youtube.com/watch?v=videoId&a=3&b=2&z=1"
+            }
         }
 
-        @Test
-        fun `handles youtu be short urls and preserves non-tracking params`() {
-            // si param is not in DROP_EXACT list, so it's preserved
-            assertEquals(
-                "https://youtu.be/abc123?si=tracking",
-                normalizer.normalize("https://youtu.be/abc123?si=tracking"),
-            )
+        test("non-watch youtube urls are treated as generic") {
+            val input = "https://www.youtube.com/embed/videoId?b=2&a=1"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://www.youtube.com/embed/videoId?a=1&b=2"
         }
 
-        @Test
-        fun `removes utm params from youtu be`() {
-            assertEquals(
-                "https://youtu.be/abc123",
-                normalizer.normalize("https://youtu.be/abc123?utm_source=share"),
-            )
+        test("youtu.be urls are treated as youtube but without /watch special case") {
+            val input = "https://youtu.be/videoId?b=2&a=1"
+
+            val result = normalizer.normalize(input)
+
+            result shouldBe "https://youtu.be/videoId?a=1&b=2"
         }
     }
 
-    @Nested
-    inner class EdgeCases {
-        @Test
-        fun `trims whitespace`() {
-            assertEquals("https://example.com/", normalizer.normalize("  https://example.com  "))
-        }
+    test("normalization is idempotent for a typical http url") {
+        val input =
+            "https://Example.com/some/../path/?b=2&a=1&utm_source=google"
 
-        @Test
-        fun `returns original on invalid url`() {
-            val invalid = "not-a-url"
-            assertEquals(invalid, normalizer.normalize(invalid))
-        }
+        val once = normalizer.normalize(input)
+        val twice = normalizer.normalize(once)
 
-        @Test
-        fun `returns original on unsupported scheme`() {
-            val ftpUrl = "ftp://example.com"
-            assertEquals(ftpUrl, normalizer.normalize(ftpUrl))
-        }
+        twice shouldBe once
     }
-}
+})
