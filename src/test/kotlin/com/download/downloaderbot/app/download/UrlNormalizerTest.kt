@@ -1,194 +1,165 @@
 package com.download.downloaderbot.app.download
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.matchers.shouldBe
 
 class UrlNormalizerTest : FunSpec({
 
     val normalizer = UrlNormalizer()
 
-    context("fallback behaviour") {
-
-        test("trims url and returns original when scheme is unsupported") {
-            val input = "  ftp://example.com/resource  "
-
+    suspend fun FunSpecContainerScope.case(
+        name: String,
+        input: String,
+        expected: String,
+    ) {
+        test(name) {
             val result = normalizer.normalize(input)
-
-            result shouldBe "ftp://example.com/resource"
-        }
-
-        test("returns trimmed original when scheme is missing") {
-            val input = " example.com/path "
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "example.com/path"
-        }
-
-        test("returns trimmed original when host is missing") {
-            val input = " https:///path "
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https:///path"
+            result shouldBe expected
         }
     }
 
-    context("scheme and host normalization") {
-
-        test("lowercases scheme and host") {
-            val input = "HTTPS://Example.COM/SomePath"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/SomePath"
+    fun urlContext(
+        name: String,
+        block: suspend FunSpecContainerScope.() -> Unit,
+    ) {
+        context(name) {
+            block()
         }
     }
 
-    context("port normalization") {
+    urlContext("fallback behaviour") {
+        case(
+            name = "trims url and returns original when scheme is unsupported",
+            input = "  ftp://example.com/resource  ",
+            expected = "ftp://example.com/resource",
+        )
 
-        test("removes default http port 80") {
-            val input = "http://example.com:80/path"
+        case(
+            name = "returns trimmed original when scheme is missing",
+            input = " example.com/path ",
+            expected = "example.com/path",
+        )
 
-            val result = normalizer.normalize(input)
-
-            result shouldBe "http://example.com/path"
-        }
-
-        test("removes default https port 443") {
-            val input = "https://example.com:443/path"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/path"
-        }
-
-        test("keeps non-default ports") {
-            val input = "https://example.com:8443/path"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com:8443/path"
-        }
+        case(
+            name = "returns trimmed original when host is missing",
+            input = " https:///path ",
+            expected = "https:///path",
+        )
     }
 
-    context("path normalization") {
-
-        test("adds leading slash when path is absent") {
-            val input = "https://example.com"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/"
-        }
-
-        test("removes trailing slash for non-root path") {
-            val input = "https://example.com/some/path/"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/some/path"
-        }
-
-        test("normalizes dot segments in path") {
-            val input = "https://example.com/a/b/../c"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/a/c"
-        }
+    urlContext("scheme and host normalization") {
+        case(
+            name = "lowercases scheme and host",
+            input = "HTTPS://Example.COM/SomePath",
+            expected = "https://example.com/SomePath",
+        )
     }
 
-    context("generic query normalization") {
+    urlContext("port normalization") {
+        case(
+            name = "removes default http port 80",
+            input = "http://example.com:80/path",
+            expected = "http://example.com/path",
+        )
 
-        test("sorts query parameters by name and value") {
-            val input = "https://example.com/path?b=2&a=3&a=1&c"
+        case(
+            name = "removes default https port 443",
+            input = "https://example.com:443/path",
+            expected = "https://example.com/path",
+        )
 
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/path?a=1&a=3&b=2&c"
-        }
-
-        test("drops tracking parameters") {
-            val input =
-                "https://example.com/path?" +
-                        "utm_source=google&fbclid=123&gclid=321&msclkid=1&dclid=2&igshid=3&keep=1"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://example.com/path?keep=1"
-        }
+        case(
+            name = "keeps non-default ports",
+            input = "https://example.com:8443/path",
+            expected = "https://example.com:8443/path",
+        )
     }
 
-    context("platform-specific behaviour") {
+    urlContext("path normalization") {
+        case(
+            name = "adds leading slash when path is absent",
+            input = "https://example.com",
+            expected = "https://example.com/",
+        )
 
-        test("drops all query parameters for TikTok") {
-            val input = "https://www.tiktok.com/@user/video/123?lang=en&utm_source=foo"
+        case(
+            name = "removes trailing slash for non-root path",
+            input = "https://example.com/some/path/",
+            expected = "https://example.com/some/path",
+        )
 
-            val result = normalizer.normalize(input)
+        case(
+            name = "normalizes dot segments in path",
+            input = "https://example.com/a/b/../c",
+            expected = "https://example.com/a/c",
+        )
+    }
 
-            result shouldBe "https://www.tiktok.com/@user/video/123"
-        }
+    urlContext("generic query normalization") {
+        case(
+            name = "sorts query parameters by name and value",
+            input = "https://example.com/path?b=2&a=3&a=1&c",
+            expected = "https://example.com/path?a=1&a=3&b=2&c",
+        )
 
-        test("drops all query parameters for Instagram") {
-            val input = "https://instagram.com/p/abc/?utm_source=foo&igshid=bar"
+        case(
+            name = "drops tracking parameters",
+            input = "https://example.com/path?utm_source=google&fbclid=123&gclid=321&msclkid=1&dclid=2&igshid=3&keep=1",
+            expected = "https://example.com/path?keep=1",
+        )
+    }
 
-            val result = normalizer.normalize(input)
+    urlContext("platforms: tiktok & instagram") {
+        case(
+            name = "drops all query parameters for TikTok",
+            input = "https://www.tiktok.com/@user/video/123?lang=en&utm_source=foo",
+            expected = "https://www.tiktok.com/@user/video/123",
+        )
 
-            result shouldBe "https://instagram.com/p/abc"
-        }
+        case(
+            name = "drops all query parameters for Instagram",
+            input = "https://instagram.com/p/abc/?utm_source=foo&igshid=bar",
+            expected = "https://instagram.com/p/abc",
+        )
+    }
 
-        context("youtube watch urls") {
+    urlContext("platforms: youtube watch") {
+        case(
+            name = "keeps v param first and removes tracking params",
+            input = "https://www.youtube.com/watch?utm_source=google&v=videoId&fbclid=123&hl=en",
+            expected = "https://www.youtube.com/watch?v=videoId&hl=en",
+        )
 
-            test("keeps v param first and removes tracking params") {
-                val input =
-                    "https://www.youtube.com/watch?" +
-                            "utm_source=google&v=videoId&fbclid=123&hl=en"
+        case(
+            name = "keeps only first v parameter",
+            input = "https://www.youtube.com/watch?v=first&v=second&hl=en",
+            expected = "https://www.youtube.com/watch?v=first&hl=en",
+        )
 
-                val result = normalizer.normalize(input)
+        case(
+            name = "sorts other parameters after v",
+            input = "https://www.youtube.com/watch?z=1&b=2&v=videoId&a=3",
+            expected = "https://www.youtube.com/watch?v=videoId&a=3&b=2&z=1",
+        )
+    }
 
-                result shouldBe "https://www.youtube.com/watch?v=videoId&hl=en"
-            }
+    urlContext("platforms: youtube generic") {
+        case(
+            name = "non-watch youtube urls are treated as generic",
+            input = "https://www.youtube.com/embed/videoId?b=2&a=1",
+            expected = "https://www.youtube.com/embed/videoId?a=1&b=2",
+        )
 
-            test("keeps only first v parameter") {
-                val input =
-                    "https://www.youtube.com/watch?v=first&v=second&hl=en"
-
-                val result = normalizer.normalize(input)
-
-                result shouldBe "https://www.youtube.com/watch?v=first&hl=en"
-            }
-
-            test("sorts other parameters after v") {
-                val input =
-                    "https://www.youtube.com/watch?z=1&b=2&v=videoId&a=3"
-
-                val result = normalizer.normalize(input)
-
-                result shouldBe "https://www.youtube.com/watch?v=videoId&a=3&b=2&z=1"
-            }
-        }
-
-        test("non-watch youtube urls are treated as generic") {
-            val input = "https://www.youtube.com/embed/videoId?b=2&a=1"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://www.youtube.com/embed/videoId?a=1&b=2"
-        }
-
-        test("youtu.be urls are treated as youtube but without /watch special case") {
-            val input = "https://youtu.be/videoId?b=2&a=1"
-
-            val result = normalizer.normalize(input)
-
-            result shouldBe "https://youtu.be/videoId?a=1&b=2"
-        }
+        case(
+            name = "youtu.be urls are treated as youtube but without /watch special case",
+            input = "https://youtu.be/videoId?b=2&a=1",
+            expected = "https://youtu.be/videoId?a=1&b=2",
+        )
     }
 
     test("normalization is idempotent for a typical http url") {
-        val input =
-            "https://Example.com/some/../path/?b=2&a=1&utm_source=google"
+        val input = "https://Example.com/some/../path/?b=2&a=1&utm_source=google"
 
         val once = normalizer.normalize(input)
         val twice = normalizer.normalize(once)
