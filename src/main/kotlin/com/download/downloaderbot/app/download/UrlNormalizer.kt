@@ -95,7 +95,7 @@ class UrlNormalizer {
         if (params.isEmpty()) return params
 
         val cleaned = params.filterNot { isNoise(it.first) }
-        val (vParams, others) = cleaned.partition { it.first.equals("v", ignoreCase = true) }
+        val (vParams, others) = cleaned.partition { it.first == "v" }
         val v = vParams.firstOrNull()
 
         val sortedOthers = others.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
