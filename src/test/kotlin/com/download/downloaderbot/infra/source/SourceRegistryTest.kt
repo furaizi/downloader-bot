@@ -3,180 +3,320 @@ package com.download.downloaderbot.infra.source
 import com.download.downloaderbot.app.config.properties.SourceDef
 import com.download.downloaderbot.app.config.properties.SourcesProperties
 import com.download.downloaderbot.app.config.properties.SubresourceDef
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 
-class SourceRegistryTest {
-    @Test
-    fun `matches url to correct source and subresource`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        subresources = mapOf("video" to subresourceDef("yt-dlp", ".*youtube\\.com/watch.*")),
-                    ),
-            )
+class SourceRegistryTest : FunSpec({
 
-        val match = registry.match("https://www.youtube.com/watch?v=abc")
+    test("match returns null when there are no sources") {
+        val props = SourcesProperties(emptyMap())
 
-        assertNotNull(match)
-        assertEquals("youtube", match!!.source)
-        assertEquals("video", match.subresource)
-        assertEquals("yt-dlp", match.tool)
+        val registry = SourceRegistry(props)
+
+        registry.match("https://example.com").shouldBeNull()
     }
 
-    @Test
-    fun `returns null when no pattern matches`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        subresources = mapOf("video" to subresourceDef("yt-dlp", ".*youtube\\.com/watch.*")),
+    test("match returns null when no patterns match given url") {
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "youtube" to sourceDef(true,
+                    sub(
+                        name = "videos",
+                        tool = "yt-dlp",
+                        format = "mp4",
+                        patterns = listOf("youtube\\.com/watch"),
                     ),
-            )
-
-        val match = registry.match("https://vimeo.com/123456")
-
-        assertNull(match)
-    }
-
-    @Test
-    fun `skips disabled sources`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        enabled = false,
-                        subresources = mapOf("video" to subresourceDef("yt-dlp", ".*youtube\\.com/watch.*")),
-                    ),
-            )
-
-        val match = registry.match("https://www.youtube.com/watch?v=abc")
-
-        assertNull(match)
-    }
-
-    @Test
-    fun `skips disabled subresources`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        subresources =
-                            mapOf(
-                                "video" to subresourceDef("yt-dlp", ".*youtube\\.com/watch.*", enabled = false),
-                                "shorts" to subresourceDef("yt-dlp", ".*youtube\\.com/shorts.*"),
-                            ),
-                    ),
-            )
-
-        assertNull(registry.match("https://www.youtube.com/watch?v=abc"))
-        assertNotNull(registry.match("https://www.youtube.com/shorts/xyz"))
-    }
-
-    @Test
-    fun `includes format in match result`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        subresources =
-                            mapOf(
-                                "video" to
-                                    subresourceDef(
-                                        tool = "yt-dlp",
-                                        pattern = ".*youtube\\.com/watch.*",
-                                        format = "bestvideo+bestaudio",
-                                    ),
-                            ),
-                    ),
-            )
-
-        val match = registry.match("https://www.youtube.com/watch?v=abc")
-
-        assertEquals("bestvideo+bestaudio", match!!.format)
-    }
-
-    @Test
-    fun `list returns all compiled sources`() {
-        val registry =
-            createRegistry(
-                "youtube" to sourceDef(subresources = mapOf("video" to subresourceDef("yt-dlp", ".*youtube.*"))),
-                "tiktok" to sourceDef(subresources = mapOf("video" to subresourceDef("gallery-dl", ".*tiktok.*"))),
-            )
-
-        val sources = registry.list()
-
-        assertEquals(2, sources.size)
-        assertEquals(setOf("youtube", "tiktok"), sources.map { it.name }.toSet())
-    }
-
-    @Test
-    fun `reload updates patterns`() {
-        val registry =
-            createRegistry(
-                "youtube" to sourceDef(subresources = mapOf("video" to subresourceDef("yt-dlp", ".*youtube.*"))),
-            )
-
-        assertNotNull(registry.match("https://youtube.com/watch"))
-        assertNull(registry.match("https://vimeo.com/123"))
-
-        registry.reload(
-            SourcesProperties(
-                sources =
-                    mapOf(
-                        "vimeo" to sourceDef(subresources = mapOf("video" to subresourceDef("yt-dlp", ".*vimeo.*"))),
-                    ),
+                ),
             ),
         )
 
-        assertNull(registry.match("https://youtube.com/watch"))
-        assertNotNull(registry.match("https://vimeo.com/123"))
+        val registry = SourceRegistry(props)
+
+        registry.match("https://vimeo.com/123").shouldBeNull()
     }
 
-    @Test
-    fun `matches first matching subresource`() {
-        val registry =
-            createRegistry(
-                "youtube" to
-                    sourceDef(
-                        subresources =
-                            linkedMapOf(
-                                "shorts" to subresourceDef("yt-dlp", ".*youtube\\.com/shorts.*"),
-                                "video" to subresourceDef("yt-dlp", ".*youtube\\.com.*"),
-                            ),
+    test("match returns first matching source and subresource") {
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "youtube" to sourceDef(true,
+                    sub(
+                        name = "videos",
+                        tool = "yt-dlp",
+                        format = "mp4",
+                        patterns = listOf("youtube\\.com/watch"),
                     ),
-            )
-
-        val shortsMatch = registry.match("https://www.youtube.com/shorts/abc")
-        assertEquals("shorts", shortsMatch!!.subresource)
-
-        val videoMatch = registry.match("https://www.youtube.com/watch?v=abc")
-        assertEquals("video", videoMatch!!.subresource)
-    }
-
-    private fun createRegistry(vararg sources: Pair<String, SourceDef>): SourceRegistry {
-        val props = SourcesProperties(sources = sources.toMap())
-        return SourceRegistry(props)
-    }
-
-    private fun sourceDef(
-        subresources: Map<String, SubresourceDef>,
-        enabled: Boolean = true,
-    ): SourceDef = SourceDef(enabled = enabled, subresources = subresources)
-
-    private fun subresourceDef(
-        tool: String,
-        pattern: String,
-        format: String = "",
-        enabled: Boolean = true,
-    ): SubresourceDef =
-        SubresourceDef(
-            enabled = enabled,
-            tool = tool,
-            format = format,
-            urlPatterns = listOf(pattern),
+                    sub(
+                        name = "shorts",
+                        tool = "yt-dlp",
+                        format = "mp4",
+                        patterns = listOf("youtube\\.com/shorts"),
+                    ),
+                ),
+                "tiktok" to sourceDef(true,
+                    sub(
+                        name = "posts",
+                        tool = "tiktok-tool",
+                        format = "mp4",
+                        patterns = listOf("tiktok\\.com/@"),
+                    ),
+                ),
+            ),
         )
-}
+
+        val registry = SourceRegistry(props)
+
+        val videoUrl = "https://www.youtube.com/watch?v=abc"
+        val shortsUrl = "https://www.youtube.com/shorts/xyz"
+        val tiktokUrl = "https://www.tiktok.com/@user/video/123"
+
+        val videoMatch = registry.match(videoUrl)
+        videoMatch.shouldNotBeNull()
+        videoMatch shouldBe SourceMatch(
+            source = "youtube",
+            subresource = "videos",
+            tool = "yt-dlp",
+            format = "mp4",
+        )
+
+        val shortsMatch = registry.match(shortsUrl)
+        shortsMatch.shouldNotBeNull()
+        shortsMatch shouldBe SourceMatch(
+            source = "youtube",
+            subresource = "shorts",
+            tool = "yt-dlp",
+            format = "mp4",
+        )
+
+        val tiktokMatch = registry.match(tiktokUrl)
+        tiktokMatch.shouldNotBeNull()
+        tiktokMatch shouldBe SourceMatch(
+            source = "tiktok",
+            subresource = "posts",
+            tool = "tiktok-tool",
+            format = "mp4",
+        )
+    }
+
+    test("match prefers first matching subresource when multiple patterns match") {
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "example" to sourceDef(true,
+                    sub(
+                        name = "generic",
+                        tool = "generic-tool",
+                        format = "raw",
+                        patterns = listOf("example\\.com"),
+                    ),
+                    sub(
+                        name = "specific",
+                        tool = "specific-tool",
+                        format = "json",
+                        patterns = listOf("example\\.com/path"),
+                    ),
+                ),
+            ),
+        )
+
+        val registry = SourceRegistry(props)
+
+        val url = "https://example.com/path/to/resource"
+
+        val match = registry.match(url)
+        match.shouldNotBeNull()
+        match shouldBe SourceMatch(
+            source = "example",
+            subresource = "generic",
+            tool = "generic-tool",
+            format = "raw",
+        )
+    }
+
+    test("disabled sources are ignored") {
+        val pattern = "example\\.com"
+
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "disabled" to sourceDef(
+                    enabled = false,
+                    sub(
+                        name = "any",
+                        tool = "should-not-be-used",
+                        format = "",
+                        patterns = listOf(pattern),
+                    ),
+                ),
+                "enabled" to sourceDef(
+                    enabled = true,
+                    sub(
+                        name = "resource",
+                        tool = "real-tool",
+                        format = "mp4",
+                        patterns = listOf(pattern),
+                    ),
+                ),
+            ),
+        )
+
+        val registry = SourceRegistry(props)
+
+        val match = registry.match("https://example.com/video/42")
+        match.shouldNotBeNull()
+        match shouldBe SourceMatch(
+            source = "enabled",
+            subresource = "resource",
+            tool = "real-tool",
+            format = "mp4",
+        )
+    }
+
+    test("disabled subresources are ignored") {
+        val pattern = "example\\.com"
+
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "source" to sourceDef(true,
+                    sub(
+                        name = "disabledSub",
+                        enabled = false,
+                        tool = "disabled-tool",
+                        format = "xml",
+                        patterns = listOf(pattern),
+                    ),
+                    sub(
+                        name = "enabledSub",
+                        enabled = true,
+                        tool = "enabled-tool",
+                        format = "json",
+                        patterns = listOf(pattern),
+                    ),
+                ),
+            ),
+        )
+
+        val registry = SourceRegistry(props)
+
+        val match = registry.match("https://example.com/path")
+        match.shouldNotBeNull()
+        match shouldBe SourceMatch(
+            source = "source",
+            subresource = "enabledSub",
+            tool = "enabled-tool",
+            format = "json",
+        )
+    }
+
+    test("list returns compiled representation with patterns compiled") {
+        val props = SourcesProperties(
+            sources = linkedMapOf(
+                "youtube" to sourceDef(true,
+                    sub(
+                        name = "videos",
+                        tool = "yt-dlp",
+                        format = "mp4",
+                        patterns = listOf("youtube\\.com/watch", "youtu\\.be/"),
+                    ),
+                ),
+            ),
+        )
+
+        val registry = SourceRegistry(props)
+
+        val compiled = registry.list()
+
+        compiled.shouldHaveSize(1)
+        val only = compiled.single()
+        only.name shouldBe "youtube"
+
+        val sub = only.subresources["videos"]
+            ?: error("Expected 'videos' subresource in compiled source")
+
+        sub.tool shouldBe "yt-dlp"
+        sub.format shouldBe "mp4"
+        sub.patterns.map { it.pattern() } shouldContainExactly listOf(
+            "youtube\\.com/watch",
+            "youtu\\.be/",
+        )
+    }
+
+    test("reload updates compiled sources and match uses new configuration") {
+        val initialProps = SourcesProperties(
+            sources = linkedMapOf(
+                "youtube" to sourceDef(true,
+                    sub(
+                        name = "videos",
+                        tool = "yt-dlp",
+                        format = "mp4",
+                        patterns = listOf("youtube\\.com/watch"),
+                    ),
+                ),
+            ),
+        )
+
+        val registry = SourceRegistry(initialProps)
+
+        val youtubeUrl = "https://www.youtube.com/watch?v=abc"
+        registry.match(youtubeUrl)
+            .shouldNotBeNull()
+            .source shouldBe "youtube"
+
+        val newProps = SourcesProperties(
+            sources = linkedMapOf(
+                "tiktok" to sourceDef(true,
+                    sub(
+                        name = "posts",
+                        tool = "tiktok-tool",
+                        format = "mp4",
+                        patterns = listOf("tiktok\\.com/@"),
+                    ),
+                ),
+            ),
+        )
+
+        registry.reload(newProps)
+
+        registry.match(youtubeUrl).shouldBeNull()
+
+        val tiktokUrl = "https://www.tiktok.com/@user/video/123"
+        val newMatch = registry.match(tiktokUrl)
+        newMatch.shouldNotBeNull()
+        newMatch shouldBe SourceMatch(
+            source = "tiktok",
+            subresource = "posts",
+            tool = "tiktok-tool",
+            format = "mp4",
+        )
+    }
+})
+
+private fun sourceDef(
+    enabled: Boolean = true,
+    vararg subs: SubEntry,
+): SourceDef = SourceDef(
+    enabled = enabled,
+    subresources = linkedMapOf(*subs.map { it.name to it.def }.toTypedArray()),
+)
+
+private data class SubEntry(
+    val name: String,
+    val def: SubresourceDef,
+)
+
+private fun sub(
+    name: String,
+    tool: String,
+    format: String = "",
+    enabled: Boolean = true,
+    patterns: List<String>,
+): SubEntry = SubEntry(
+    name = name,
+    def = SubresourceDef(
+        enabled = enabled,
+        tool = tool,
+        format = format,
+        urlPatterns = patterns,
+    ),
+)
