@@ -17,13 +17,14 @@ class PromoServiceTest : FunSpec({
         promoEveryN: Int = 1,
     ): PromoService =
         PromoService(
-            props = BotProperties(
-                token = "dummy-token",
-                defaultCommand = "download",
-                shareText = "share",
-                promoText = promoText,
-                promoEveryN = promoEveryN,
-            ),
+            props =
+                BotProperties(
+                    token = "dummy-token",
+                    defaultCommand = "download",
+                    shareText = "share",
+                    promoText = promoText,
+                    promoEveryN = promoEveryN,
+                ),
             counter = counter,
         )
 
@@ -36,7 +37,7 @@ class PromoServiceTest : FunSpec({
         test("never sends promo and does not touch counter") {
             val service = promoService(promoText = "   ")
 
-            val result = service.shouldSend(chatId = 123L)
+            val result = service.shouldSend(123L)
 
             result shouldBe false
             verify { counter wasNot called }
@@ -46,60 +47,62 @@ class PromoServiceTest : FunSpec({
     context("when promo text is present") {
 
         test("sends each nth message for a given chat when promoEveryN > 1") {
-            val service = promoService(
-                promoText = "Buy our premium!",
-                promoEveryN = 3,
-            )
+            val service =
+                promoService(
+                    promoText = "Buy our premium!",
+                    promoEveryN = 3,
+                )
 
             every { counter.incrementAndGet(1L) } returnsMany listOf(1L, 2L, 3L, 4L, 5L, 6L)
 
-            val results = (1..6).map { service.shouldSend(chatId = 1L) }
-
-            results shouldBe listOf(
-                false, // 1 % 3 != 0
-                false, // 2 % 3 != 0
-                true,  // 3 % 3 == 0
-                false,
-                false,
-                true,  // 6 % 3 == 0
-            )
+            service.shouldSend(1L) shouldBe false // 1 % 3 != 0
+            service.shouldSend(1L) shouldBe false // 2 % 3 != 0
+            service.shouldSend(1L) shouldBe true // 3 % 3 == 0
+            service.shouldSend(1L) shouldBe false
+            service.shouldSend(1L) shouldBe false
+            service.shouldSend(1L) shouldBe true // 6 % 3 == 0
 
             verify(exactly = 6) { counter.incrementAndGet(1L) }
         }
 
         test("sends promo on every message when promoEveryN is 1") {
-            val service = promoService(
-                promoText = "Premium every time",
-                promoEveryN = 1,
-            )
+            val service =
+                promoService(
+                    promoText = "Premium every time",
+                    promoEveryN = 1,
+                )
 
             every { counter.incrementAndGet(42L) } returnsMany listOf(1L, 2L, 3L)
 
-            val results = (1..3).map { service.shouldSend(chatId = 42L) }
+            service.shouldSend(42L) shouldBe true
+            service.shouldSend(42L) shouldBe true
+            service.shouldSend(42L) shouldBe true
 
-            results shouldBe listOf(true, true, true)
             verify(exactly = 3) { counter.incrementAndGet(42L) }
         }
 
         test("treats non-positive promoEveryN as 1 (coerceAtLeast(1))") {
-            val service = promoService(
-                promoText = "Non-positive N",
-                promoEveryN = 0,
-            )
+            val service =
+                promoService(
+                    promoText = "Non-positive N",
+                    promoEveryN = 0,
+                )
 
             every { counter.incrementAndGet(777L) } returnsMany listOf(1L, 2L, 3L)
 
-            val results = (1..3).map { service.shouldSend(chatId = 777L) }
+            service.shouldSend(777L) shouldBe true
+            service.shouldSend(777L) shouldBe true
+            service.shouldSend(777L) shouldBe true
 
-            results shouldBe listOf(true, true, true)
             verify(exactly = 3) { counter.incrementAndGet(777L) }
         }
 
         test("uses independent counters per chat id") {
-            val service = promoService(
-                promoText = "Every 2nd message",
-                promoEveryN = 2,
-            )
+            val service =
+                promoService(
+                    promoText = "Every 2nd message",
+                    promoEveryN = 2,
+                )
 
             every { counter.incrementAndGet(10L) } returnsMany listOf(1L, 2L)
             every { counter.incrementAndGet(20L) } returnsMany listOf(1L, 2L)
@@ -109,8 +112,8 @@ class PromoServiceTest : FunSpec({
             service.shouldSend(20L) shouldBe false // 1 % 2 != 0
 
             // second pass through the same chats
-            service.shouldSend(10L) shouldBe true  // 2 % 2 == 0
-            service.shouldSend(20L) shouldBe true  // 2 % 2 == 0
+            service.shouldSend(10L) shouldBe true // 2 % 2 == 0
+            service.shouldSend(20L) shouldBe true // 2 % 2 == 0
 
             verify(exactly = 2) { counter.incrementAndGet(10L) }
             verify(exactly = 2) { counter.incrementAndGet(20L) }

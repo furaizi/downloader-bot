@@ -16,7 +16,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.test.runTest
 
 class DynamicMediaProviderTest : FunSpec({
 
@@ -37,12 +36,13 @@ class DynamicMediaProviderTest : FunSpec({
 
         test("returns true when SourceRegistry has match") {
             val url = "https://www.youtube.com/watch?v=abc"
-            every { sources.match(url) } returns SourceMatch(
-                source = "youtube",
-                subresource = "videos",
-                tool = "yt-dlp",
-                format = "mp4",
-            )
+            every { sources.match(url) } returns
+                SourceMatch(
+                    source = "youtube",
+                    subresource = "videos",
+                    tool = "yt-dlp",
+                    format = "mp4",
+                )
 
             val supported = provider.supports(url)
 
@@ -66,22 +66,24 @@ class DynamicMediaProviderTest : FunSpec({
 
         test("delegates to matched tool with provided format and returns its result") {
             val url = "https://www.youtube.com/watch?v=abc"
-            val match = SourceMatch(
-                source = "youtube",
-                subresource = "videos",
-                tool = "yt-dlp",
-                format = "mp4",
-            )
+            val match =
+                SourceMatch(
+                    source = "youtube",
+                    subresource = "videos",
+                    tool = "yt-dlp",
+                    format = "mp4",
+                )
 
             every { sources.match(url) } returns match
 
             val cliTool = mockk<CliTool>()
             every { tools.get("yt-dlp") } returns cliTool
 
-            val expectedMedia = listOf(
-                mockk<Media>(),
-                mockk<Media>(),
-            )
+            val expectedMedia =
+                listOf(
+                    mockk<Media>(),
+                    mockk<Media>(),
+                )
 
             coEvery { cliTool.download(url, "mp4") } returns expectedMedia
 
@@ -96,21 +98,23 @@ class DynamicMediaProviderTest : FunSpec({
 
         test("passes empty format when match.format is blank") {
             val url = "https://example.com/resource"
-            val match = SourceMatch(
-                source = "example",
-                subresource = "default",
-                tool = "generic-tool",
-                format = "",
-            )
+            val match =
+                SourceMatch(
+                    source = "example",
+                    subresource = "default",
+                    tool = "generic-tool",
+                    format = "",
+                )
 
             every { sources.match(url) } returns match
 
             val cliTool = mockk<CliTool>()
             every { tools.get("generic-tool") } returns cliTool
 
-            val expectedMedia = listOf(
-                mockk<Media>(),
-            )
+            val expectedMedia =
+                listOf(
+                    mockk<Media>(),
+                )
 
             coEvery { cliTool.download(url, "") } returns expectedMedia
 
