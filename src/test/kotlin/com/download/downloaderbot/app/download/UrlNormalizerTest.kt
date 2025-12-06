@@ -1,5 +1,6 @@
 package com.download.downloaderbot.app.download
 
+import com.download.downloaderbot.util.case
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.matchers.shouldBe
@@ -12,23 +13,9 @@ class UrlNormalizerTest : FunSpec({
         name: String,
         input: String,
         expected: String,
-    ) {
-        test(name) {
-            val result = normalizer.normalize(input)
-            result shouldBe expected
-        }
-    }
+    ) = case(name, input, expected, normalizer::normalize)
 
-    fun urlContext(
-        name: String,
-        block: suspend FunSpecContainerScope.() -> Unit,
-    ) {
-        context(name) {
-            block()
-        }
-    }
-
-    urlContext("fallback behaviour") {
+    context("fallback behaviour") {
         case(
             name = "trims url and returns original when scheme is unsupported",
             input = "  ftp://example.com/resource  ",
@@ -48,7 +35,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("scheme and host normalization") {
+    context("scheme and host normalization") {
         case(
             name = "lowercases scheme and host",
             input = "HTTPS://Example.COM/SomePath",
@@ -56,7 +43,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("port normalization") {
+    context("port normalization") {
         case(
             name = "removes default http port 80",
             input = "http://example.com:80/path",
@@ -76,7 +63,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("path normalization") {
+    context("path normalization") {
         case(
             name = "adds leading slash when path is absent",
             input = "https://example.com",
@@ -96,7 +83,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("generic query normalization") {
+    context("generic query normalization") {
         case(
             name = "sorts query parameters by name and value",
             input = "https://example.com/path?b=2&a=3&a=1&c",
@@ -110,7 +97,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("platforms: tiktok & instagram") {
+    context("platforms: tiktok & instagram") {
         case(
             name = "drops all query parameters for TikTok",
             input = "https://www.tiktok.com/@user/video/123?lang=en&utm_source=foo",
@@ -124,7 +111,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("platforms: youtube watch") {
+    context("platforms: youtube watch") {
         case(
             name = "keeps v param first and removes tracking params",
             input = "https://www.youtube.com/watch?utm_source=google&v=videoId&fbclid=123&hl=en",
@@ -144,7 +131,7 @@ class UrlNormalizerTest : FunSpec({
         )
     }
 
-    urlContext("platforms: youtube generic") {
+    context("platforms: youtube generic") {
         case(
             name = "non-watch youtube urls are treated as generic",
             input = "https://www.youtube.com/embed/videoId?b=2&a=1",
