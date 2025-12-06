@@ -285,5 +285,4 @@ private fun registry(block: SourcesBuilder.() -> Unit): SourceRegistry {
     return SourceRegistry(props)
 }
 
-private fun SourceRegistry.requireMatch(url: String): SourceMatch =
-    match(url).also { it.shouldNotBeNull() }!!
+private fun SourceRegistry.requireMatch(url: String): SourceMatch = match(url).also { it.shouldNotBeNull() }!!

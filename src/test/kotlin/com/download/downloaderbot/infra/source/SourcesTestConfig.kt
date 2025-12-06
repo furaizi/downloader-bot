@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Import
     SourcesSanityCheck::class,
 )
 class ValidSourcesConfig {
-
     @Bean
     fun sourcesProperties() =
         buildSourcesProps(
@@ -39,7 +38,6 @@ class ValidSourcesConfig {
     SourcesSanityCheck::class,
 )
 class InvalidSourcesConfig {
-
     @Bean
     fun sourcesProperties() =
         buildSourcesProps(

@@ -16,9 +16,9 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.coroutines.cancellation.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.function.Supplier
+import kotlin.coroutines.cancellation.CancellationException
 
 typealias BucketConfigSupplier = Supplier<CompletableFuture<BucketConfiguration>>
 
@@ -28,8 +28,9 @@ class Bucket4jRateLimiterTest : FunSpec({
     lateinit var asyncProxyManager: AsyncProxyManager<String>
     lateinit var builder: RemoteAsyncBucketBuilder<String>
     lateinit var bucket: AsyncBucketProxy
-    val mapper = ObjectMapper()
-        .findAndRegisterModules()
+    val mapper =
+        ObjectMapper()
+            .findAndRegisterModules()
 
     beforeTest {
         proxyManager = mockk()
@@ -65,7 +66,7 @@ class Bucket4jRateLimiterTest : FunSpec({
         every { probe.remainingTokens } returns 9L
         every { probe.nanosToWaitForRefill } returns 0L
         every { bucket.tryConsumeAndReturnRemaining(1) } returns
-                CompletableFuture.completedFuture(probe)
+            CompletableFuture.completedFuture(probe)
 
         limiter.awaitGlobal()
 
@@ -89,10 +90,11 @@ class Bucket4jRateLimiterTest : FunSpec({
         every { allowed.remainingTokens } returns 10L
         every { allowed.nanosToWaitForRefill } returns 0L
 
-        every { bucket.tryConsumeAndReturnRemaining(1) } returnsMany listOf(
-            CompletableFuture.completedFuture(denied),
-            CompletableFuture.completedFuture(allowed),
-        )
+        every { bucket.tryConsumeAndReturnRemaining(1) } returnsMany
+            listOf(
+                CompletableFuture.completedFuture(denied),
+                CompletableFuture.completedFuture(allowed),
+            )
 
         limiter.awaitGlobal()
 
@@ -146,9 +148,10 @@ class Bucket4jRateLimiterTest : FunSpec({
         val props = RateLimitProperties(enabled = true)
         val limiter = Bucket4jRateLimiter(proxyManager, props, mapper)
 
-        val future = CompletableFuture<Boolean>().apply {
-            completeExceptionally(RuntimeException("Redis down"))
-        }
+        val future =
+            CompletableFuture<Boolean>().apply {
+                completeExceptionally(RuntimeException("Redis down"))
+            }
         every { bucket.tryConsume(1) } returns future
 
         val result = limiter.tryConsumePerChatOrGroup(123L)
@@ -161,9 +164,10 @@ class Bucket4jRateLimiterTest : FunSpec({
         val props = RateLimitProperties(enabled = true)
         val limiter = Bucket4jRateLimiter(proxyManager, props, mapper)
 
-        val future = CompletableFuture<Boolean>().apply {
-            completeExceptionally(CancellationException("cancel"))
-        }
+        val future =
+            CompletableFuture<Boolean>().apply {
+                completeExceptionally(CancellationException("cancel"))
+            }
         every { bucket.tryConsume(1) } returns future
 
         shouldThrow<CancellationException> {

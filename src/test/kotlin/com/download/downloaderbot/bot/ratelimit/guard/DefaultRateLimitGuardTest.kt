@@ -26,11 +26,12 @@ class DefaultRateLimitGuardTest : FunSpec({
     test("rejects when local rate limit denies and does not call awaitGlobal or block") {
         coEvery { limiter.tryConsumePerChatOrGroup(any()) } returns false
 
-        val ex = shouldThrow<TooManyRequestsException> {
-            guard.runOrReject(ctx) {
-                error("block must not be called when rate-limit rejects")
+        val ex =
+            shouldThrow<TooManyRequestsException> {
+                guard.runOrReject(ctx) {
+                    error("block must not be called when rate-limit rejects")
+                }
             }
-        }
 
         coVerify(exactly = 1) { limiter.tryConsumePerChatOrGroup(any()) }
         coVerify(exactly = 0) { limiter.awaitGlobal() }
@@ -42,10 +43,11 @@ class DefaultRateLimitGuardTest : FunSpec({
 
         var blockCalled = false
 
-        val result = guard.runOrReject(ctx) {
-            blockCalled = true
-            "OK_RESULT"
-        }
+        val result =
+            guard.runOrReject(ctx) {
+                blockCalled = true
+                "OK_RESULT"
+            }
 
         result shouldBe "OK_RESULT"
         blockCalled shouldBe true
@@ -58,11 +60,12 @@ class DefaultRateLimitGuardTest : FunSpec({
         coEvery { limiter.tryConsumePerChatOrGroup(any()) } returns true
         coEvery { limiter.awaitGlobal() } returns Unit
 
-        val ex = shouldThrow<IllegalStateException> {
-            guard.runOrReject(ctx) {
-                error("boom")
+        val ex =
+            shouldThrow<IllegalStateException> {
+                guard.runOrReject(ctx) {
+                    error("boom")
+                }
             }
-        }
 
         ex.message shouldBe "boom"
 

@@ -53,9 +53,10 @@ class SourcesSanityCheckTest : FunSpec({
         val sourceRegistry = SourceRegistry(props)
         val sanityCheck = SourcesSanityCheck(sourceRegistry, toolRegistry, props)
 
-        val ex = shouldThrow<IllegalArgumentException> {
-            sanityCheck.check()
-        }
+        val ex =
+            shouldThrow<IllegalArgumentException> {
+                sanityCheck.check()
+            }
 
         ex.message.shouldContain("missing-tool")
         ex.message.shouldContain("Unknown tools in sources.yml")
