@@ -26,8 +26,7 @@ class MediaServiceImplTest : FunSpec({
     lateinit var cache: CachePort<String, List<Media>>
     lateinit var urlLock: UrlLockManager
 
-    fun service(cacheProps: CacheProperties = DEFAULT_CACHE_PROPS) =
-        MediaServiceImpl(provider, urlOps, cache, cacheProps, urlLock)
+    fun service(cacheProps: CacheProperties = DEFAULT_CACHE_PROPS) = MediaServiceImpl(provider, urlOps, cache, cacheProps, urlLock)
 
     beforeTest {
         provider = mockk()

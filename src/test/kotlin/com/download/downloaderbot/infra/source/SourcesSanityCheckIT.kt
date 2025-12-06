@@ -42,6 +42,4 @@ class SourcesSanityCheckIT : FunSpec({
     }
 })
 
-
-private fun Throwable.rootCause(): Throwable =
-    generateSequence(this) { it.cause }.last()
+private fun Throwable.rootCause(): Throwable = generateSequence(this) { it.cause }.last()

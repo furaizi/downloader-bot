@@ -20,8 +20,7 @@ import com.download.downloaderbot.app.config.properties.SubresourceDef
  *     }
  * }
  */
-fun sourcesProps(block: SourcesBuilder.() -> Unit): SourcesProperties =
-    SourcesProperties(SourcesBuilder().apply(block).build())
+fun sourcesProps(block: SourcesBuilder.() -> Unit): SourcesProperties = SourcesProperties(SourcesBuilder().apply(block).build())
 
 class SourcesBuilder {
     private val sources = linkedMapOf<String, SourceDef>()
