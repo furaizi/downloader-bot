@@ -281,49 +281,9 @@ class SourceRegistryTest : FunSpec({
 })
 
 private fun registry(block: SourcesBuilder.() -> Unit): SourceRegistry {
-    val sources = SourcesBuilder().apply(block).build()
-    return SourceRegistry(SourcesProperties(sources))
+    val props = sourcesProps(block)
+    return SourceRegistry(props)
 }
 
-private class SourcesBuilder {
-    private val sources = linkedMapOf<String, SourceDef>()
-
-    fun source(
-        name: String,
-        enabled: Boolean = true,
-        block: SubresourcesBuilder.() -> Unit,
-    ) {
-        val subs = SubresourcesBuilder().apply(block).build()
-        sources[name] =
-            SourceDef(
-                enabled = enabled,
-                subresources = subs,
-            )
-    }
-
-    fun build(): Map<String, SourceDef> = sources
-}
-
-private class SubresourcesBuilder {
-    private val subs = linkedMapOf<String, SubresourceDef>()
-
-    fun sub(
-        name: String,
-        tool: String,
-        format: String = "",
-        enabled: Boolean = true,
-        patterns: List<String>,
-    ) {
-        subs[name] =
-            SubresourceDef(
-                enabled = enabled,
-                tool = tool,
-                format = format,
-                urlPatterns = patterns,
-            )
-    }
-
-    fun build(): Map<String, SubresourceDef> = subs
-}
-
-private fun SourceRegistry.requireMatch(url: String): SourceMatch = match(url).also { it.shouldNotBeNull() }!!
+private fun SourceRegistry.requireMatch(url: String): SourceMatch =
+    match(url).also { it.shouldNotBeNull() }!!
