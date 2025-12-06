@@ -244,25 +244,16 @@ class SourceRegistryTest : FunSpec({
             registry.requireMatch(youtubeUrl).source shouldBe "youtube"
 
             val newProps =
-                SourcesProperties(
-                    sources =
-                        linkedMapOf(
-                            "tiktok" to
-                                SourceDef(
-                                    enabled = true,
-                                    subresources =
-                                        linkedMapOf(
-                                            "posts" to
-                                                SubresourceDef(
-                                                    enabled = true,
-                                                    tool = "tiktok-tool",
-                                                    format = "mp4",
-                                                    urlPatterns = listOf("tiktok\\.com/@"),
-                                                ),
-                                        ),
-                                ),
-                        ),
-                )
+                sourcesProps {
+                    source("tiktok") {
+                        sub(
+                            name = "posts",
+                            tool = "tiktok-tool",
+                            format = "mp4",
+                            patterns = listOf("tiktok\\.com/@"),
+                        )
+                    }
+                }
 
             registry.reload(newProps)
 
