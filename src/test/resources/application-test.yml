@@ -1,9 +1,23 @@
+spring:
+  config:
+    additional-location:
+
 telegram:
   bot:
     token: test-token
     share-text: "Share this bot"
     promo-text: "Promo text"
     promo-every-n: 1
+
+sources:
+  magic-source:
+    enabled: true
+    subresources:
+      magic-subresource:
+        tool: yt-dlp
+        url-patterns:
+          - '^https?://example\.com/magic/.*$'
+
 
 downloader:
   cache:

@@ -1,6 +1,7 @@
 package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.config.properties.BotIdentity
+import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.User
 import com.github.kotlintelegrambot.types.TelegramBotResult
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class TestBotConfig {
+
     @Primary
     @Bean
     fun testBotIdentity() = BotIdentity("test-bot")

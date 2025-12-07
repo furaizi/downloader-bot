@@ -80,7 +80,7 @@ class RecordingBotPort : BotPort {
         chatId: Long,
         file: InputFile,
         messageOptions: MessageOptions,
-        videoOptions: com.download.downloaderbot.bot.gateway.VideoOptions,
+        videoOptions: VideoOptions,
     ): GatewayResult<Message> {
         val message = recordMedia(MediaType.VIDEO, chatId, file, messageOptions)
         return GatewayResult.Ok(message)
@@ -150,6 +150,7 @@ class RecordingBotPort : BotPort {
         every { photo.fileUniqueId } returns "unique_$id"
 
         every { message.photo } returns listOf(photo)
+        every { message.messageId } returns id
 
         return message
     }
