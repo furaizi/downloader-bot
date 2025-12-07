@@ -27,132 +27,114 @@ import org.springframework.test.context.ActiveProfiles
 @Import(TestBotConfig::class, DownloadJobExecutorTestConfig::class)
 @SpringBootTest(properties = ["spring.config.location=classpath:/"])
 @ActiveProfiles("test")
-class DefaultDownloadJobExecutorIT : FunSpec() {
+class DefaultDownloadJobExecutorIT @Autowired constructor(
+    private val executor: DefaultDownloadJobExecutor,
+    private val mediaService: StubMediaService,
+    private val botPort: RecordingBotPort,
+    private val cache: InMemoryMediaCacheAdapter,
+    private val botProps: BotProperties,
+) : FunSpec({
 
-    @Autowired
-    lateinit var executor: DefaultDownloadJobExecutor
+    extension(SpringExtension)
 
-    @Autowired
-    lateinit var mediaService: StubMediaService
-
-    @Autowired
-    lateinit var botPort: RecordingBotPort
-
-    @Autowired
-    lateinit var cache: InMemoryMediaCacheAdapter
-
-    @Autowired
-    lateinit var botProps: BotProperties
-
-    override fun extensions() = listOf(SpringExtension)
-
-    init {
-
-        beforeTest {
-            mediaService.reset()
-            botPort.reset()
-            cache.clear()
-        }
-
-        test("sends single video with promo and updates cache") {
-            val url = "https://example.com/video"
-            val chatId = 100L
-
-            mediaService.stubDownload(
-                url,
-                listOf(
-                    Media(
-                        type = MediaType.VIDEO,
-                        fileUrl = "/tmp/video.mp4",
-                        sourceUrl = url,
-                        title = "Video",
-                    ),
-                ),
-            )
-
-            val job =
-                DownloadJob(
-                    sourceUrl = url,
-                    chatId = chatId,
-                    replyToMessageId = null,
-                    commandContext = mockk(relaxed = true),
-                )
-
-            executor.execute(job)
-
-            botPort.sentMedia.shouldHaveSize(1)
-            botPort.sentTexts.shouldBeEmpty()
-
-            val sent = botPort.sentMedia.single()
-            sent.options.caption shouldBe botProps.promoText
-            sent.options.replyMarkup.shouldNotBeNull()
-
-            cache.get(url)!!
-                .first().lastFileId shouldBe sent.message.fileId
-        }
-
-        test("sends image album and promo message") {
-            val url = "https://example.com/album"
-            val chatId = 200L
-
-            mediaService.stubDownload(
-                url,
-                listOf(
-                    Media(
-                        type = MediaType.IMAGE,
-                        fileUrl = "/tmp/1.jpg",
-                        sourceUrl = url,
-                        title = "1",
-                    ),
-                    Media(
-                        type = MediaType.IMAGE,
-                        fileUrl = "/tmp/2.jpg",
-                        sourceUrl = url,
-                        title = "2",
-                    ),
-                ),
-            )
-
-            val job =
-                DownloadJob(
-                    sourceUrl = url,
-                    chatId = chatId,
-                    replyToMessageId = null,
-                    commandContext = mockk(relaxed = true),
-                )
-
-            executor.execute(job)
-
-            botPort.sentAlbums.shouldHaveSize(1)
-            botPort.sentTexts.shouldHaveSize(1)
-
-            cache.get(url)!!.size shouldBe 2
-        }
-
-        test("throws when media list is empty and does not touch bot or cache") {
-            val url = "https://example.com/empty"
-            val chatId = 300L
-
-            mediaService.stubDownload(url, emptyList())
-
-            val job =
-                DownloadJob(
-                    sourceUrl = url,
-                    chatId = chatId,
-                    replyToMessageId = null,
-                    commandContext = mockk(relaxed = true),
-                )
-
-            shouldThrow<MediaNotFoundException> {
-                executor.execute(job)
-            }
-
-            botPort.sentMedia.shouldHaveSize(0)
-            botPort.sentAlbums.shouldHaveSize(0)
-            botPort.sentChunkedAlbums.shouldHaveSize(0)
-            botPort.sentTexts.shouldHaveSize(0)
-
-            cache.get(url).shouldBeNull()
-        }
+    beforeTest {
+        mediaService.reset()
+        botPort.reset()
+        cache.clear()
     }
-}
+
+    fun downloadJob(
+        url: String,
+        chatId: Long,
+    ) = DownloadJob(
+        sourceUrl = url,
+        chatId = chatId,
+        replyToMessageId = null,
+        commandContext = mockk(relaxed = true),
+    )
+
+    test("sends single video with promo and updates cache") {
+        val url = "https://example.com/video"
+        val chatId = 100L
+
+        mediaService.stubDownload(
+            url,
+            listOf(
+                Media(
+                    type = MediaType.VIDEO,
+                    fileUrl = "/tmp/video.mp4",
+                    sourceUrl = url,
+                    title = "Video",
+                ),
+            ),
+        )
+
+        val job = downloadJob(url, chatId)
+        executor.execute(job)
+
+        botPort.sentMedia.shouldHaveSize(1)
+        botPort.sentTexts.shouldBeEmpty()
+
+        val sent = botPort.sentMedia.single()
+        sent.options.caption shouldBe botProps.promoText
+        sent.options.replyMarkup.shouldNotBeNull()
+
+
+        val cached = cache.get(url)
+        cached.shouldNotBeNull()
+        cached.first().lastFileId shouldBe sent.message.fileId
+    }
+
+    test("sends image album and promo message") {
+        val url = "https://example.com/album"
+        val chatId = 200L
+
+        mediaService.stubDownload(
+            url,
+            listOf(
+                Media(
+                    type = MediaType.IMAGE,
+                    fileUrl = "/tmp/1.jpg",
+                    sourceUrl = url,
+                    title = "1",
+                ),
+                Media(
+                    type = MediaType.IMAGE,
+                    fileUrl = "/tmp/2.jpg",
+                    sourceUrl = url,
+                    title = "2",
+                ),
+            ),
+        )
+
+        val job = downloadJob(url, chatId)
+        executor.execute(job)
+
+        botPort.sentAlbums.shouldHaveSize(1)
+        botPort.sentTexts.shouldHaveSize(1)
+
+        val cached = cache.get(url)
+        cached.shouldNotBeNull()
+        cached.size shouldBe 2
+    }
+
+    test("throws when media list is empty and does not touch bot or cache") {
+        val url = "https://example.com/empty"
+        val chatId = 300L
+
+        mediaService.stubDownload(url, emptyList())
+
+        val job = downloadJob(url, chatId)
+        shouldThrow<MediaNotFoundException> {
+            executor.execute(job)
+        }
+
+        botPort.sentMedia.shouldHaveSize(0)
+        botPort.sentAlbums.shouldHaveSize(0)
+        botPort.sentChunkedAlbums.shouldHaveSize(0)
+        botPort.sentTexts.shouldHaveSize(0)
+
+        cache.get(url).shouldBeNull()
+    }
+
+})
