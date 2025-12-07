@@ -1,13 +1,13 @@
 package com.download.downloaderbot
 
-import com.download.downloaderbot.bot.config.TestBotConfig
+import com.download.downloaderbot.bot.config.BotTestConfig
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
-@Import(TestBotConfig::class)
+@Import(BotTestConfig::class)
 @SpringBootTest
 @ActiveProfiles("test")
 class DownloaderBotApplicationTests {
