@@ -6,10 +6,10 @@ import com.download.downloaderbot.bot.config.TestBotConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId
+import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
-import com.download.downloaderbot.infra.cache.InMemoryMediaCacheAdapter
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -23,7 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.utility.DockerImageName
 
+@Testcontainers
 @Import(TestBotConfig::class, DownloadJobExecutorTestConfig::class)
 @SpringBootTest(properties = ["spring.config.location=classpath:/"])
 @ActiveProfiles("test")
@@ -31,7 +37,7 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
     private val executor: DefaultDownloadJobExecutor,
     private val mediaService: StubMediaService,
     private val botPort: RecordingBotPort,
-    private val cache: InMemoryMediaCacheAdapter,
+    private val cache: CachePort<String, List<Media>>,
     private val botProps: BotProperties,
 ) : FunSpec({
 
@@ -40,7 +46,6 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
     beforeTest {
         mediaService.reset()
         botPort.reset()
-        cache.clear()
     }
 
     fun downloadJob(
@@ -137,4 +142,20 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
         cache.get(url).shouldBeNull()
     }
 
-})
+}) {
+    companion object {
+        private const val REDIS_PORT = 6379
+
+        val redis: GenericContainer<*> =
+            GenericContainer(DockerImageName.parse("redis:7-alpine"))
+                .withExposedPorts(REDIS_PORT)
+                .apply { start() }
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun redisProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.data.redis.host") { redis.host }
+            registry.add("spring.data.redis.port") { redis.getMappedPort(REDIS_PORT) }
+        }
+    }
+}
