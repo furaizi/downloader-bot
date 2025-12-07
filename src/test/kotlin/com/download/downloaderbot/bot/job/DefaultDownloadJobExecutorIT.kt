@@ -8,11 +8,14 @@ import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
+import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.infra.cache.InMemoryMediaCacheAdapter
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -22,7 +25,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @Import(TestBotConfig::class, DownloadJobExecutorTestConfig::class)
-@SpringBootTest
+@SpringBootTest(properties = ["spring.config.location=classpath:/"])
 @ActiveProfiles("test")
 class DefaultDownloadJobExecutorIT : FunSpec() {
 
@@ -124,6 +127,32 @@ class DefaultDownloadJobExecutorIT : FunSpec() {
             botPort.sentTexts.shouldHaveSize(1)
 
             cache.get(url)!!.size shouldBe 2
+        }
+
+        test("throws when media list is empty and does not touch bot or cache") {
+            val url = "https://example.com/empty"
+            val chatId = 300L
+
+            mediaService.stubDownload(url, emptyList())
+
+            val job =
+                DownloadJob(
+                    sourceUrl = url,
+                    chatId = chatId,
+                    replyToMessageId = null,
+                    commandContext = mockk(relaxed = true),
+                )
+
+            shouldThrow<MediaNotFoundException> {
+                executor.execute(job)
+            }
+
+            botPort.sentMedia.shouldHaveSize(0)
+            botPort.sentAlbums.shouldHaveSize(0)
+            botPort.sentChunkedAlbums.shouldHaveSize(0)
+            botPort.sentTexts.shouldHaveSize(0)
+
+            cache.get(url).shouldBeNull()
         }
     }
 }
