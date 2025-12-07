@@ -1,14 +1,10 @@
 package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.core.domain.Media
-import org.springframework.boot.test.context.TestComponent
-import org.springframework.context.annotation.Primary
+import java.util.concurrent.ConcurrentHashMap
 
-@Primary
-@TestComponent
 class StubMediaService : MediaService {
-
-    private val responses = mutableMapOf<String, List<Media>>()
+    private val responses = ConcurrentHashMap<String, List<Media>>()
 
     fun stubDownload(
         url: String,
@@ -17,9 +13,7 @@ class StubMediaService : MediaService {
         responses[url] = result
     }
 
-    fun reset() {
-        responses.clear()
-    }
+    fun reset() = responses.clear()
 
     override suspend fun supports(url: String): Boolean =
         responses.containsKey(url)

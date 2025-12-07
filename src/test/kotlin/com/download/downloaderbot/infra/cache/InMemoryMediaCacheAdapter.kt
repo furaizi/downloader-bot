@@ -2,16 +2,15 @@ package com.download.downloaderbot.infra.cache
 
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
-import org.springframework.boot.test.context.TestComponent
-import org.springframework.context.annotation.Primary
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
 
-@Primary
-@TestComponent
 class InMemoryMediaCacheAdapter : CachePort<String, List<Media>> {
-    private val storage = mutableMapOf<String, List<Media>>()
-    final var lastPutTtl: Duration? = null
+    private val storage = ConcurrentHashMap<String, List<Media>>()
+    var lastPutTtl: Duration? = null
         private set
+
+    fun clear() = storage.clear()
 
     override suspend fun get(id: String): List<Media>? = storage[id]
 

@@ -6,11 +6,7 @@ import com.github.kotlintelegrambot.entities.ReplyMarkup
 import com.github.kotlintelegrambot.entities.files.PhotoSize
 import io.mockk.every
 import io.mockk.mockk
-import org.springframework.boot.test.context.TestComponent
-import org.springframework.context.annotation.Primary
 
-@Primary
-@TestComponent
 class RecordingBotPort : BotPort {
     data class SentText(
         val chatId: Long,
@@ -51,6 +47,14 @@ class RecordingBotPort : BotPort {
     val sentChunkedAlbums = mutableListOf<SentChunkedAlbum>()
 
     private var nextId = 1L
+
+    fun reset() {
+        sentTexts.clear()
+        sentMedia.clear()
+        sentAlbums.clear()
+        sentChunkedAlbums.clear()
+        nextId = 1L
+    }
 
     override suspend fun sendText(
         chatId: Long,
