@@ -7,7 +7,7 @@ class ShellYtDlpCommandBuilder : CommandBuilder {
     private var downloadExts: List<String> = emptyList()
 
     fun probeOk(jsonLine: String) = apply {
-        probeScript = "printf '%s\n' ${shQuote("noise")}; printf '%s\n' ${shQuote(jsonLine)}"
+        probeScript = "printf '%s\\n' ${shQuote("noise")}; printf '%s\\n' ${shQuote(jsonLine)}"
     }
 
     fun downloadCreatesFiles(exts: List<String>) = apply { downloadExts = exts }
@@ -16,12 +16,13 @@ class ShellYtDlpCommandBuilder : CommandBuilder {
         sh(probeScript)
 
     override fun downloadCommand(url: String, output: String, formatOverride: String): List<String> {
-        val script =
+        val touches =
             downloadExts.joinToString("; ") { ext ->
                 val file = output.replace("%(ext)s", ext)
                 ": > ${shQuote(file)}"
             }.ifBlank { ":" }
-        return sh("$script; :")
+
+        return sh("$touches; :")
     }
 }
 
