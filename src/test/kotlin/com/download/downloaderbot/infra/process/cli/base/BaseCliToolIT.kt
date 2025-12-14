@@ -7,11 +7,10 @@ import com.download.downloaderbot.core.downloader.MediaTooLargeException
 import com.download.downloaderbot.infra.config.tools.CliToolFixture
 import com.download.downloaderbot.infra.process.cli.common.ShellGalleryDlCommandBuilder
 import com.download.downloaderbot.infra.process.cli.common.ShellYtDlpCommandBuilder
+import com.download.downloaderbot.infra.process.utils.PosixShellCondition
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.annotation.EnabledCondition
 import io.kotest.core.annotation.EnabledIf
-import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -26,7 +25,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
-import kotlin.reflect.KClass
 
 @EnabledIf(PosixShellCondition::class)
 class BaseCliToolIT : FunSpec({
@@ -143,10 +141,3 @@ private fun ytDlpJson(title: String, type: String, filesize: Long): String = """
 """.trimIndent()
     .lines()
     .joinToString("") { it.trim() }
-
-class PosixShellCondition : EnabledCondition {
-    override fun enabled(kclass: KClass<out Spec>): Boolean {
-        val os = System.getProperty("os.name").lowercase()
-        return !os.contains("win") && Files.isExecutable(Path.of("/bin/sh"))
-    }
-}
