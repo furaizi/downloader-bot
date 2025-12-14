@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.cli.base
+package com.download.downloaderbot.infra.config.tools
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.infra.media.files.DirectoryFilesByPrefixFinder
@@ -7,6 +7,8 @@ import com.download.downloaderbot.infra.media.path.GalleryDlPathGenerator
 import com.download.downloaderbot.infra.media.path.YtDlpPathGenerator
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
+import com.download.downloaderbot.infra.process.cli.base.BaseCliTool
+import com.download.downloaderbot.infra.process.cli.base.NoMetadataCliTool
 import com.download.downloaderbot.infra.process.cli.common.extractor.OutputJsonExtractor
 import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonParser
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia

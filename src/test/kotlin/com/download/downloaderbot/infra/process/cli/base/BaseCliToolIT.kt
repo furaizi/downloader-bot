@@ -4,6 +4,9 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.app.config.properties.MediaSizeLimits
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.infra.config.tools.CliToolFixture
+import com.download.downloaderbot.infra.process.cli.common.ShellGalleryDlCommandBuilder
+import com.download.downloaderbot.infra.process.cli.common.ShellYtDlpCommandBuilder
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.annotation.EnabledCondition
