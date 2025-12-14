@@ -1,4 +1,4 @@
-package com.download.downloaderbot.infra.process.cli.base
+package com.download.downloaderbot.infra.process.cli.common
 
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 
