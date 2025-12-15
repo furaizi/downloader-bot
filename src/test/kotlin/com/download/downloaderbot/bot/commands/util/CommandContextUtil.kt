@@ -8,10 +8,10 @@ import io.mockk.every
 import io.mockk.mockk
 
 fun ctx(
-    args: List<String>,
-    chatId: Long,
-    messageId: Long,
-    chatType: String,
+    args: List<String> = emptyList(),
+    chatId: Long = 123L,
+    messageId: Long = 777L,
+    chatType: String = if (chatId < 0) "group" else "private",
 ): CommandContext {
     val update = mockk<Update>()
     val message = mockk<Message>()
