@@ -24,3 +24,22 @@ downloader:
     schema-version: 1
   ratelimit:
     enabled: false
+    namespace: rl-it
+    global:
+      capacity: 1
+      refill:
+        tokens: 1
+        period: 250ms
+        greedy: true
+    chat:
+      capacity: 1
+      refill:
+        tokens: 1
+        period: 10s
+        greedy: true
+    group:
+      capacity: 2
+      refill:
+        tokens: 2
+        period: 10s
+        greedy: true
