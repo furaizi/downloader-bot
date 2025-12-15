@@ -6,6 +6,8 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.longs.shouldBeExactly
+import io.kotest.matchers.paths.shouldExist
+import io.kotest.matchers.paths.shouldNotExist
 import io.kotest.matchers.shouldBe
 import org.springframework.util.unit.DataSize
 import java.nio.file.Files
@@ -13,7 +15,6 @@ import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 import java.time.Duration
 import java.time.Instant
-import kotlin.io.path.exists
 import kotlin.io.path.notExists
 
 class MediaCleanupServiceIT : FunSpec({
@@ -79,9 +80,9 @@ class MediaCleanupServiceIT : FunSpec({
 
             val report = service.cleanup()
 
-            expired1.exists() shouldBe false
-            expired2.exists() shouldBe false
-            fresh.exists() shouldBe true
+            expired1.shouldNotExist()
+            expired2.shouldNotExist()
+            fresh.shouldExist()
 
             assertSoftly(report) {
                 deletedFiles shouldBe 2
@@ -108,8 +109,8 @@ class MediaCleanupServiceIT : FunSpec({
 
             val report = service.cleanup()
 
-            old.exists() shouldBe true
-            another.exists() shouldBe true
+            old.shouldExist()
+            another.shouldExist()
 
             assertSoftly(report) {
                 deletedFiles shouldBe 0
@@ -137,9 +138,9 @@ class MediaCleanupServiceIT : FunSpec({
 
             val report = service.cleanup()
 
-            oldest.exists() shouldBe false
-            middle.exists() shouldBe false
-            newest.exists() shouldBe true
+            oldest.shouldNotExist()
+            middle.shouldNotExist()
+            newest.shouldExist()
 
             assertSoftly(report) {
                 deletedFiles shouldBe 2
@@ -167,9 +168,9 @@ class MediaCleanupServiceIT : FunSpec({
 
             val report = service.cleanup()
 
-            expired.exists() shouldBe false
-            remainOldest.exists() shouldBe false
-            remainNewest.exists() shouldBe true
+            expired.shouldNotExist()
+            remainOldest.shouldNotExist()
+            remainNewest.shouldExist()
 
             assertSoftly(report) {
                 deletedFiles shouldBe 2
@@ -197,8 +198,8 @@ class MediaCleanupServiceIT : FunSpec({
 
             val report = service.cleanup()
 
-            expired.exists() shouldBe false
-            fresh.exists() shouldBe true
+            expired.shouldNotExist()
+            fresh.shouldExist()
 
             assertSoftly(report) {
                 deletedFiles shouldBe 1
