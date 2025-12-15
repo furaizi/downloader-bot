@@ -26,101 +26,115 @@ import kotlin.time.Duration.Companion.seconds
 @ActiveProfiles("test")
 class AsyncRedisMediaCacheAdapterIT @Autowired constructor(
     private val cache: CachePort<String, List<Media>>,
-    private val mediaTemplate: ReactiveRedisTemplate<String, List<Media>>,
+    private val redisTemplate: ReactiveRedisTemplate<String, List<Media>>,
     private val connectionFactory: ReactiveRedisConnectionFactory,
 ) : FunSpec({
 
     extension(SpringExtension)
 
-    suspend fun flushAll() {
-        connectionFactory.reactiveConnection
-            .serverCommands()
-            .flushAll()
-            .awaitFirstOrNull()
-    }
+    fun url(path: String) = "https://example.com/$path"
 
-    val fixedDownloadedAt = OffsetDateTime.parse("2020-01-01T00:00:00Z")
-
-    fun media(url: String) =
+    fun mediaFor(sourceUrl: String): List<Media> =
         listOf(
             Media(
                 type = MediaType.VIDEO,
                 fileUrl = "file:///tmp/video.mp4",
-                sourceUrl = url,
+                sourceUrl = sourceUrl,
                 title = "Video",
                 fileUniqueId = "uniq-1",
                 lastFileId = "file-1",
-                downloadedAt = fixedDownloadedAt,
+                downloadedAt = FIXED_DOWNLOADED_AT,
             ),
             Media(
                 type = MediaType.IMAGE,
                 fileUrl = "file:///tmp/1.jpg",
-                sourceUrl = url,
+                sourceUrl = sourceUrl,
                 title = "Img",
                 fileUniqueId = "uniq-2",
                 lastFileId = "file-2",
-                downloadedAt = fixedDownloadedAt,
+                downloadedAt = FIXED_DOWNLOADED_AT,
             ),
         )
 
-    beforeTest {
-        flushAll()
+    beforeEach {
+        connectionFactory.reactiveConnection
+            .serverCommands()
+            .flushDb()
+            .awaitFirstOrNull()
     }
 
-    test("get: returns null when key is absent") {
-        cache.get("https://example.com/miss").shouldBeNull()
-    }
-
-    test("put/get: stores and reads list back") {
-        val url = "https://example.com/hit"
-        val value = media(url)
-
-        cache.put(url, value, ttl = Duration.ofSeconds(30))
-
-        val fromCache = cache.get(url)
-        fromCache shouldBe value
-        fromCache!!.shouldHaveSize(2)
-    }
-
-    test("put: does nothing when values are empty") {
-        val url = "https://example.com/empty"
-
-        cache.put(url, emptyList(), ttl = Duration.ofSeconds(30))
-
-        cache.get(url).shouldBeNull()
-    }
-
-    test("evict: removes key") {
-        val url = "https://example.com/evict"
-        cache.put(url, media(url), ttl = Duration.ofSeconds(30))
-
-        cache.get(url)!!.shouldHaveSize(2)
-
-        cache.evict(url)
-
-        cache.get(url).shouldBeNull()
-    }
-
-    test("ttl: value expires") {
-        val url = "https://example.com/ttl"
-        cache.put(url, media(url), ttl = Duration.ofMillis(150))
-
-        cache.get(url)!!.shouldHaveSize(2)
-
-        eventually(2.seconds) {
-            cache.get(url).shouldBeNull()
+    context("get") {
+        test("returns null when key is absent") {
+            cache.get(url("miss")).shouldBeNull()
         }
     }
 
-    test("schema versioning: different schemaVersion => separate keyspace") {
-        val url = "https://example.com/ver"
-        val v1 = AsyncRedisMediaCacheAdapter(mediaTemplate, schemaVersion = 1)
-        val v2 = AsyncRedisMediaCacheAdapter(mediaTemplate, schemaVersion = 2)
+    context("put/get") {
+        test("stores and reads list back") {
+            val key = url("hit")
+            val value = mediaFor(key)
 
-        v1.put(url, media(url), ttl = Duration.ofSeconds(30))
+            cache.put(key, value, DEFAULT_TTL)
 
-        v1.get(url)!!.shouldHaveSize(2)
-        v2.get(url).shouldBeNull()
+            cache.get(key) shouldBe value
+            cache.get(key)!!.shouldHaveSize(2)
+        }
+
+        test("does nothing when values are empty") {
+            val key = url("empty")
+
+            cache.put(key, emptyList(), DEFAULT_TTL)
+
+            cache.get(key).shouldBeNull()
+        }
     }
-})
+
+    context("evict") {
+        test("removes key") {
+            val key = url("evict")
+            cache.put(key, mediaFor(key), DEFAULT_TTL)
+
+            cache.get(key)!!.shouldHaveSize(2)
+
+            cache.evict(key)
+
+            cache.get(key).shouldBeNull()
+        }
+    }
+
+    context("ttl") {
+        test("value expires") {
+            val key = url("ttl")
+            cache.put(key, mediaFor(key), EXPIRING_TTL)
+
+            cache.get(key)!!.shouldHaveSize(2)
+
+            eventually(3.seconds) {
+                cache.get(key).shouldBeNull()
+            }
+        }
+    }
+
+    context("schema versioning") {
+        test("different schemaVersion => separate keyspace") {
+            val key = url("ver")
+
+            val v1: CachePort<String, List<Media>> = AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 1)
+            val v2: CachePort<String, List<Media>> = AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 2)
+
+            v1.put(key, mediaFor(key), DEFAULT_TTL)
+
+            v1.get(key)!!.shouldHaveSize(2)
+            v2.get(key).shouldBeNull()
+        }
+    }
+}) {
+
+    private companion object {
+        val FIXED_DOWNLOADED_AT: OffsetDateTime = OffsetDateTime.parse("2020-01-01T00:00:00Z")
+
+        val DEFAULT_TTL: Duration = Duration.ofSeconds(30)
+        val EXPIRING_TTL: Duration = Duration.ofMillis(250)
+    }
+}
 
