@@ -16,6 +16,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.data.redis.RedisConnectionDetails
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -29,18 +30,17 @@ import org.springframework.context.annotation.Configuration
 class RedisRateLimitConfiguration {
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
-    fun redisClient(redisProps: RedisProperties): RedisClient {
-        val uri =
-            RedisURI.Builder
-                .redis(redisProps.host, redisProps.port)
-                .apply {
-                    if (!redisProps.password.isNullOrBlank()) {
-                        withPassword(redisProps.password.toCharArray())
-                    }
-                    if (redisProps.ssl.isEnabled) withSsl(true)
-                    withDatabase(redisProps.database)
-                }
-                .build()
+    fun redisClient(details: RedisConnectionDetails): RedisClient {
+        val standalone = details.standalone
+        val uri = RedisURI.Builder.redis(standalone.host, standalone.port)
+            .apply {
+                val password = details.password
+                if (!password.isNullOrBlank()) withPassword(password.toCharArray())
+                if (standalone.sslBundle != null) withSsl(true)
+                withDatabase(standalone.database)
+            }
+            .build()
+
         return RedisClient.create(uri)
     }
 
