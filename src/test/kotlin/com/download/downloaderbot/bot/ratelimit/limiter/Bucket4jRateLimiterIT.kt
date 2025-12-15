@@ -23,19 +23,7 @@ import java.time.Duration
     classes = [RateLimiterItTestApp::class],
     properties = [
         "downloader.ratelimit.enabled=true",
-        "downloader.ratelimit.namespace=rl-it",
-        "downloader.ratelimit.global.capacity=1",
-        "downloader.ratelimit.global.refill.tokens=1",
-        "downloader.ratelimit.global.refill.period=250ms",
-        "downloader.ratelimit.global.refill.greedy=true",
-        "downloader.ratelimit.chat.capacity=1",
-        "downloader.ratelimit.chat.refill.tokens=1",
-        "downloader.ratelimit.chat.refill.period=10s",
-        "downloader.ratelimit.chat.refill.greedy=true",
-        "downloader.ratelimit.group.capacity=2",
-        "downloader.ratelimit.group.refill.tokens=2",
-        "downloader.ratelimit.group.refill.period=10s",
-        "downloader.ratelimit.group.refill.greedy=true",
+        "spring.config.location=classpath:/",
     ],
 )
 @ActiveProfiles("test")
