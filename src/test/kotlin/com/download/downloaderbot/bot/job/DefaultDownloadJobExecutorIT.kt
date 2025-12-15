@@ -1,9 +1,9 @@
 package com.download.downloaderbot.bot.job
 
 import com.download.downloaderbot.app.download.StubMediaService
+import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.config.DownloadJobExecutorTestConfig
 import com.download.downloaderbot.bot.config.RedisTestConfig
-import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId
@@ -22,13 +22,16 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
-@Import(BotTestConfig::class, DownloadJobExecutorTestConfig::class, RedisTestConfig::class)
-@SpringBootTest(properties = ["spring.config.location=classpath:/"])
+@SpringBootTest(
+    classes = [
+        BotTestConfig::class,
+        DownloadJobExecutorTestConfig::class,
+        RedisTestConfig::class,
+    ],
+    properties = ["spring.config.location=classpath:/"],
+)
 @ActiveProfiles("test")
 class DefaultDownloadJobExecutorIT @Autowired constructor(
     private val executor: DefaultDownloadJobExecutor,
@@ -45,15 +48,13 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
         botPort.reset()
     }
 
-    fun downloadJob(
-        url: String,
-        chatId: Long,
-    ) = DownloadJob(
-        sourceUrl = url,
-        chatId = chatId,
-        replyToMessageId = null,
-        commandContext = mockk(relaxed = true),
-    )
+    fun downloadJob(url: String, chatId: Long) =
+        DownloadJob(
+            sourceUrl = url,
+            chatId = chatId,
+            replyToMessageId = null,
+            commandContext = mockk(relaxed = true),
+        )
 
     test("sends single video with promo and updates cache") {
         val url = "https://example.com/video"
@@ -63,10 +64,10 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
             url,
             listOf(
                 Media(
-                    type = MediaType.VIDEO,
-                    fileUrl = "/tmp/video.mp4",
-                    sourceUrl = url,
-                    title = "Video",
+                    MediaType.VIDEO,
+                    "/tmp/video.mp4",
+                    url,
+                    "Video",
                 ),
             ),
         )
@@ -81,7 +82,6 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
         sent.options.caption shouldBe botProps.promoText
         sent.options.replyMarkup.shouldNotBeNull()
 
-
         val cached = cache.get(url)
         cached.shouldNotBeNull()
         cached.first().lastFileId shouldBe sent.message.fileId
@@ -95,16 +95,16 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
             url,
             listOf(
                 Media(
-                    type = MediaType.IMAGE,
-                    fileUrl = "/tmp/1.jpg",
-                    sourceUrl = url,
-                    title = "1",
+                    MediaType.IMAGE,
+                    "/tmp/1.jpg",
+                    url,
+                    "1",
                 ),
                 Media(
-                    type = MediaType.IMAGE,
-                    fileUrl = "/tmp/2.jpg",
-                    sourceUrl = url,
-                    title = "2",
+                    MediaType.IMAGE,
+                    "/tmp/2.jpg",
+                    url,
+                    "2",
                 ),
             ),
         )
@@ -127,9 +127,7 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
         mediaService.stubDownload(url, emptyList())
 
         val job = downloadJob(url, chatId)
-        shouldThrow<MediaNotFoundException> {
-            executor.execute(job)
-        }
+        shouldThrow<MediaNotFoundException> { executor.execute(job) }
 
         botPort.sentMedia.shouldHaveSize(0)
         botPort.sentAlbums.shouldHaveSize(0)
@@ -138,5 +136,4 @@ class DefaultDownloadJobExecutorIT @Autowired constructor(
 
         cache.get(url).shouldBeNull()
     }
-
 })
