@@ -1,0 +1,4 @@
+style:
+  MaxLineLength:
+    excludes:
+      - "**/test/**"
