@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("LongParameterList")
 @DownloaderBotE2E
 @TestPropertySource(properties = ["downloader.yt-dlp.runner=fail"])
 class DownloadFailureE2E(
