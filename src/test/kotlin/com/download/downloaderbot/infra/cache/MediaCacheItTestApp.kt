@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.cache
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
-import com.download.downloaderbot.bot.config.RedisTestConfig
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.infra.config.MappingConfig
 import com.download.downloaderbot.infra.config.RedisConfig
 import org.springframework.boot.SpringBootConfiguration

@@ -3,7 +3,7 @@ package com.download.downloaderbot.bot.job
 import com.download.downloaderbot.app.download.StubMediaService
 import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.config.DownloadJobExecutorTestConfig
-import com.download.downloaderbot.bot.config.RedisTestConfig
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId

@@ -13,6 +13,7 @@ import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonPar
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpCommandBuilder
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -26,15 +27,20 @@ class YtDlpConfig(
     val toolProps: YtDlpProperties,
 ) {
     @Bean
+    @ForYtDlp
+    fun ytDlpProcessRunner(): ProcessRunner = DefaultProcessRunner(toolProps.bin, toolProps.timeout)
+
+    @Bean
     fun ytDlp(
         mapper: ObjectMapper,
         @ForYtDlp fileFinder: FilesByPrefixFinder,
+        @ForYtDlp processRunner: ProcessRunner,
     ): CliTool =
         BaseCliTool(
             mediaProps,
             YtDlpPathGenerator(mediaProps),
             YtDlpCommandBuilder(toolProps),
-            DefaultProcessRunner(toolProps.bin, toolProps.timeout),
+            processRunner,
             OutputJsonExtractor(toolProps.bin),
             DefaultJsonParser(mapper, object : TypeReference<YtDlpMedia>() {}),
             fileFinder,

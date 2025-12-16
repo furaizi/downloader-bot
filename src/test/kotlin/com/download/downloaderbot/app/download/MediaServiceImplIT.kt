@@ -2,8 +2,8 @@ package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.bot.config.BotTestConfig
-import com.download.downloaderbot.bot.config.MediaServiceTestConfig
-import com.download.downloaderbot.bot.config.RedisTestConfig
+import com.download.downloaderbot.infra.config.MediaServiceTestConfig
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType

@@ -10,6 +10,7 @@ import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.base.NoMetadataCliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlCommandBuilder
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,14 +22,19 @@ class GalleryDlConfig(
     val toolProps: GalleryDlProperties,
 ) {
     @Bean
+    @ForGalleryDl
+    fun galleryDlProcessRunner(): ProcessRunner = DefaultProcessRunner(toolProps.bin, toolProps.timeout)
+
+    @Bean
     fun galleryDl(
         @ForGalleryDl fileFinder: FilesByPrefixFinder,
+        @ForGalleryDl processRunner: ProcessRunner,
     ): CliTool =
         NoMetadataCliTool(
             mediaProps,
             GalleryDlPathGenerator(mediaProps),
             GalleryDlCommandBuilder(toolProps),
-            DefaultProcessRunner(toolProps.bin, toolProps.timeout),
+            processRunner,
             fileFinder,
             ToolId.GALLERY_DL,
         )

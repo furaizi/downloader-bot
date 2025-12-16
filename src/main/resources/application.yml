@@ -4,7 +4,6 @@ spring:
   config:
     import:
       - optional:file:.env[.properties]
-      - file:config/sources.yml
   profiles:
     default: dev
   jackson:

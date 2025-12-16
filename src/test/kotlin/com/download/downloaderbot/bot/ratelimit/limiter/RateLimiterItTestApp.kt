@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.RedisRateLimitConfiguration
-import com.download.downloaderbot.bot.config.RedisTestConfig
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration

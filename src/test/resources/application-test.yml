@@ -1,5 +1,7 @@
 spring:
   config:
+    import:
+      - classpath:sources.yml
     additional-location:
 
 telegram:
@@ -9,19 +11,15 @@ telegram:
     promo-text: "Promo text"
     promo-every-n: 1
 
-sources:
-  magic-source:
-    enabled: true
-    subresources:
-      magic-subresource:
-        tool: yt-dlp
-        url-patterns:
-          - '^https?://example\.com/magic/.*$'
-
-
 downloader:
   cache:
     schema-version: 1
+  yt-dlp:
+    enabled: true
+  gallery-dl:
+    enabled: false
+  instaloader:
+    enabled: false
   ratelimit:
     enabled: false
     namespace: rl-it

@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.config
+package com.download.downloaderbot.infra.config
 
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.network.StubFinalUrlResolver
