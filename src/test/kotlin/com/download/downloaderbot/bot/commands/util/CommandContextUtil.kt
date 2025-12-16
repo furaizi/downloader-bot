@@ -58,6 +58,23 @@ fun updateDownload(
         ),
     )
 
+fun updateText(
+    text: String,
+    chatId: Long,
+    messageId: Long,
+    updateId: Long = 1L,
+    chatType: String = if (chatId < 0) "group" else "private",
+) =
+    tgUpdate(
+        updateId = updateId,
+        message = tgMessage(
+            chatId = chatId,
+            messageId = messageId,
+            chatType = chatType,
+            text = text,
+        ),
+    )
+
 fun ctx(
     args: List<String> = emptyList(),
     chatId: Long = 123L,
@@ -76,4 +93,3 @@ fun ctx(
         ),
         args = args,
     )
-

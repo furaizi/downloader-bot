@@ -46,25 +46,28 @@ class Bucket4jRateLimiterIT
                 redisConnection.sync().flushall()
             }
 
-            test("global: second awaitGlobal throttles until refill") {
-                limiter.awaitGlobal()
-
+            test("global: awaits throttle after exhausting burst capacity") {
                 val startNs = System.nanoTime()
-                limiter.awaitGlobal()
+                repeat(12) {
+                    limiter.awaitGlobal()
+                }
                 val elapsedMs = (System.nanoTime() - startNs) / 1_000_000
 
-                elapsedMs.shouldBeGreaterThanOrEqual(80)
+                elapsedMs.shouldBeGreaterThanOrEqual(150)
             }
 
             test("per-chat: same chatId is limited, different chatId is independent") {
                 limiter.tryConsumePerChatOrGroup(42).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(42).shouldBeTrue()
                 limiter.tryConsumePerChatOrGroup(42).shouldBeFalse()
 
+                limiter.tryConsumePerChatOrGroup(43).shouldBeTrue()
                 limiter.tryConsumePerChatOrGroup(43).shouldBeTrue()
                 limiter.tryConsumePerChatOrGroup(43).shouldBeFalse()
             }
 
             test("group vs chat: group has its own limit and separate keyspace") {
+                limiter.tryConsumePerChatOrGroup(100).shouldBeTrue()
                 limiter.tryConsumePerChatOrGroup(100).shouldBeTrue()
                 limiter.tryConsumePerChatOrGroup(100).shouldBeFalse()
 
@@ -77,7 +80,7 @@ class Bucket4jRateLimiterIT
                 val base =
                     RateLimitProperties(
                         true,
-                        "rl-it-ver",
+                        "rl-test-ver",
                         chat =
                             RateLimitProperties.Bucket(
                                 1,
@@ -112,7 +115,7 @@ class Bucket4jRateLimiterIT
                 val p =
                     RateLimitProperties(
                         true,
-                        "rl-it-failopen",
+                        "rl-test-failopen",
                         chat =
                             RateLimitProperties.Bucket(
                                 1,

@@ -22,22 +22,22 @@ downloader:
     enabled: false
   ratelimit:
     enabled: false
-    namespace: rl-it
+    namespace: rl-test
     global:
-      capacity: 1
+      capacity: 10
       refill:
-        tokens: 1
-        period: 250ms
+        tokens: 10
+        period: 1s
         greedy: true
     chat:
-      capacity: 1
+      capacity: 2
       refill:
-        tokens: 1
-        period: 10s
+        tokens: 2
+        period: 1s
         greedy: true
     group:
       capacity: 2
       refill:
         tokens: 2
-        period: 10s
+        period: 1s
         greedy: true
