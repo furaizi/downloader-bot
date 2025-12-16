@@ -12,6 +12,8 @@ telegram:
     promo-every-n: 1
 
 downloader:
+  concurrency:
+    max-downloads: 5
   cache:
     schema-version: 1
     wait-poll: 50ms

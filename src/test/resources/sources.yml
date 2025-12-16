@@ -6,3 +6,10 @@ sources:
         tool: yt-dlp
         url-patterns:
           - '^https?://example\.com/magic/.*$'
+  video-source:
+    enabled: true
+    subresources:
+      videos:
+        tool: yt-dlp
+        url-patterns:
+          - '^https?://example\.com/video/.*$'
