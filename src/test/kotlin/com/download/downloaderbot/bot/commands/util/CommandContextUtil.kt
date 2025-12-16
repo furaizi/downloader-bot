@@ -10,21 +10,26 @@ import io.mockk.mockk
 fun ctx(
     args: List<String> = emptyList(),
     chatId: Long = 123L,
-    messageId: Long = 777L,
+    replyToMessageId: Long = 777L,
     chatType: String = if (chatId < 0) "group" else "private",
 ): CommandContext {
-    val update = mockk<Update>()
-    val message = mockk<Message>()
-    val chat = mockk<Chat>()
+    val chat =
+        mockk<Chat> {
+            every { id } returns chatId
+            every { type } returns chatType
+        }
 
-    every { chat.id } returns chatId
-    every { chat.type } returns chatType
+    val message =
+        mockk<Message> {
+            every { this@mockk.chat } returns chat
+            every { messageId } returns replyToMessageId
+        }
 
-    every { message.chat } returns chat
-    every { message.messageId } returns messageId
-
-    every { update.message } returns message
-    every { update.callbackQuery } returns null
+    val update =
+        mockk<Update> {
+            every { this@mockk.message } returns message
+            every { callbackQuery } returns null
+        }
 
     return CommandContext(update, args)
 }
