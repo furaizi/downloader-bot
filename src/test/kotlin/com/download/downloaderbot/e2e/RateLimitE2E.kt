@@ -28,44 +28,45 @@ class RateLimitE2E(
     errorGuard: BotErrorGuard,
     private val redisConnection: StatefulRedisConnection<String, ByteArray>,
 ) : AbstractE2E(
-    updateHandler,
-    botPort,
-    mediaProps,
-    errorGuard,
-    body = {
+        updateHandler,
+        botPort,
+        mediaProps,
+        errorGuard,
+        body = {
 
-        beforeTest {
-            redisConnection.sync().flushall()
-        }
-
-        test("rejects messages beyond chat limit and notifies the user") {
-            val userChatId = 101L
-            val updates = (1L..5L).map { idx ->
-                updateText("/start", userChatId, idx, idx)
+            beforeTest {
+                redisConnection.sync().flushall()
             }
 
-            updates.forEach { handle(it) }
+            test("rejects messages beyond chat limit and notifies the user") {
+                val userChatId = 101L
+                val updates =
+                    (1L..5L).map { idx ->
+                        updateText("/start", userChatId, idx, idx)
+                    }
 
-            botPort.sentTexts shouldHaveSize 5
+                updates.forEach { handle(it) }
 
-            val welcome = "Привіт! Надішли мені посилання - я завантажу і відправлю відео."
-            val throttled = "Занадто багато запитів, спробуйте пізніше."
+                botPort.sentTexts shouldHaveSize 5
 
-            botPort.sentTexts.take(2).forEach { sent ->
-                assertSoftly(sent) {
-                    chatId shouldBe userChatId
-                    replyToMessageId shouldBe null
-                    text shouldBe welcome
+                val welcome = "Привіт! Надішли мені посилання - я завантажу і відправлю відео."
+                val throttled = "Занадто багато запитів, спробуйте пізніше."
+
+                botPort.sentTexts.take(2).forEach { sent ->
+                    assertSoftly(sent) {
+                        chatId shouldBe userChatId
+                        replyToMessageId shouldBe null
+                        text shouldBe welcome
+                    }
+                }
+
+                botPort.sentTexts.drop(2).forEachIndexed { idx, sent ->
+                    assertSoftly(sent) {
+                        chatId shouldBe userChatId
+                        replyToMessageId shouldBe updates[idx + 2].message?.messageId
+                        text shouldBe throttled
+                    }
                 }
             }
-
-            botPort.sentTexts.drop(2).forEachIndexed { idx, sent ->
-                assertSoftly(sent) {
-                    chatId shouldBe userChatId
-                    replyToMessageId shouldBe updates[idx + 2].message?.messageId
-                    text shouldBe throttled
-                }
-            }
-        }
-    },
-)
+        },
+    )

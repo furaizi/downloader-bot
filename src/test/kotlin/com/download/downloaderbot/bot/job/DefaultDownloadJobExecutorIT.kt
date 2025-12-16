@@ -3,7 +3,6 @@ package com.download.downloaderbot.bot.job
 import com.download.downloaderbot.app.download.StubMediaService
 import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.config.DownloadJobExecutorTestConfig
-import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId
@@ -11,6 +10,7 @@ import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension

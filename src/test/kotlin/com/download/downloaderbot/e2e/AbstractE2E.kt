@@ -21,15 +21,14 @@ abstract class AbstractE2E(
     body: AbstractE2E.() -> Unit,
 ) : FunSpec({
 
-    extension(SpringExtension)
+        extension(SpringExtension)
 
-    beforeTest {
-        botPort.reset()
-        mediaProps.basePath.toFile().deleteRecursively()
-        Files.createDirectories(mediaProps.basePath)
-    }
-}) {
-
+        beforeTest {
+            botPort.reset()
+            mediaProps.basePath.toFile().deleteRecursively()
+            Files.createDirectories(mediaProps.basePath)
+        }
+    }) {
     init {
         body.invoke(this)
     }
@@ -41,11 +40,12 @@ abstract class AbstractE2E(
             return
         }
 
-        val args = update.message
-            ?.text
-            ?.trim()
-            ?.split(Regex("\\s+"))
-            .orEmpty()
+        val args =
+            update.message
+                ?.text
+                ?.trim()
+                ?.split(Regex("\\s+"))
+                .orEmpty()
 
         val ctx = CommandContext(update, args)
 
@@ -58,9 +58,11 @@ abstract class AbstractE2E(
         private val mediaDir: Path = Files.createTempDirectory("downloader-bot-media-")
 
         init {
-            Runtime.getRuntime().addShutdownHook(Thread {
-                mediaDir.toFile().deleteRecursively()
-            })
+            Runtime.getRuntime().addShutdownHook(
+                Thread {
+                    mediaDir.toFile().deleteRecursively()
+                },
+            )
         }
 
         @JvmStatic
