@@ -1,4 +1,4 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.config
 
 import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.infra.config.RedisTestConfig

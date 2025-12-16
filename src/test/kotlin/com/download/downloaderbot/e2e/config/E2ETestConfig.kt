@@ -1,4 +1,4 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.config
 
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.core.net.FinalUrlResolver
