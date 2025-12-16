@@ -14,6 +14,8 @@ telegram:
 downloader:
   cache:
     schema-version: 1
+    wait-poll: 50ms
+    wait-timeout: 5s
   yt-dlp:
     enabled: true
   gallery-dl:
