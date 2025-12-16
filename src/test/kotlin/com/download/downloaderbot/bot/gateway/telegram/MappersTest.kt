@@ -63,7 +63,11 @@ class MappersTest : FunSpec({
             TestCase(
                 "maps InvalidResponse to Err(INVALID_RESPONSE)",
                 TelegramBotResult.Error.InvalidResponse(500, "Err", null),
-                GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 500, description = "Invalid Telegram response: null"),
+                GatewayResult.Err(
+                    GatewayResult.Err.Kind.INVALID_RESPONSE,
+                    500,
+                    description = "Invalid Telegram response: null"
+                ),
             ),
             TestCase(
                 "maps Unknown to Err(EXCEPTION)",
@@ -92,32 +96,55 @@ class MappersTest : FunSpec({
                 "returns Err(EXCEPTION) when exception is present",
                 null,
                 ex,
-                GatewayResult.Err(GatewayResult.Err.Kind.EXCEPTION, cause = ex, description = "Net error"),
+                GatewayResult.Err(
+                    GatewayResult.Err.Kind.EXCEPTION,
+                    cause = ex,
+                    description = "Net error"
+                ),
             ),
             TestCase(
                 "returns Err(UNKNOWN) when both http and exception are null",
                 null,
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.UNKNOWN, description = "HTTP response is null"),
+                expected = GatewayResult.Err(
+                    GatewayResult.Err.Kind.UNKNOWN,
+                    description = "HTTP response is null"
+                ),
             ),
             TestCase(
                 "returns Err(HTTP) when http response is not successful",
                 HttpResponse.error(404, "Error body content".toResponseBody("text/plain".toMediaTypeOrNull())),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.HTTP, 404, description = "Error body content"),
+                expected = GatewayResult.Err(
+                    GatewayResult.Err.Kind.HTTP,
+                    404,
+                    description = "Error body content"
+                ),
             ),
             TestCase(
                 "returns Err(INVALID_RESPONSE) when body is null",
                 HttpResponse.success<TgEnvelope<String>?>(null),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Empty body"),
+                expected = GatewayResult.Err(
+                    GatewayResult.Err.Kind.INVALID_RESPONSE,
+                    200,
+                    description = "Empty body"
+                ),
             ),
             TestCase(
                 "returns Err(TELEGRAM) when envelope is not ok",
                 HttpResponse.success(TgEnvelope(null, false, 400, "Bad Request")),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.TELEGRAM, telegramCode = 400, description = "Bad Request"),
+                expected = GatewayResult.Err(
+                    GatewayResult.Err.Kind.TELEGRAM,
+                    telegramCode = 400,
+                    description = "Bad Request"
+                ),
             ),
             TestCase(
                 "returns Err(INVALID_RESPONSE) when result is null but ok is true",
                 HttpResponse.success(TgEnvelope(null, true)),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Result is null"),
+                expected = GatewayResult.Err(
+                    GatewayResult.Err.Kind.INVALID_RESPONSE,
+                    200,
+                    description = "Result is null"
+                ),
             ),
             TestCase(
                 "returns Ok when request successful and result present",
