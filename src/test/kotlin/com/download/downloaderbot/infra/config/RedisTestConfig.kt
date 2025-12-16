@@ -1,4 +1,4 @@
-package com.download.downloaderbot.bot.config
+package com.download.downloaderbot.infra.config
 
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection

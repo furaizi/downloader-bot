@@ -1,4 +1,7 @@
 spring:
+  config:
+    import:
+      - file:config/sources.yml
   docker:
     compose:
       enabled: true

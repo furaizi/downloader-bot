@@ -4,32 +4,76 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.github.kotlintelegrambot.entities.Chat
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.Update
-import io.mockk.every
-import io.mockk.mockk
+
+private const val DEFAULT_DATE: Long = 1_700_000_000L
+
+private fun tgChat(
+    chatId: Long,
+    chatType: String = if (chatId < 0) "group" else "private",
+) =
+    Chat(
+        id = chatId,
+        type = chatType
+    )
+
+private fun tgMessage(
+    chatId: Long,
+    messageId: Long,
+    text: String? = null,
+    chatType: String = if (chatId < 0) "group" else "private",
+    date: Long = DEFAULT_DATE,
+) =
+    Message(
+        messageId = messageId,
+        date = date,
+        chat = tgChat(chatId, chatType),
+        text = text,
+        entities = emptyList(),
+        captionEntities = emptyList(),
+        caption = null,
+    )
+
+private fun tgUpdate(
+    message: Message? = null,
+    updateId: Long = 1L,
+) =
+    Update(
+        updateId = updateId,
+        message = message,
+    )
+
+fun updateDownload(
+    url: String,
+    chatId: Long,
+    messageId: Long,
+    updateId: Long = 1L,
+) =
+    tgUpdate(
+        updateId = updateId,
+        message = tgMessage(
+            chatId = chatId,
+            messageId = messageId,
+            chatType = "private",
+            text = url,
+        ),
+    )
 
 fun ctx(
     args: List<String> = emptyList(),
     chatId: Long = 123L,
     replyToMessageId: Long = 777L,
     chatType: String = if (chatId < 0) "group" else "private",
-): CommandContext {
-    val chat =
-        mockk<Chat> {
-            every { id } returns chatId
-            every { type } returns chatType
-        }
+    updateId: Long = 1L,
+) =
+    CommandContext(
+        update = tgUpdate(
+            updateId = updateId,
+            message = tgMessage(
+                chatId = chatId,
+                messageId = replyToMessageId,
+                chatType = chatType,
+            ),
+        ),
+        args = args,
+    )
 
-    val message =
-        mockk<Message> {
-            every { this@mockk.chat } returns chat
-            every { messageId } returns replyToMessageId
-        }
-
-    val update =
-        mockk<Update> {
-            every { this@mockk.message } returns message
-            every { callbackQuery } returns null
-        }
-
-    return CommandContext(update, args)
-}

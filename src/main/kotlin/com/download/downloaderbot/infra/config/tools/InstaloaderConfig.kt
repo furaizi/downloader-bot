@@ -13,6 +13,7 @@ import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonPar
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderCommandBuilder
 import com.download.downloaderbot.infra.process.cli.instaloader.InstaloaderMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
+import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -26,15 +27,20 @@ class InstaloaderConfig(
     val toolProps: InstaloaderProperties,
 ) {
     @Bean
+    @ForInstaloader
+    fun instaloaderProcessRunner(): ProcessRunner = DefaultProcessRunner(toolProps.bin, toolProps.timeout)
+
+    @Bean
     fun instaloader(
         mapper: ObjectMapper,
         @ForInstaloader fileFinder: FilesByPrefixFinder,
+        @ForInstaloader processRunner: ProcessRunner,
     ): CliTool =
         BaseCliTool(
             mediaProps,
             InstaloaderPathGenerator(mediaProps),
             InstaloaderCommandBuilder(toolProps),
-            DefaultProcessRunner(toolProps.bin, toolProps.timeout),
+            processRunner,
             FileJsonExtractor(toolProps.bin),
             DefaultJsonParser(mapper, object : TypeReference<InstaloaderMedia>() {}),
             fileFinder,

@@ -1,0 +1,8 @@
+sources:
+  magic-source:
+    enabled: true
+    subresources:
+      magic-subresource:
+        tool: yt-dlp
+        url-patterns:
+          - '^https?://example\.com/magic/.*$'
