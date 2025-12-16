@@ -2,7 +2,16 @@ package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.util.ctx
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
-import com.download.downloaderbot.core.downloader.*
+import com.download.downloaderbot.core.downloader.BusyException
+import com.download.downloaderbot.core.downloader.DownloadInProgressException
+import com.download.downloaderbot.core.downloader.MediaDownloaderException
+import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
+import com.download.downloaderbot.core.downloader.MediaNotFoundException
+import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.core.downloader.TooManyRequestsException
+import com.download.downloaderbot.core.downloader.ToolExecutionException
+import com.download.downloaderbot.core.downloader.ToolTimeoutException
+import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.infra.metrics.BotMetrics
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
@@ -42,56 +51,57 @@ class GlobalTelegramExceptionHandlerTest : FunSpec({
         data class TestCase(
             val exception: Exception,
             val expectedText: String,
-            val testName: String = exception::class.simpleName ?: "Unknown"
+            val testName: String = exception::class.simpleName ?: "Unknown",
         )
 
-        val testCases = listOf(
-            TestCase(
-                UnsupportedSourceException("http://src"),
-                "Це джерело не підтримується."
-            ),
-            TestCase(
-                MediaTooLargeException("http://src", 200 * 1024 * 1024, 100 * 1024 * 1024),
-                "Медіафайл занадто великий. Обмеження: 100 МБ."
-            ),
-            TestCase(
-                MediaNotFoundException("http://src"),
-                "Нічого не знайдено за цим URL."
-            ),
-            TestCase(
-                ToolExecutionException("ffmpeg", 1, "err"),
-                "Внутрішній інструмент не зміг виконатися."
-            ),
-            TestCase(
-                ToolTimeoutException("yt-dlp", Duration.ofSeconds(5), "out"),
-                "Внутрішній інструмент перевищив час очікування: PT5S."
-            ),
-            TestCase(
-                MediaDownloaderToolException("Internal error"),
-                "Сталася внутрішня помилка інструменту."
-            ),
-            TestCase(
-                DownloadInProgressException("http://src"),
-                "Цей медіафайл уже завантажується, будь ласка, зачекайте."
-            ),
-            TestCase(
-                BusyException("http://src"),
-                "Завантажувач зараз зайнятий, спробуйте пізніше."
-            ),
-            TestCase(
-                TooManyRequestsException("private", 123L),
-                "Занадто багато запитів, спробуйте пізніше."
-            ),
-            TestCase(
-                MediaDownloaderException("http://src", "General error"),
-                "Сталася помилка під час обробки медіафайлу."
-            ),
-            TestCase(
-                IllegalStateException("Unexpected boom"),
-                "Сталася непередбачена помилка.",
-                testName = "Unknown Exception (Default)"
+        val testCases =
+            listOf(
+                TestCase(
+                    UnsupportedSourceException("http://src"),
+                    "Це джерело не підтримується.",
+                ),
+                TestCase(
+                    MediaTooLargeException("http://src", 200 * 1024 * 1024, 100 * 1024 * 1024),
+                    "Медіафайл занадто великий. Обмеження: 100 МБ.",
+                ),
+                TestCase(
+                    MediaNotFoundException("http://src"),
+                    "Нічого не знайдено за цим URL.",
+                ),
+                TestCase(
+                    ToolExecutionException("ffmpeg", 1, "err"),
+                    "Внутрішній інструмент не зміг виконатися.",
+                ),
+                TestCase(
+                    ToolTimeoutException("yt-dlp", Duration.ofSeconds(5), "out"),
+                    "Внутрішній інструмент перевищив час очікування: PT5S.",
+                ),
+                TestCase(
+                    MediaDownloaderToolException("Internal error"),
+                    "Сталася внутрішня помилка інструменту.",
+                ),
+                TestCase(
+                    DownloadInProgressException("http://src"),
+                    "Цей медіафайл уже завантажується, будь ласка, зачекайте.",
+                ),
+                TestCase(
+                    BusyException("http://src"),
+                    "Завантажувач зараз зайнятий, спробуйте пізніше.",
+                ),
+                TestCase(
+                    TooManyRequestsException("private", 123L),
+                    "Занадто багато запитів, спробуйте пізніше.",
+                ),
+                TestCase(
+                    MediaDownloaderException("http://src", "General error"),
+                    "Сталася помилка під час обробки медіафайлу.",
+                ),
+                TestCase(
+                    IllegalStateException("Unexpected boom"),
+                    "Сталася непередбачена помилка.",
+                    testName = "Unknown Exception (Default)",
+                ),
             )
-        )
 
         testCases.forEach { (ex, expectedText, name) ->
             test("handles $name correctly") {

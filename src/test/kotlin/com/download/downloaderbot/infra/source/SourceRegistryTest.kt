@@ -1,8 +1,5 @@
 package com.download.downloaderbot.infra.source
 
-import com.download.downloaderbot.app.config.properties.SourceDef
-import com.download.downloaderbot.app.config.properties.SourcesProperties
-import com.download.downloaderbot.app.config.properties.SubresourceDef
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize

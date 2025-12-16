@@ -14,11 +14,9 @@ import java.time.Duration
 @EnabledIf(PosixShellCondition::class)
 class DefaultProcessRunnerIT : FunSpec({
 
-    fun createRunner(timeout: Duration = Duration.ofSeconds(5)) =
-        DefaultProcessRunner("sh", timeout)
+    fun createRunner(timeout: Duration = Duration.ofSeconds(5)) = DefaultProcessRunner("sh", timeout)
 
     fun shCommand(script: String): List<String> = listOf("/bin/sh", "-c", script)
-
 
     test("should successfully execute command and return output") {
         val runner = createRunner()
@@ -31,9 +29,10 @@ class DefaultProcessRunnerIT : FunSpec({
         val errorMsg = "Critical failure"
         val script = "echo '$errorMsg' >&2; exit 1"
 
-        val exception = shouldThrow<ToolExecutionException> {
-            runner.run(shCommand(script), "url")
-        }
+        val exception =
+            shouldThrow<ToolExecutionException> {
+                runner.run(shCommand(script), "url")
+            }
 
         assertSoftly(exception) {
             exitCode shouldBe 1
@@ -47,9 +46,10 @@ class DefaultProcessRunnerIT : FunSpec({
         val runner = createRunner(runnerTimeout)
         val script = "sleep 1; echo 'too late'"
 
-        val exception = shouldThrow<ToolTimeoutException> {
-            runner.run(shCommand(script), "url")
-        }
+        val exception =
+            shouldThrow<ToolTimeoutException> {
+                runner.run(shCommand(script), "url")
+            }
 
         assertSoftly(exception) {
             tool shouldBe "sh"
@@ -61,12 +61,11 @@ class DefaultProcessRunnerIT : FunSpec({
         val runner = createRunner(Duration.ofMillis(500))
         val script = "echo 'Started...'; sleep 2"
 
-        val exception = shouldThrow<ToolTimeoutException> {
-            runner.run(shCommand(script), "url")
-        }
+        val exception =
+            shouldThrow<ToolTimeoutException> {
+                runner.run(shCommand(script), "url")
+            }
 
         exception.output shouldContain "Started..."
     }
-
 })
-

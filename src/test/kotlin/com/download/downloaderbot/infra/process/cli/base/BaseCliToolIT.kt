@@ -31,12 +31,13 @@ class BaseCliToolIT : FunSpec({
 
     suspend fun withTempEnvironment(
         maxVideoSize: DataSize? = null,
-        testBlock: suspend (Path, CliToolFixture) -> Unit
+        testBlock: suspend (Path, CliToolFixture) -> Unit,
     ) {
         val tempDir = Files.createTempDirectory("cli-tool-it-")
         try {
-            val limits = maxVideoSize?.let { MediaSizeLimits(video = it) }
-                ?: MediaSizeLimits()
+            val limits =
+                maxVideoSize?.let { MediaSizeLimits(video = it) }
+                    ?: MediaSizeLimits()
             val props = MediaProperties(tempDir.toString(), maxSize = limits)
             val fixture = CliToolFixture(props)
 
@@ -50,9 +51,10 @@ class BaseCliToolIT : FunSpec({
         withTempEnvironment { dir, factory ->
             val url = "https://example.com/video"
 
-            val cmd = ShellYtDlpCommandBuilder()
-                .probeOk(ytDlpJson(title = "My video", type = "video", filesize = 1024))
-                .downloadCreatesFiles(exts = listOf("mp4"))
+            val cmd =
+                ShellYtDlpCommandBuilder()
+                    .probeOk(ytDlpJson(title = "My video", type = "video", filesize = 1024))
+                    .downloadCreatesFiles(exts = listOf("mp4"))
             val ytDlp = factory.ytDlp(cmd)
 
             val result = ytDlp.download(url, formatOverride = "best")
@@ -77,9 +79,10 @@ class BaseCliToolIT : FunSpec({
     test("yt-dlp. estimated size too large -> throws and does not create output") {
         withTempEnvironment(maxVideoSize = DataSize.ofBytes(1)) { dir, factory ->
             val url = "https://example.com/video"
-            val cmd = ShellYtDlpCommandBuilder()
-                .probeOk(ytDlpJson(title = "Big", type = "video", filesize = 2))
-                .downloadCreatesFiles(exts = listOf("mp4"))
+            val cmd =
+                ShellYtDlpCommandBuilder()
+                    .probeOk(ytDlpJson(title = "Big", type = "video", filesize = 2))
+                    .downloadCreatesFiles(exts = listOf("mp4"))
             val ytDlp = factory.ytDlp(cmd)
 
             shouldThrow<MediaTooLargeException> {
@@ -96,9 +99,10 @@ class BaseCliToolIT : FunSpec({
             val createdFiles = listOf("10.jpg", "2.jpg", "1.jpg", "abc.jpg")
             val expectedOrder = listOf("1.jpg", "2.jpg", "10.jpg", "abc.jpg")
 
-            val cmd = ShellGalleryDlCommandBuilder()
-                .probeFails()
-                .downloadCreatesDirWithFiles(fileNames = createdFiles)
+            val cmd =
+                ShellGalleryDlCommandBuilder()
+                    .probeFails()
+                    .downloadCreatesDirWithFiles(fileNames = createdFiles)
             val galleryDl = factory.galleryDl(cmd)
 
             val result = galleryDl.download(url, formatOverride = "")
@@ -119,7 +123,12 @@ class BaseCliToolIT : FunSpec({
     }
 })
 
-private fun ytDlpJson(title: String, type: String, filesize: Long): String = """
+private fun ytDlpJson(
+    title: String,
+    type: String,
+    filesize: Long,
+): String =
+    """
     {
       "title": "$title",
       "filename": "ignored",
@@ -138,6 +147,6 @@ private fun ytDlpJson(title: String, type: String, filesize: Long): String = """
       "acodec": "aac",
       "tbr": 1000.0
     }
-""".trimIndent()
-    .lines()
-    .joinToString("") { it.trim() }
+    """.trimIndent()
+        .lines()
+        .joinToString("") { it.trim() }

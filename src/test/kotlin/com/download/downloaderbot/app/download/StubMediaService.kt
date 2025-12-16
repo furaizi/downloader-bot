@@ -15,10 +15,7 @@ class StubMediaService : MediaService {
 
     fun reset() = responses.clear()
 
-    override suspend fun supports(url: String): Boolean =
-        responses.containsKey(url)
+    override suspend fun supports(url: String): Boolean = responses.containsKey(url)
 
-    override suspend fun download(url: String): List<Media> =
-        responses[url] ?: emptyList()
-
+    override suspend fun download(url: String): List<Media> = responses[url] ?: emptyList()
 }

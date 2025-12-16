@@ -143,7 +143,8 @@ kover {
                         "com.download.downloaderbot.*.*Config*",
                         "com.download.downloaderbot.*.*Properties*",
                         "com.download.downloaderbot.*.*Media",
-                        "*\$*", // drop compiler-generated nested/lambda classes from coverage
+                        // drop compiler-generated nested/lambda classes from coverage
+                        "*\$*",
                     )
                 }
             }

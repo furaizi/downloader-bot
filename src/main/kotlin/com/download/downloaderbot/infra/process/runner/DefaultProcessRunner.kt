@@ -26,7 +26,6 @@ class DefaultProcessRunner(
     private val bin: String,
     private val timeout: Duration,
 ) : ProcessRunner {
-
     private data class OutputCollection(
         val deferred: Deferred<String>,
         val buffer: StringBuffer,
@@ -117,7 +116,10 @@ class DefaultProcessRunner(
             throw t
         }
 
-    private fun handleExitCode(exitCode: Int, output: String) {
+    private fun handleExitCode(
+        exitCode: Int,
+        output: String,
+    ) {
         if (exitCode != 0) throw ToolExecutionException(bin, exitCode, output)
     }
 
@@ -127,7 +129,10 @@ class DefaultProcessRunner(
         runCatching { outputStream.close() }
     }
 
-    private suspend fun <T> stopTasks(process: Process, deferred: Deferred<T>) {
+    private suspend fun <T> stopTasks(
+        process: Process,
+        deferred: Deferred<T>,
+    ) {
         runCatching { deferred.cancelAndJoin() }
         runCatching { process.onExit().await() }
     }

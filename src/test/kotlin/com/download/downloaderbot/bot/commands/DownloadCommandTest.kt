@@ -13,7 +13,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.slot
 
 class DownloadCommandTest : FunSpec({
 
@@ -121,4 +127,3 @@ class DownloadCommandTest : FunSpec({
         coVerify(exactly = 0) { queue.submit(any()) }
     }
 })
-

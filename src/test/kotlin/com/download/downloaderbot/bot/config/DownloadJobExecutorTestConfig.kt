@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class DownloadJobExecutorTestConfig {
-
     @Primary
     @Bean
     fun stubMediaService() = StubMediaService()
@@ -16,5 +15,4 @@ class DownloadJobExecutorTestConfig {
     @Primary
     @Bean
     fun recordingBotPort() = RecordingBotPort()
-
 }
