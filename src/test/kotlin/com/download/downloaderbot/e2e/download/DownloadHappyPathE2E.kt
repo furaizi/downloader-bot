@@ -1,4 +1,4 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.download
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.app.download.UrlNormalizer
@@ -9,6 +9,8 @@ import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.e2e.config.AbstractE2E
+import com.download.downloaderbot.e2e.config.DownloaderBotE2E
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.collections.shouldHaveSize

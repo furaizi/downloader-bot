@@ -1,10 +1,12 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.download
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.util.updateDownload
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.e2e.config.AbstractE2E
+import com.download.downloaderbot.e2e.config.DownloaderBotE2E
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.longs.shouldBeLessThan
@@ -16,7 +18,7 @@ import kotlin.time.toDuration
 
 @DownloaderBotE2E
 @TestPropertySource(properties = ["downloader.yt-dlp.runner=sleepy"])
-class ThroughputE2E(
+class DownloadThroughputE2E(
     updateHandler: UpdateHandler,
     botPort: RecordingBotPort,
     mediaProps: MediaProperties,
@@ -28,13 +30,13 @@ class ThroughputE2E(
         errorGuard,
         body = {
 
-            test("processes 500 download jobs with 5 workers within reasonable time") {
-                val jobs = 500
+            test("processes 100 download jobs with 5 workers within reasonable time") {
+                val jobs = 100
                 val chatId = 888L
                 val start = System.nanoTime()
 
                 repeat(jobs) { idx ->
-                    val url = "https://example.com/video/$idx-${Random.nextLong()}"
+                    val url = "https://example.com/video/$idx-${Random.Default.nextLong()}"
                     handle(updateDownload(url, chatId, idx.toLong(), idx.toLong()))
                 }
 

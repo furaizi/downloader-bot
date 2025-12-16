@@ -1,10 +1,12 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.ratelimit
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.util.updateText
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.e2e.config.AbstractE2E
+import com.download.downloaderbot.e2e.config.DownloaderBotE2E
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe

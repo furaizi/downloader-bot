@@ -1,4 +1,4 @@
-package com.download.downloaderbot.e2e
+package com.download.downloaderbot.e2e.config
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.CommandContext
