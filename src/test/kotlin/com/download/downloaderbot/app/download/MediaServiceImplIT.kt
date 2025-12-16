@@ -2,13 +2,13 @@ package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.bot.config.BotTestConfig
-import com.download.downloaderbot.infra.config.MediaServiceTestConfig
-import com.download.downloaderbot.infra.config.RedisTestConfig
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.lock.UrlLockManager
+import com.download.downloaderbot.infra.config.MediaServiceTestConfig
+import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldNotBeNull

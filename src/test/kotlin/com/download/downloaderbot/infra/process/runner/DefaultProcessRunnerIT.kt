@@ -7,8 +7,8 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.annotation.EnabledIf
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.withTimeout
@@ -78,9 +78,10 @@ class DefaultProcessRunnerIT : FunSpec({
         val targetBytes = 10 * 1024 * 1024 // 10 MB
         val script = "yes 0123456789abcdef | head -c $targetBytes"
 
-        val output = withTimeout(15.seconds) {
-            runner.run(shCommand(script), "big-output-url")
-        }
+        val output =
+            withTimeout(15.seconds) {
+                runner.run(shCommand(script), "big-output-url")
+            }
 
         assertSoftly(output.length.toLong()) {
             shouldBeGreaterThanOrEqual(targetBytes - 32L)

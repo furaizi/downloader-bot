@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit
 @Measurement(iterations = 5, time = 1)
 @Fork(1)
 open class UrlNormalizerBenchmark {
-
     private lateinit var normalizer: UrlNormalizer
 
     @Param("25", "75")

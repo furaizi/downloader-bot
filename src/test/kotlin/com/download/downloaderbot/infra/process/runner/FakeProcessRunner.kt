@@ -9,8 +9,10 @@ class FakeProcessRunner(
     private val outputExt: String = "mp4",
     private val jsonLine: String = DEFAULT_JSON_LINE,
 ) : ProcessRunner {
-
-    override suspend fun run(args: List<String>, url: String): String {
+    override suspend fun run(
+        args: List<String>,
+        url: String,
+    ): String {
         val isProbe = args.any { it == "--dump-json" }
 
         if (!isProbe) {
@@ -25,8 +27,9 @@ class FakeProcessRunner(
 
     private fun extractOutputPath(args: List<String>): Path? {
         val idx = args.indexOf("-o")
-        val template = args.getOrNull(idx + 1)
-            ?: return null
+        val template =
+            args.getOrNull(idx + 1)
+                ?: return null
         return Path.of(template.replace("%(ext)s", outputExt))
     }
 
@@ -63,4 +66,3 @@ class FakeProcessRunner(
                 .joinToString("") { it.trim() }
     }
 }
-

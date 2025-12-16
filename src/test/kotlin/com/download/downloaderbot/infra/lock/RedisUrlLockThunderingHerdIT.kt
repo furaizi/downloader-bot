@@ -12,7 +12,6 @@ import com.download.downloaderbot.infra.config.MediaServiceTestConfig
 import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks

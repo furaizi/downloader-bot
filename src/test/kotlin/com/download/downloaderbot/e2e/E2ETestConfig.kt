@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class E2ETestConfig {
-
     @Bean
     @Primary
     fun recordingBotPort() = RecordingBotPort()

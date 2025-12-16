@@ -29,50 +29,50 @@ class DownloadFailureE2E(
     private val cache: CachePort<String, List<Media>>,
     private val normalizer: UrlNormalizer,
 ) : AbstractE2E(
-    updateHandler,
-    botPort,
-    mediaProps,
-    errorGuard,
-    body = {
+        updateHandler,
+        botPort,
+        mediaProps,
+        errorGuard,
+        body = {
 
-        test("releases url lock and notifies user when download fails") {
-            val url = "https://example.com/magic/fail"
-            val chatId = 303L
-            val failureText = "Внутрішній інструмент не зміг виконатися."
-            val key = normalizer.normalize(url)
+            test("releases url lock and notifies user when download fails") {
+                val url = "https://example.com/magic/fail"
+                val chatId = 303L
+                val failureText = "Внутрішній інструмент не зміг виконатися."
+                val key = normalizer.normalize(url)
 
-            cache.evict(key)
-            urlLock.tryAcquire(url, Duration.ofSeconds(1))?.let { urlLock.release(url, it) }
+                cache.evict(key)
+                urlLock.tryAcquire(url, Duration.ofSeconds(1))?.let { urlLock.release(url, it) }
 
-            val firstMessageId = 1L
-            handle(updateDownload(url, chatId, firstMessageId))
+                val firstMessageId = 1L
+                handle(updateDownload(url, chatId, firstMessageId))
 
-            eventually(5.seconds) {
-                botPort.sentTexts.shouldHaveSize(1)
-                assertSoftly(botPort.sentTexts.first()) {
-                    this.chatId shouldBe chatId
-                    replyToMessageId shouldBe firstMessageId
-                    text shouldBe failureText
+                eventually(5.seconds) {
+                    botPort.sentTexts.shouldHaveSize(1)
+                    assertSoftly(botPort.sentTexts.first()) {
+                        this.chatId shouldBe chatId
+                        replyToMessageId shouldBe firstMessageId
+                        text shouldBe failureText
+                    }
+                }
+
+                eventually(2.seconds) {
+                    val token = urlLock.tryAcquire(url, Duration.ofSeconds(1)).shouldNotBeNull()
+                    urlLock.release(url, token)
+                    cache.get(key) shouldBe null
+                }
+
+                val secondMessageId = 2L
+                handle(updateDownload(url, chatId, secondMessageId))
+
+                eventually(5.seconds) {
+                    botPort.sentTexts.shouldHaveSize(2)
+                    assertSoftly(botPort.sentTexts.last()) {
+                        this.chatId shouldBe chatId
+                        replyToMessageId shouldBe secondMessageId
+                        text shouldBe failureText
+                    }
                 }
             }
-
-            eventually(2.seconds) {
-                val token = urlLock.tryAcquire(url, Duration.ofSeconds(1)).shouldNotBeNull()
-                urlLock.release(url, token)
-                cache.get(key) shouldBe null
-            }
-
-            val secondMessageId = 2L
-            handle(updateDownload(url, chatId, secondMessageId))
-
-            eventually(5.seconds) {
-                botPort.sentTexts.shouldHaveSize(2)
-                assertSoftly(botPort.sentTexts.last()) {
-                    this.chatId shouldBe chatId
-                    replyToMessageId shouldBe secondMessageId
-                    text shouldBe failureText
-                }
-            }
-        }
-    },
-)
+        },
+    )

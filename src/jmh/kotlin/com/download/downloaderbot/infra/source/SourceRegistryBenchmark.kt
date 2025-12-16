@@ -1,7 +1,17 @@
 package com.download.downloaderbot.infra.source
 
 import com.download.downloaderbot.app.config.properties.SourcesProperties
-import org.openjdk.jmh.annotations.*
+import org.openjdk.jmh.annotations.Benchmark
+import org.openjdk.jmh.annotations.BenchmarkMode
+import org.openjdk.jmh.annotations.Fork
+import org.openjdk.jmh.annotations.Level
+import org.openjdk.jmh.annotations.Measurement
+import org.openjdk.jmh.annotations.Mode
+import org.openjdk.jmh.annotations.OutputTimeUnit
+import org.openjdk.jmh.annotations.Scope
+import org.openjdk.jmh.annotations.Setup
+import org.openjdk.jmh.annotations.State
+import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
 import java.util.concurrent.TimeUnit
 
@@ -12,7 +22,6 @@ import java.util.concurrent.TimeUnit
 @Measurement(iterations = 5, time = 1)
 @Fork(1)
 open class SourceRegistryBenchmark {
-
     private lateinit var registry: SourceRegistry
 
     private val firstMatchUrl = "https://www.youtube.com/watch?v=abcdefghijk"
@@ -46,18 +55,20 @@ open class SourceRegistryBenchmark {
                     name = "videos",
                     tool = "yt-dlp",
                     format = "mp4",
-                    patterns = listOf(
-                        "youtube\\.com/watch\\?v=[A-Za-z0-9_-]{11}",
-                        "youtu\\.be/[A-Za-z0-9_-]{11}",
-                    ),
+                    patterns =
+                        listOf(
+                            "youtube\\.com/watch\\?v=[A-Za-z0-9_-]{11}",
+                            "youtu\\.be/[A-Za-z0-9_-]{11}",
+                        ),
                 )
                 sub(
                     name = "shorts",
                     tool = "yt-dlp",
                     format = "mp4",
-                    patterns = listOf(
-                        "youtube\\.com/shorts/[A-Za-z0-9_-]{11}",
-                    ),
+                    patterns =
+                        listOf(
+                            "youtube\\.com/shorts/[A-Za-z0-9_-]{11}",
+                        ),
                 )
             }
 
@@ -70,9 +81,10 @@ open class SourceRegistryBenchmark {
                     name = "items",
                     tool = "gallery-dl",
                     format = "raw",
-                    patterns = listOf(
-                        "tail\\.benchmark\\.example/service/[A-Za-z0-9_-]+",
-                    ),
+                    patterns =
+                        listOf(
+                            "tail\\.benchmark\\.example/service/[A-Za-z0-9_-]+",
+                        ),
                 )
             }
         }
@@ -84,18 +96,20 @@ open class SourceRegistryBenchmark {
                 name = "posts",
                 tool = "placeholder-tool",
                 format = "json",
-                patterns = listOf(
-                    "$domain/posts/[A-Za-z0-9_-]{4,}",
-                    "$domain/p/[A-Za-z0-9]{6}",
-                ),
+                patterns =
+                    listOf(
+                        "$domain/posts/[A-Za-z0-9_-]{4,}",
+                        "$domain/p/[A-Za-z0-9]{6}",
+                    ),
             )
             sub(
                 name = "media",
                 tool = "placeholder-tool",
                 format = "mp4",
-                patterns = listOf(
-                    "cdn$index\\.benchmark\\.example/stream/[A-Za-z0-9_-]{10}",
-                ),
+                patterns =
+                    listOf(
+                        "cdn$index\\.benchmark\\.example/stream/[A-Za-z0-9_-]{10}",
+                    ),
             )
         }
     }
