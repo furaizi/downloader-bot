@@ -1,80 +1,50 @@
 package com.download.downloaderbot.e2e
 
-import com.download.downloaderbot.bot.commands.CommandContext
+import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.util.updateText
-import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
-import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.assertions.assertSoftly
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.lettuce.core.api.StatefulRedisConnection
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.junit.jupiter.Testcontainers
-import java.nio.file.Files
-import java.nio.file.Path
+import org.springframework.test.context.TestPropertySource
 
-@SpringBootTest(
-    classes = [
-        BotTestConfig::class,
-        RedisTestConfig::class,
-        DownloadHappyPathTestConfig::class,
-    ],
+@DownloaderBotE2E
+@TestPropertySource(
     properties = [
-        "spring.config.location=classpath:/",
+        "downloader.yt-dlp.runner=fake",
         "downloader.ratelimit.enabled=true",
         "downloader.ratelimit.namespace=rl-e2e",
         "downloader.ratelimit.chat.refill.period=5s",
         "downloader.ratelimit.group.refill.period=5s",
     ],
 )
-@ActiveProfiles("test")
-@Testcontainers
 class RateLimitE2E(
-    private val updateHandler: UpdateHandler,
-    private val botPort: RecordingBotPort,
-    private val errorGuard: BotErrorGuard,
+    updateHandler: UpdateHandler,
+    botPort: RecordingBotPort,
+    mediaProps: MediaProperties,
+    errorGuard: BotErrorGuard,
     private val redisConnection: StatefulRedisConnection<String, ByteArray>,
-) : FunSpec({
-
-        extension(SpringExtension)
+) : AbstractE2E(
+    updateHandler,
+    botPort,
+    mediaProps,
+    errorGuard,
+    body = {
 
         beforeTest {
-            botPort.reset()
             redisConnection.sync().flushall()
-            Files.createDirectories(mediaDir)
         }
 
         test("rejects messages beyond chat limit and notifies the user") {
             val userChatId = 101L
-            val updates =
-                (1L..5L).map { idx ->
-                    updateText(
-                        text = "/start",
-                        chatId = userChatId,
-                        messageId = idx,
-                        updateId = idx,
-                    )
-                }
-
-            updates.forEach { update ->
-                val args = update.message
-                    ?.text
-                    ?.trim()
-                    ?.split("\\s+".toRegex())
-                    ?: emptyList()
-                val ctx = CommandContext(update, args)
-                errorGuard.runSafely(ctx) {
-                    updateHandler.handle(update)
-                }
+            val updates = (1L..5L).map { idx ->
+                updateText("/start", userChatId, idx, idx)
             }
+
+            updates.forEach { handle(it) }
 
             botPort.sentTexts shouldHaveSize 5
 
@@ -97,18 +67,5 @@ class RateLimitE2E(
                 }
             }
         }
-
-        afterSpec {
-            mediaDir.toFile().deleteRecursively()
-        }
-    }) {
-    companion object {
-        private val mediaDir: Path = Files.createTempDirectory("downloader-bot-media-")
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("downloader.media.base-dir") { mediaDir.toString() }
-        }
-    }
-}
+    },
+)

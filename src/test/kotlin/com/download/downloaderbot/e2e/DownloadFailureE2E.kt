@@ -1,94 +1,51 @@
 package com.download.downloaderbot.e2e
 
-import com.download.downloaderbot.bot.commands.CommandContext
+import com.download.downloaderbot.app.config.properties.MediaProperties
+import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.commands.util.updateDownload
-import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
-import com.download.downloaderbot.app.config.properties.MediaProperties
-import com.download.downloaderbot.infra.config.RedisTestConfig
-import com.download.downloaderbot.core.lock.UrlLockManager
-import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
+import com.download.downloaderbot.core.lock.UrlLockManager
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.nondeterministic.eventually
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.nulls.shouldNotBeNull
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.junit.jupiter.Testcontainers
-import java.nio.file.Files
-import java.nio.file.Path
+import io.kotest.matchers.shouldBe
+import org.springframework.test.context.TestPropertySource
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@SpringBootTest(
-    classes = [
-        BotTestConfig::class,
-        RedisTestConfig::class,
-        DownloadFailureTestConfig::class,
-    ],
-    properties = [
-        "spring.config.location=classpath:/",
-    ],
-)
-@ActiveProfiles("test")
-@Testcontainers
+@DownloaderBotE2E
+@TestPropertySource(properties = ["downloader.yt-dlp.runner=fail"])
 class DownloadFailureE2E(
-    private val updateHandler: UpdateHandler,
-    private val botPort: RecordingBotPort,
-    private val errorGuard: BotErrorGuard,
+    updateHandler: UpdateHandler,
+    botPort: RecordingBotPort,
+    mediaProps: MediaProperties,
+    errorGuard: BotErrorGuard,
     private val urlLock: UrlLockManager,
-    private val mediaProps: MediaProperties,
     private val cache: CachePort<String, List<Media>>,
     private val normalizer: UrlNormalizer,
-) : FunSpec({
-
-        extension(SpringExtension)
-
-        suspend fun send(
-            messageId: Long,
-            chatId: Long,
-            url: String,
-            updateId: Long = messageId,
-        ) {
-            val update = updateDownload(url, chatId, messageId, updateId)
-            val args = update.message
-                ?.text
-                ?.trim()
-                ?.split("\\s+".toRegex())
-                ?: emptyList()
-            val ctx = CommandContext(update, args)
-            errorGuard.runSafely(ctx) {
-                updateHandler.handle(update)
-            }
-        }
-
-        beforeTest {
-            botPort.reset()
-            mediaProps.basePath.toFile().deleteRecursively()
-            Files.createDirectories(mediaProps.basePath)
-        }
+) : AbstractE2E(
+    updateHandler,
+    botPort,
+    mediaProps,
+    errorGuard,
+    body = {
 
         test("releases url lock and notifies user when download fails") {
             val url = "https://example.com/magic/fail"
             val chatId = 303L
-            val firstMessageId = 1L
             val failureText = "Внутрішній інструмент не зміг виконатися."
             val key = normalizer.normalize(url)
 
             cache.evict(key)
-
             urlLock.tryAcquire(url, Duration.ofSeconds(1))?.let { urlLock.release(url, it) }
 
-            send(firstMessageId, chatId, url)
+            val firstMessageId = 1L
+            handle(updateDownload(url, chatId, firstMessageId))
 
             eventually(5.seconds) {
                 botPort.sentTexts.shouldHaveSize(1)
@@ -106,30 +63,16 @@ class DownloadFailureE2E(
             }
 
             val secondMessageId = 2L
-            send(secondMessageId, chatId, url)
+            handle(updateDownload(url, chatId, secondMessageId))
 
             eventually(5.seconds) {
                 botPort.sentTexts.shouldHaveSize(2)
+                assertSoftly(botPort.sentTexts.last()) {
+                    this.chatId shouldBe chatId
+                    replyToMessageId shouldBe secondMessageId
+                    text shouldBe failureText
+                }
             }
-
-            assertSoftly(botPort.sentTexts.last()) {
-                this.chatId shouldBe chatId
-                replyToMessageId shouldBe secondMessageId
-                text shouldBe failureText
-            }
         }
-
-        afterSpec {
-            mediaDir.toFile().deleteRecursively()
-        }
-    }) {
-    companion object {
-        private val mediaDir: Path = Files.createTempDirectory("downloader-bot-media-")
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("downloader.media.base-dir") { mediaDir.toString() }
-        }
-    }
-}
+    },
+)
