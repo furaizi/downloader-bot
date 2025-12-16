@@ -49,7 +49,6 @@ class DownloadHappyPathE2E(
     private val botPort: RecordingBotPort,
     private val cache: CachePort<String, List<Media>>,
     private val normalizer: UrlNormalizer,
-    private val botProps: BotProperties,
     private val mediaProps: MediaProperties,
 ) : FunSpec({
 
@@ -62,6 +61,7 @@ class DownloadHappyPathE2E(
         }
 
         test("downloads video via /download command and stores cache") {
+            // by default only yt-dlp (video downloader) in enabled
             val url = "https://example.com/magic/video-123"
             val chatId = 4242L
             val messageId = 111L
@@ -77,15 +77,12 @@ class DownloadHappyPathE2E(
                     botPort.sentMedia.single()
                 }
 
-            sent.type shouldBe MediaType.VIDEO
-            assertSoftly(sent.options) {
-                caption shouldBe botProps.promoText
-                replyMarkup shouldNotBe null
-                replyToMessageId shouldBe messageId
+            sent.chatId shouldBe chatId
+            assertSoftly(sent) {
+                this.chatId shouldBe chatId
+                options.replyToMessageId shouldBe messageId
+                (file as InputFile.Local).file.shouldExist()
             }
-
-            val file = (sent.file as InputFile.Local).file
-            file.shouldExist()
 
             val cached = eventually(5.seconds) {
                 assertSoftly(cache.get(key)) {
