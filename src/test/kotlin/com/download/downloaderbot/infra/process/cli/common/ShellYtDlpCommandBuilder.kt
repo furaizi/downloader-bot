@@ -3,7 +3,6 @@ package com.download.downloaderbot.infra.process.cli.common
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 
 abstract class AbstractFakeShellCommandBuilder<SELF : AbstractFakeShellCommandBuilder<SELF>> : CommandBuilder {
-
     protected var probeScript: String = Scripts.EXIT_ERROR
 
     @Suppress("UNCHECKED_CAST")
@@ -15,51 +14,63 @@ abstract class AbstractFakeShellCommandBuilder<SELF : AbstractFakeShellCommandBu
         return self
     }
 
-    override fun probeCommand(url: String, output: String?, formatOverride: String): List<String> =
-        wrapInShell(probeScript)
+    override fun probeCommand(
+        url: String,
+        output: String?,
+        formatOverride: String,
+    ): List<String> = wrapInShell(probeScript)
 
-    protected fun wrapInShell(script: String): List<String> =
-        listOf("/bin/sh", "-c", script)
+    protected fun wrapInShell(script: String): List<String> = listOf("/bin/sh", "-c", script)
 }
 
 class ShellYtDlpCommandBuilder : AbstractFakeShellCommandBuilder<ShellYtDlpCommandBuilder>() {
-
     private var downloadScriptGenerator: (outputTemplate: String) -> String = { Scripts.NO_OP }
 
-    fun probeOk(jsonLine: String) = apply {
-        probeScript = "printf '%s\\n' ${jsonLine.quoted()}"
-    }
-
-    fun downloadCreatesFiles(exts: List<String>) = apply {
-        downloadScriptGenerator = { outputTemplate ->
-            val commands = exts.map { ext ->
-                val filename = outputTemplate.replace("%(ext)s", ext)
-                Scripts.touch(filename)
-            }
-            commands.joinToString("; ")
+    fun probeOk(jsonLine: String) =
+        apply {
+            probeScript = "printf '%s\\n' ${jsonLine.quoted()}"
         }
-    }
 
-    override fun downloadCommand(url: String, output: String, formatOverride: String): List<String> {
+    fun downloadCreatesFiles(exts: List<String>) =
+        apply {
+            downloadScriptGenerator = { outputTemplate ->
+                val commands =
+                    exts.map { ext ->
+                        val filename = outputTemplate.replace("%(ext)s", ext)
+                        Scripts.touch(filename)
+                    }
+                commands.joinToString("; ")
+            }
+        }
+
+    override fun downloadCommand(
+        url: String,
+        output: String,
+        formatOverride: String,
+    ): List<String> {
         val script = downloadScriptGenerator(output)
         return wrapInShell(script)
     }
 }
 
 class ShellGalleryDlCommandBuilder : AbstractFakeShellCommandBuilder<ShellGalleryDlCommandBuilder>() {
-
     private var downloadScriptGenerator: (outputDir: String) -> String = { Scripts.NO_OP }
 
-    fun downloadCreatesDirWithFiles(fileNames: List<String>) = apply {
-        downloadScriptGenerator = { outputDir ->
-            buildList {
-                add(Scripts.mkdir(outputDir))
-                addAll(fileNames.map { fileName -> Scripts.touch("$outputDir/$fileName") })
-            }.joinToString("; ")
+    fun downloadCreatesDirWithFiles(fileNames: List<String>) =
+        apply {
+            downloadScriptGenerator = { outputDir ->
+                buildList {
+                    add(Scripts.mkdir(outputDir))
+                    addAll(fileNames.map { fileName -> Scripts.touch("$outputDir/$fileName") })
+                }.joinToString("; ")
+            }
         }
-    }
 
-    override fun downloadCommand(url: String, output: String, formatOverride: String): List<String> {
+    override fun downloadCommand(
+        url: String,
+        output: String,
+        formatOverride: String,
+    ): List<String> {
         val script = downloadScriptGenerator(output)
         return wrapInShell(script)
     }

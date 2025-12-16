@@ -27,97 +27,102 @@ import java.time.Duration
     ],
 )
 @ActiveProfiles("test")
-class Bucket4jRateLimiterIT @Autowired constructor(
-    private val limiter: RateLimiter,
-    private val redisConnection: StatefulRedisConnection<String, ByteArray>,
-    private val proxyManager: ProxyManager<String>,
-    private val mapper: ObjectMapper,
-    private val redisClient: RedisClient,
-) : FunSpec({
+class Bucket4jRateLimiterIT
+    @Autowired
+    constructor(
+        private val limiter: RateLimiter,
+        private val redisConnection: StatefulRedisConnection<String, ByteArray>,
+        private val proxyManager: ProxyManager<String>,
+        private val mapper: ObjectMapper,
+        private val redisClient: RedisClient,
+    ) : FunSpec({
 
-    extension(SpringExtension)
+            extension(SpringExtension)
 
-    val codec: RedisCodec<String, ByteArray> =
-        RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE)
+            val codec: RedisCodec<String, ByteArray> =
+                RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE)
 
-    beforeTest {
-        redisConnection.sync().flushall()
-    }
+            beforeTest {
+                redisConnection.sync().flushall()
+            }
 
-    test("global: second awaitGlobal throttles until refill") {
-        limiter.awaitGlobal()
+            test("global: second awaitGlobal throttles until refill") {
+                limiter.awaitGlobal()
 
-        val startNs = System.nanoTime()
-        limiter.awaitGlobal()
-        val elapsedMs = (System.nanoTime() - startNs) / 1_000_000
+                val startNs = System.nanoTime()
+                limiter.awaitGlobal()
+                val elapsedMs = (System.nanoTime() - startNs) / 1_000_000
 
-        elapsedMs.shouldBeGreaterThanOrEqual(80)
-    }
+                elapsedMs.shouldBeGreaterThanOrEqual(80)
+            }
 
-    test("per-chat: same chatId is limited, different chatId is independent") {
-        limiter.tryConsumePerChatOrGroup(42).shouldBeTrue()
-        limiter.tryConsumePerChatOrGroup(42).shouldBeFalse()
+            test("per-chat: same chatId is limited, different chatId is independent") {
+                limiter.tryConsumePerChatOrGroup(42).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(42).shouldBeFalse()
 
-        limiter.tryConsumePerChatOrGroup(43).shouldBeTrue()
-        limiter.tryConsumePerChatOrGroup(43).shouldBeFalse()
-    }
+                limiter.tryConsumePerChatOrGroup(43).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(43).shouldBeFalse()
+            }
 
-    test("group vs chat: group has its own limit and separate keyspace") {
-        limiter.tryConsumePerChatOrGroup(100).shouldBeTrue()
-        limiter.tryConsumePerChatOrGroup(100).shouldBeFalse()
+            test("group vs chat: group has its own limit and separate keyspace") {
+                limiter.tryConsumePerChatOrGroup(100).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(100).shouldBeFalse()
 
-        limiter.tryConsumePerChatOrGroup(-100).shouldBeTrue()
-        limiter.tryConsumePerChatOrGroup(-100).shouldBeTrue()
-        limiter.tryConsumePerChatOrGroup(-100).shouldBeFalse()
-    }
+                limiter.tryConsumePerChatOrGroup(-100).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(-100).shouldBeTrue()
+                limiter.tryConsumePerChatOrGroup(-100).shouldBeFalse()
+            }
 
-    test("versioning: changing RateLimitProperties changes fingerprint => separate buckets") {
-        val base =
-            RateLimitProperties(
-                true,
-                "rl-it-ver",
-                chat = RateLimitProperties.Bucket(
-                    1,
-                    RateLimitProperties.Refill(1, Duration.ofSeconds(10), true),
-                ),
-            )
+            test("versioning: changing RateLimitProperties changes fingerprint => separate buckets") {
+                val base =
+                    RateLimitProperties(
+                        true,
+                        "rl-it-ver",
+                        chat =
+                            RateLimitProperties.Bucket(
+                                1,
+                                RateLimitProperties.Refill(1, Duration.ofSeconds(10), true),
+                            ),
+                    )
 
-        val rl1 = Bucket4jRateLimiter(proxyManager, base, mapper)
+                val rl1 = Bucket4jRateLimiter(proxyManager, base, mapper)
 
-        rl1.tryConsumePerChatOrGroup(777).shouldBeTrue()
-        rl1.tryConsumePerChatOrGroup(777).shouldBeFalse()
+                rl1.tryConsumePerChatOrGroup(777).shouldBeTrue()
+                rl1.tryConsumePerChatOrGroup(777).shouldBeFalse()
 
-        val changed =
-            base.copy(
-                chat = base.chat.copy(
-                    capacity = 2,
-                    refill = base.chat.refill.copy(tokens = 2),
-                ),
-            )
-        val rl2 = Bucket4jRateLimiter(proxyManager, changed, mapper)
+                val changed =
+                    base.copy(
+                        chat =
+                            base.chat.copy(
+                                capacity = 2,
+                                refill = base.chat.refill.copy(tokens = 2),
+                            ),
+                    )
+                val rl2 = Bucket4jRateLimiter(proxyManager, changed, mapper)
 
-        rl2.tryConsumePerChatOrGroup(777).shouldBeTrue()
-        rl2.tryConsumePerChatOrGroup(777).shouldBeTrue()
-        rl2.tryConsumePerChatOrGroup(777).shouldBeFalse()
-    }
+                rl2.tryConsumePerChatOrGroup(777).shouldBeTrue()
+                rl2.tryConsumePerChatOrGroup(777).shouldBeTrue()
+                rl2.tryConsumePerChatOrGroup(777).shouldBeFalse()
+            }
 
-    test("fail-open: if Redis connection is closed, tryConsumePerChatOrGroup returns true") {
-        val conn = redisClient.connect(codec)
-        val brokenProxyManager = LettuceBasedProxyManager.builderFor(conn).build()
+            test("fail-open: if Redis connection is closed, tryConsumePerChatOrGroup returns true") {
+                val conn = redisClient.connect(codec)
+                val brokenProxyManager = LettuceBasedProxyManager.builderFor(conn).build()
 
-        val p =
-            RateLimitProperties(
-                true,
-                "rl-it-failopen",
-                chat = RateLimitProperties.Bucket(
-                    1,
-                    RateLimitProperties.Refill(1, Duration.ofSeconds(10), true),
-                ),
-            )
-        val rl = Bucket4jRateLimiter(brokenProxyManager, p, mapper)
+                val p =
+                    RateLimitProperties(
+                        true,
+                        "rl-it-failopen",
+                        chat =
+                            RateLimitProperties.Bucket(
+                                1,
+                                RateLimitProperties.Refill(1, Duration.ofSeconds(10), true),
+                            ),
+                    )
+                val rl = Bucket4jRateLimiter(brokenProxyManager, p, mapper)
 
-        conn.close()
+                conn.close()
 
-        rl.tryConsumePerChatOrGroup(1).shouldBeTrue()
-    }
-})
+                rl.tryConsumePerChatOrGroup(1).shouldBeTrue()
+            }
+        })

@@ -31,14 +31,15 @@ class RedisRateLimitConfiguration {
     @ConditionalOnMissingBean
     fun redisClient(details: RedisConnectionDetails): RedisClient {
         val standalone = details.standalone
-        val uri = RedisURI.Builder.redis(standalone.host, standalone.port)
-            .apply {
-                val password = details.password
-                if (!password.isNullOrBlank()) withPassword(password.toCharArray())
-                if (standalone.sslBundle != null) withSsl(true)
-                withDatabase(standalone.database)
-            }
-            .build()
+        val uri =
+            RedisURI.Builder.redis(standalone.host, standalone.port)
+                .apply {
+                    val password = details.password
+                    if (!password.isNullOrBlank()) withPassword(password.toCharArray())
+                    if (standalone.sslBundle != null) withSsl(true)
+                    withDatabase(standalone.database)
+                }
+                .build()
 
         return RedisClient.create(uri)
     }

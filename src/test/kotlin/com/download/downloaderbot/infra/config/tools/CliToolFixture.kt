@@ -18,29 +18,30 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Duration
 
 class CliToolFixture(private val props: MediaProperties) {
-
     private val runner = DefaultProcessRunner("/bin/sh", Duration.ofSeconds(3))
     private val extractor = OutputJsonExtractor("test-cli")
     private val mapper = jacksonObjectMapper()
     private val ytDlpParser = DefaultJsonParser(mapper, object : TypeReference<YtDlpMedia>() {})
 
-    fun ytDlp(cmd: CommandBuilder) = BaseCliTool(
-        props = props,
-        pathGenerator = YtDlpPathGenerator(props),
-        cmdBuilder = cmd,
-        runner = runner,
-        jsonExtractor = extractor,
-        jsonParser = ytDlpParser,
-        fileFinder = SingleFileByPrefixFinder(),
-        toolId = ToolId.YT_DLP,
-    )
+    fun ytDlp(cmd: CommandBuilder) =
+        BaseCliTool(
+            props = props,
+            pathGenerator = YtDlpPathGenerator(props),
+            cmdBuilder = cmd,
+            runner = runner,
+            jsonExtractor = extractor,
+            jsonParser = ytDlpParser,
+            fileFinder = SingleFileByPrefixFinder(),
+            toolId = ToolId.YT_DLP,
+        )
 
-    fun galleryDl(cmd: CommandBuilder) = NoMetadataCliTool(
-        props = props,
-        pathGenerator = GalleryDlPathGenerator(props),
-        cmdBuilder = cmd,
-        runner = runner,
-        fileFinder = DirectoryFilesByPrefixFinder(),
-        toolId = ToolId.GALLERY_DL,
-    )
+    fun galleryDl(cmd: CommandBuilder) =
+        NoMetadataCliTool(
+            props = props,
+            pathGenerator = GalleryDlPathGenerator(props),
+            cmdBuilder = cmd,
+            runner = runner,
+            fileFinder = DirectoryFilesByPrefixFinder(),
+            toolId = ToolId.GALLERY_DL,
+        )
 }

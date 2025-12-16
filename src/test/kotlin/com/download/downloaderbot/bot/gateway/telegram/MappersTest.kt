@@ -21,13 +21,13 @@ class MappersTest : FunSpec({
             TestCase(
                 "maps Local to ByFile",
                 InputFile.Local(File("test.txt")),
-                TelegramFile.ByFile(File("test.txt"))
+                TelegramFile.ByFile(File("test.txt")),
             ),
             TestCase(
                 "maps Id to ByFileId",
                 InputFile.Id("12345"),
-                TelegramFile.ByFileId("12345")
-            )
+                TelegramFile.ByFileId("12345"),
+            ),
         ).forEach { (name, input, expected) ->
             test(name) {
                 input.toTelegram() shouldBe expected
@@ -39,7 +39,7 @@ class MappersTest : FunSpec({
         data class TestCase(
             val name: String,
             val input: TelegramBotResult<String>,
-            val expected: GatewayResult<String>
+            val expected: GatewayResult<String>,
         )
 
         val exception = RuntimeException("Boom")
@@ -48,28 +48,28 @@ class MappersTest : FunSpec({
             TestCase(
                 "maps Success to Ok",
                 TelegramBotResult.Success("val"),
-                GatewayResult.Ok("val")
+                GatewayResult.Ok("val"),
             ),
             TestCase(
                 "maps HttpError to Err(HTTP)",
                 TelegramBotResult.Error.HttpError(404, "Not Found"),
-                GatewayResult.Err(GatewayResult.Err.Kind.HTTP, 404, description = "Not Found")
+                GatewayResult.Err(GatewayResult.Err.Kind.HTTP, 404, description = "Not Found"),
             ),
             TestCase(
                 "maps TelegramApi to Err(TELEGRAM)",
                 TelegramBotResult.Error.TelegramApi(400, "Bad Request"),
-                GatewayResult.Err(GatewayResult.Err.Kind.TELEGRAM, telegramCode = 400, description = "Bad Request")
+                GatewayResult.Err(GatewayResult.Err.Kind.TELEGRAM, telegramCode = 400, description = "Bad Request"),
             ),
             TestCase(
                 "maps InvalidResponse to Err(INVALID_RESPONSE)",
                 TelegramBotResult.Error.InvalidResponse(500, "Err", null),
-                GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 500, description = "Invalid Telegram response: null")
+                GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 500, description = "Invalid Telegram response: null"),
             ),
             TestCase(
                 "maps Unknown to Err(EXCEPTION)",
                 TelegramBotResult.Error.Unknown(exception),
-                GatewayResult.Err(GatewayResult.Err.Kind.EXCEPTION, cause = exception, description = "Boom")
-            )
+                GatewayResult.Err(GatewayResult.Err.Kind.EXCEPTION, cause = exception, description = "Boom"),
+            ),
         ).forEach { (name, input, expected) ->
             test(name) {
                 input.toGateway() shouldBe expected
@@ -82,7 +82,7 @@ class MappersTest : FunSpec({
             val name: String,
             val httpResponse: HttpResponse<TgEnvelope<String>?>?,
             val exception: Exception? = null,
-            val expected: GatewayResult<String>
+            val expected: GatewayResult<String>,
         )
 
         val ex = RuntimeException("Net error")
@@ -92,38 +92,38 @@ class MappersTest : FunSpec({
                 "returns Err(EXCEPTION) when exception is present",
                 null,
                 ex,
-                GatewayResult.Err(GatewayResult.Err.Kind.EXCEPTION, cause = ex, description = "Net error")
+                GatewayResult.Err(GatewayResult.Err.Kind.EXCEPTION, cause = ex, description = "Net error"),
             ),
             TestCase(
                 "returns Err(UNKNOWN) when both http and exception are null",
                 null,
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.UNKNOWN, description = "HTTP response is null")
+                expected = GatewayResult.Err(GatewayResult.Err.Kind.UNKNOWN, description = "HTTP response is null"),
             ),
             TestCase(
                 "returns Err(HTTP) when http response is not successful",
                 HttpResponse.error(404, "Error body content".toResponseBody("text/plain".toMediaTypeOrNull())),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.HTTP, 404, description = "Error body content")
+                expected = GatewayResult.Err(GatewayResult.Err.Kind.HTTP, 404, description = "Error body content"),
             ),
             TestCase(
                 "returns Err(INVALID_RESPONSE) when body is null",
                 HttpResponse.success<TgEnvelope<String>?>(null),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Empty body")
+                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Empty body"),
             ),
             TestCase(
                 "returns Err(TELEGRAM) when envelope is not ok",
                 HttpResponse.success(TgEnvelope(null, false, 400, "Bad Request")),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.TELEGRAM, telegramCode = 400, description = "Bad Request")
+                expected = GatewayResult.Err(GatewayResult.Err.Kind.TELEGRAM, telegramCode = 400, description = "Bad Request"),
             ),
             TestCase(
                 "returns Err(INVALID_RESPONSE) when result is null but ok is true",
                 HttpResponse.success(TgEnvelope(null, true)),
-                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Result is null")
+                expected = GatewayResult.Err(GatewayResult.Err.Kind.INVALID_RESPONSE, 200, description = "Result is null"),
             ),
             TestCase(
                 "returns Ok when request successful and result present",
                 HttpResponse.success(TgEnvelope("Success data", true)),
-                expected = GatewayResult.Ok("Success data")
-            )
+                expected = GatewayResult.Ok("Success data"),
+            ),
         ).forEach { testCase ->
             test(testCase.name) {
                 val pair: Pair<HttpResponse<TgEnvelope<String>?>?, Exception?> =

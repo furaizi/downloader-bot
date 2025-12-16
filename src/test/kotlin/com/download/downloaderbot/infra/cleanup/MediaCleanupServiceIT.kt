@@ -24,15 +24,17 @@ class MediaCleanupServiceIT : FunSpec({
             val missing = temp.resolve("missing-dir")
             missing.notExists() shouldBe true
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    missing.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ofDays(7),
-                        DataSize.ofBytes(10_000),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        missing.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ofDays(7),
+                                DataSize.ofBytes(10_000),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 
@@ -45,15 +47,17 @@ class MediaCleanupServiceIT : FunSpec({
 
     test("throws when maxAge is negative") {
         withTempDir { temp ->
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ofSeconds(-1),
-                        DataSize.ofBytes(10_000),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ofSeconds(-1),
+                                DataSize.ofBytes(10_000),
+                            ),
                     ),
-                ),
-            )
+                )
 
             shouldThrow<IllegalArgumentException> {
                 service.cleanup()
@@ -68,15 +72,17 @@ class MediaCleanupServiceIT : FunSpec({
             val expired2 = createFile(temp, "expired-2.bin", 80, now.minus(Duration.ofDays(8)))
             val fresh = createFile(temp, "fresh.bin", 200, now.minus(Duration.ofHours(1)))
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ofDays(7),
-                        DataSize.ofBytes(10_000),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ofDays(7),
+                                DataSize.ofBytes(10_000),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 
@@ -97,15 +103,17 @@ class MediaCleanupServiceIT : FunSpec({
             val old = createFile(temp, "old.bin", 100, now.minus(Duration.ofDays(100)))
             val another = createFile(temp, "another.bin", 50, now.minus(Duration.ofDays(50)))
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ZERO,
-                        DataSize.ofBytes(10_000),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ZERO,
+                                DataSize.ofBytes(10_000),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 
@@ -126,15 +134,17 @@ class MediaCleanupServiceIT : FunSpec({
             val middle = createFile(temp, "b-middle.bin", 100, now.minus(Duration.ofHours(2)))
             val newest = createFile(temp, "c-newest.bin", 100, now.minus(Duration.ofHours(1)))
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ZERO,
-                        DataSize.ofBytes(150),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ZERO,
+                                DataSize.ofBytes(150),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 
@@ -156,15 +166,17 @@ class MediaCleanupServiceIT : FunSpec({
             val remainOldest = createFile(temp, "remain-oldest.bin", 100, now.minus(Duration.ofHours(5)))
             val remainNewest = createFile(temp, "remain-newest.bin", 120, now.minus(Duration.ofHours(1)))
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ofDays(7),
-                        DataSize.ofBytes(120),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ofDays(7),
+                                DataSize.ofBytes(120),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 
@@ -186,15 +198,17 @@ class MediaCleanupServiceIT : FunSpec({
             val expired = createFile(subDir, "nested-expired.bin", 40, now.minus(Duration.ofDays(20)))
             val fresh = createFile(subDir, "nested-fresh.bin", 60, now.minus(Duration.ofHours(2)))
 
-            val service = MediaCleanupService(
-                MediaProperties(
-                    temp.toString(),
-                    cleanup = MediaCleanupProperties(
-                        Duration.ofDays(7),
-                        DataSize.ofBytes(10_000),
+            val service =
+                MediaCleanupService(
+                    MediaProperties(
+                        temp.toString(),
+                        cleanup =
+                            MediaCleanupProperties(
+                                Duration.ofDays(7),
+                                DataSize.ofBytes(10_000),
+                            ),
                     ),
-                ),
-            )
+                )
 
             val report = service.cleanup()
 

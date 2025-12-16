@@ -38,89 +38,88 @@ class MediaServiceImplIT(
     private val urlLock: UrlLockManager,
 ) : FunSpec({
 
-    extension(SpringExtension)
+        extension(SpringExtension)
 
-    beforeTest {
-        clearMocks(mediaProvider)
-    }
-
-    fun media(id: Int) =
-        listOf(
-            Media(
-                type = MediaType.VIDEO,
-                fileUrl = "file-$id.mp4",
-                sourceUrl = "https://example.com/$id",
-                title = "Video $id",
-                fileUniqueId = "unique-$id",
-                lastFileId = "fileId-$id",
-                downloadedAt = OffsetDateTime.parse("2024-01-01T00:00:00Z"),
-            ),
-        )
-
-    test("supports delegates to MediaProvider with normalized url") {
-        val rawUrl = " https://example.com/watch?v=123&utm_source=foo "
-        val finalUrl = normalizer.normalize(rawUrl)
-
-        coEvery { mediaProvider.supports(any()) } returns true
-
-        val supported = mediaService.supports(rawUrl)
-
-        supported shouldBe true
-        coVerify(exactly = 1) { mediaProvider.supports(finalUrl) }
-    }
-
-    test("download returns cached media when cache hit occurs before lock acquisition") {
-        val rawUrl = "https://example.com/video"
-        val finalUrl = normalizer.normalize(rawUrl)
-        val cached = media(id = 1)
-
-        cache.put(finalUrl, cached, cacheProps.mediaTtl)
-
-        val result = mediaService.download(rawUrl)
-
-        result shouldBe cached
-        coVerify(exactly = 0) { mediaProvider.download(any()) }
-    }
-
-    test("download returns cached media when another process holds the lock and cache is populated during wait") {
-        val rawUrl = "https://example.com/concurrent"
-        val finalUrl = normalizer.normalize(rawUrl)
-        val cached = media(id = 2)
-
-        val token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
-        token.shouldNotBeNull()
-
-        coEvery { mediaProvider.download(any()) } returns media(id = 42)
-
-        val job = async {
-            mediaService.download(rawUrl)
+        beforeTest {
+            clearMocks(mediaProvider)
         }
 
-        delay(100)
-        cache.put(finalUrl, cached, cacheProps.mediaTtl)
+        fun media(id: Int) =
+            listOf(
+                Media(
+                    type = MediaType.VIDEO,
+                    fileUrl = "file-$id.mp4",
+                    sourceUrl = "https://example.com/$id",
+                    title = "Video $id",
+                    fileUniqueId = "unique-$id",
+                    lastFileId = "fileId-$id",
+                    downloadedAt = OffsetDateTime.parse("2024-01-01T00:00:00Z"),
+                ),
+            )
 
-        val result = job.await()
+        test("supports delegates to MediaProvider with normalized url") {
+            val rawUrl = " https://example.com/watch?v=123&utm_source=foo "
+            val finalUrl = normalizer.normalize(rawUrl)
 
-        result shouldBe cached
-        coVerify(exactly = 0) { mediaProvider.download(any()) }
-    }
+            coEvery { mediaProvider.supports(any()) } returns true
 
-    test("download acquires lock, delegates to MediaProvider and releases lock on cache miss") {
-        val rawUrl = "https://example.com/miss"
-        val finalUrl = normalizer.normalize(rawUrl)
-        val fromProvider = media(id = 5)
+            val supported = mediaService.supports(rawUrl)
 
-        coEvery { mediaProvider.download(finalUrl) } returns fromProvider
-        coEvery { mediaProvider.supports(any()) } returns true
+            supported shouldBe true
+            coVerify(exactly = 1) { mediaProvider.supports(finalUrl) }
+        }
 
-        val result = mediaService.download(rawUrl)
+        test("download returns cached media when cache hit occurs before lock acquisition") {
+            val rawUrl = "https://example.com/video"
+            val finalUrl = normalizer.normalize(rawUrl)
+            val cached = media(id = 1)
 
-        result shouldBe fromProvider
-        coVerify(exactly = 1) { mediaProvider.download(finalUrl) }
+            cache.put(finalUrl, cached, cacheProps.mediaTtl)
 
-        val secondToken = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
-        secondToken shouldNotBe null
-    }
+            val result = mediaService.download(rawUrl)
 
+            result shouldBe cached
+            coVerify(exactly = 0) { mediaProvider.download(any()) }
+        }
 
-})
+        test("download returns cached media when another process holds the lock and cache is populated during wait") {
+            val rawUrl = "https://example.com/concurrent"
+            val finalUrl = normalizer.normalize(rawUrl)
+            val cached = media(id = 2)
+
+            val token = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
+            token.shouldNotBeNull()
+
+            coEvery { mediaProvider.download(any()) } returns media(id = 42)
+
+            val job =
+                async {
+                    mediaService.download(rawUrl)
+                }
+
+            delay(100)
+            cache.put(finalUrl, cached, cacheProps.mediaTtl)
+
+            val result = job.await()
+
+            result shouldBe cached
+            coVerify(exactly = 0) { mediaProvider.download(any()) }
+        }
+
+        test("download acquires lock, delegates to MediaProvider and releases lock on cache miss") {
+            val rawUrl = "https://example.com/miss"
+            val finalUrl = normalizer.normalize(rawUrl)
+            val fromProvider = media(id = 5)
+
+            coEvery { mediaProvider.download(finalUrl) } returns fromProvider
+            coEvery { mediaProvider.supports(any()) } returns true
+
+            val result = mediaService.download(rawUrl)
+
+            result shouldBe fromProvider
+            coVerify(exactly = 1) { mediaProvider.download(finalUrl) }
+
+            val secondToken = urlLock.tryAcquire(finalUrl, cacheProps.lockTtl)
+            secondToken shouldNotBe null
+        }
+    })

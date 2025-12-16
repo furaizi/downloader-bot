@@ -11,6 +11,5 @@ interface PromoCounter {
 class InMemoryPromoCounter : PromoCounter {
     private val counts = ConcurrentHashMap<Long, Long>()
 
-    override fun incrementAndGet(chatId: Long): Long =
-        counts.merge(chatId, 1L, java.lang.Long::sum)!!
+    override fun incrementAndGet(chatId: Long): Long = counts.merge(chatId, 1L, java.lang.Long::sum)!!
 }

@@ -5,7 +5,10 @@ import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.core.downloader.TooManyRequestsException
 
 class RejectAllRateLimitGuard : RateLimitGuard {
-    override suspend fun <T> runOrReject(ctx: CommandContext, block: suspend () -> T): T {
+    override suspend fun <T> runOrReject(
+        ctx: CommandContext,
+        block: suspend () -> T,
+    ): T {
         throw TooManyRequestsException("test", ctx.chatId)
     }
 }

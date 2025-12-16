@@ -6,7 +6,11 @@ import com.download.downloaderbot.core.downloader.TooManyRequestsException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coJustRun
+import io.mockk.coVerify
+import io.mockk.coVerifySequence
+import io.mockk.mockk
 
 class DefaultRateLimitGuardTest : FunSpec({
 
@@ -24,9 +28,10 @@ class DefaultRateLimitGuardTest : FunSpec({
 
         coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
 
-        val ex = shouldThrow<TooManyRequestsException> {
-            guard.runOrReject(ctx) { error("block must not be called when rate-limit rejects") }
-        }
+        val ex =
+            shouldThrow<TooManyRequestsException> {
+                guard.runOrReject(ctx) { error("block must not be called when rate-limit rejects") }
+            }
 
         ex.chatId shouldBe chatId
         ex.chatType shouldBe "private"
@@ -41,9 +46,10 @@ class DefaultRateLimitGuardTest : FunSpec({
 
         coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
 
-        val ex = shouldThrow<TooManyRequestsException> {
-            guard.runOrReject(ctx) { "nope" }
-        }
+        val ex =
+            shouldThrow<TooManyRequestsException> {
+                guard.runOrReject(ctx) { "nope" }
+            }
 
         ex.chatId shouldBe chatId
         ex.chatType shouldBe "group"
@@ -59,10 +65,11 @@ class DefaultRateLimitGuardTest : FunSpec({
 
         var blockCalled = false
 
-        val result = guard.runOrReject(ctx) {
-            blockCalled = true
-            "OK_RESULT"
-        }
+        val result =
+            guard.runOrReject(ctx) {
+                blockCalled = true
+                "OK_RESULT"
+            }
 
         result shouldBe "OK_RESULT"
         blockCalled shouldBe true
@@ -80,9 +87,10 @@ class DefaultRateLimitGuardTest : FunSpec({
         coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns true
         coJustRun { limiter.awaitGlobal() }
 
-        val ex = shouldThrow<IllegalStateException> {
-            guard.runOrReject(ctx) { error("boom") }
-        }
+        val ex =
+            shouldThrow<IllegalStateException> {
+                guard.runOrReject(ctx) { error("boom") }
+            }
 
         ex.message shouldBe "boom"
 

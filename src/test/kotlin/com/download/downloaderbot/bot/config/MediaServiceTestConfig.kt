@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class MediaServiceTestConfig {
-
     @Bean
     @Primary
     fun mediaProviderMock(): MediaProvider = mockk(relaxed = true)
@@ -17,5 +16,4 @@ class MediaServiceTestConfig {
     @Primary
     @Bean
     fun stubFinalUrlResolver() = StubFinalUrlResolver()
-
 }

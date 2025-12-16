@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class BotTestConfig {
-
     @Primary
     @Bean
     fun testBotIdentity() = BotIdentity("test-bot")
