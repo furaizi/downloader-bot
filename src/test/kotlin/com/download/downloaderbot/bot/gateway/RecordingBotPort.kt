@@ -6,6 +6,7 @@ import com.github.kotlintelegrambot.entities.ReplyMarkup
 import com.github.kotlintelegrambot.entities.files.PhotoSize
 import io.mockk.every
 import io.mockk.mockk
+import java.util.concurrent.CopyOnWriteArrayList
 
 class RecordingBotPort : BotPort {
     data class SentText(
@@ -41,10 +42,10 @@ class RecordingBotPort : BotPort {
         val messages: List<Message>,
     )
 
-    val sentTexts = mutableListOf<SentText>()
-    val sentMedia = mutableListOf<SentMedia>()
-    val sentAlbums = mutableListOf<SentAlbum>()
-    val sentChunkedAlbums = mutableListOf<SentChunkedAlbum>()
+    val sentTexts = CopyOnWriteArrayList<SentText>()
+    val sentMedia = CopyOnWriteArrayList<SentMedia>()
+    val sentAlbums = CopyOnWriteArrayList<SentAlbum>()
+    val sentChunkedAlbums = CopyOnWriteArrayList<SentChunkedAlbum>()
 
     private var nextId = 1L
 
