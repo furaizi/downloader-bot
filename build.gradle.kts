@@ -1,14 +1,17 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
+    kotlin("kapt") version "1.9.23"
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("org.jetbrains.kotlinx.kover") version "0.8.3"
+    id("me.champeau.jmh") version "0.7.2"
 }
 
 group = "com.download"
@@ -19,6 +22,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+jmh {
+    jmhVersion.set("1.37")
 }
 
 repositories {
@@ -109,6 +116,10 @@ ktlint {
 
 tasks.named("check") {
     dependsOn("detekt", "ktlintCheck")
+}
+
+tasks.named<Jar>("jmhJar") {
+    isZip64 = true
 }
 
 tasks.register("format") {
