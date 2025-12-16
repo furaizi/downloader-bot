@@ -126,11 +126,11 @@ kover {
             verify {
                 rule {
                     bound {
-                        minValue = 0
+                        minValue = 70
                         coverageUnits = CoverageUnit.LINE
                     }
                     bound {
-                        minValue = 0
+                        minValue = 50
                         coverageUnits = CoverageUnit.BRANCH
                     }
                 }
