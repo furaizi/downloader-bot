@@ -121,10 +121,8 @@ class AsyncRedisMediaCacheAdapterIT
                 test("different schemaVersion => separate keyspace") {
                     val key = url("ver")
 
-                    val v1: CachePort<String, List<Media>> =
-                        AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 1)
-                    val v2: CachePort<String, List<Media>> =
-                        AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 2)
+                    val v1 = AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 1)
+                    val v2 = AsyncRedisMediaCacheAdapter(redisTemplate, schemaVersion = 2)
 
                     v1.put(key, mediaFor(key), DEFAULT_TTL)
 
