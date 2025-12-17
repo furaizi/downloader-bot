@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.1](https://github.com/furaizi/downloader-bot/compare/v0.15.0...v0.15.1) (2025-12-17)
+
+
+### Performance Improvements
+
+* add JMH benchmark for SourceRegistry.match ([6b0c886](https://github.com/furaizi/downloader-bot/commit/6b0c886d640b9caaaa76af9241a425998f5f7919))
+* add JMH benchmark for UrlNormalizer.normalize ([ce83b00](https://github.com/furaizi/downloader-bot/commit/ce83b00251d0f5ed95e6d9bcfefbf471c9bb8e93))
+
 ## [0.15.0](https://github.com/furaizi/downloader-bot/compare/v0.14.3...v0.15.0) (2025-12-02)
 
 
