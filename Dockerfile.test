@@ -1,0 +1,20 @@
+FROM eclipse-temurin:21-jdk-jammy
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl git bash docker.io \
+  && rm -rf /var/lib/apt/lists/*
+
+# Guarantee Gradle does not use local Java install path in gradle.properties
+ENV GRADLE_OPTS="-Dorg.gradle.java.home=/opt/java/openjdk"
+
+COPY gradle/ gradle/
+COPY gradlew build.gradle.kts settings.gradle.kts ./
+RUN chmod +x gradlew
+
+RUN ./gradlew --no-daemon --version
+
+COPY . .
+
+CMD ["./gradlew", "test", "--no-daemon"]
