@@ -93,6 +93,12 @@ If you’d like a new feature (e.g., "add YouTube Shorts support"):
 Make sure the PR title also follows Conventional Commits - CI will validate it.
 
 ## Code Quality
+
+Run all the tests:
+```
+./gradlew test
+```
+
 The project uses automated tools:
 - Detekt - static analysis
 - Ktlint - formatting
