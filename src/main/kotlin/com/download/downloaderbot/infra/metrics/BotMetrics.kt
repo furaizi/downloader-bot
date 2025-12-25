@@ -29,4 +29,25 @@ class BotMetrics(val registry: MeterRegistry) {
             .tag("command", command)
             .publishPercentileHistogram()
             .register(registry)
+
+    fun jobQueueDelayTimer(job: String): Timer =
+        Timer.builder("downloader_job_queue_delay_seconds")
+            .description("Job queue delay before execution")
+            .tag("job", job)
+            .publishPercentileHistogram()
+            .register(registry)
+
+    fun jobDurationTimer(job: String): Timer =
+        Timer.builder("downloader_job_duration_seconds")
+            .description("Job execution duration")
+            .tag("job", job)
+            .publishPercentileHistogram()
+            .register(registry)
+
+    fun jobTotalDurationTimer(job: String): Timer =
+        Timer.builder("downloader_job_total_duration_seconds")
+            .description("Total job duration (queue + execution)")
+            .tag("job", job)
+            .publishPercentileHistogram()
+            .register(registry)
 }

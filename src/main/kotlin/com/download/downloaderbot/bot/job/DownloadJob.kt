@@ -5,6 +5,7 @@ import java.util.UUID
 
 data class DownloadJob(
     val id: UUID = UUID.randomUUID(),
+    val enqueuedAtNanos: Long = System.nanoTime(),
     val sourceUrl: String,
     val chatId: Long,
     val replyToMessageId: Long?,
