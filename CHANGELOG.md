@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.16.0](https://github.com/furaizi/downloader-bot/compare/v0.15.1...v0.16.0) (2025-12-25)
+
+
+### Features
+
+* add job latency metrics and enhance Grafana dashboard ([#173](https://github.com/furaizi/downloader-bot/issues/173)) ([0e9ca13](https://github.com/furaizi/downloader-bot/commit/0e9ca13d082d0aa55d3fabd5793cd6d38c50a01f))
+
+
+### Bug Fixes
+
+* do not require telegram bot token when launching tests ([1f077f8](https://github.com/furaizi/downloader-bot/commit/1f077f8a891c09c66b4b7f745342d9d3094b6cf6))
+
 ## [0.15.1](https://github.com/furaizi/downloader-bot/compare/v0.15.0...v0.15.1) (2025-12-17)
 
 
