@@ -18,12 +18,15 @@ import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
+import com.download.downloaderbot.infra.metrics.BotMetrics
 import com.github.kotlintelegrambot.entities.Message
+import io.micrometer.core.instrument.Timer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.File
+import java.time.Duration
 
 private val log = KotlinLogging.logger {}
 
@@ -37,33 +40,56 @@ class DefaultDownloadJobExecutor(
     private val cacheProps: CacheProperties,
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
+    private val botMetrics: BotMetrics,
 ) : DownloadJobExecutor {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
+        const val JOB_NAME = "download"
     }
 
     private val share by lazy { shareKeyboard(botIdentity.username, props.shareText) }
 
     override suspend fun execute(job: DownloadJob) {
-        log.info { "Executing download job id=${job.id} url=${job.sourceUrl} chatId=${job.chatId}" }
+        measureJob(job) {
+            log.info { "Executing download job id=${job.id} url=${job.sourceUrl} chatId=${job.chatId}" }
 
-        val mediaList =
-            withContext(Dispatchers.IO) {
-                service.download(job.sourceUrl)
+            val mediaList =
+                withContext(Dispatchers.IO) {
+                    service.download(job.sourceUrl)
+                }
+
+            if (mediaList.isEmpty()) {
+                throw MediaNotFoundException(job.sourceUrl)
             }
 
-        if (mediaList.isEmpty()) {
-            throw MediaNotFoundException(job.sourceUrl)
+            val normalizedUrl = mediaList.first().sourceUrl
+            val messages = sendMediaSmart(job.chatId, mediaList, job.replyToMessageId)
+            updateCache(normalizedUrl, mediaList, messages)
+
+            log.info {
+                val titles = mediaList.map { it.title }
+                val paths = mediaList.map { it.fileUrl }
+                "Downloaded: $titles ($paths)"
+            }
         }
+    }
 
-        val normalizedUrl = mediaList.first().sourceUrl
-        val messages = sendMediaSmart(job.chatId, mediaList, job.replyToMessageId)
-        updateCache(normalizedUrl, mediaList, messages)
+    private suspend fun <T> measureJob(
+        job: DownloadJob,
+        block: suspend () -> T,
+    ): T {
+        val startNanos = System.nanoTime()
+        botMetrics.jobQueueDelayTimer(JOB_NAME)
+            .record(Duration.ofNanos(startNanos - job.enqueuedAtNanos))
 
-        log.info {
-            val titles = mediaList.map { it.title }
-            val paths = mediaList.map { it.fileUrl }
-            "Downloaded: $titles ($paths)"
+        val executionSample = Timer.start()
+        return try {
+            block()
+        } finally {
+            executionSample.stop(botMetrics.jobDurationTimer(JOB_NAME))
+            val totalNanos = System.nanoTime() - job.enqueuedAtNanos
+            botMetrics.jobTotalDurationTimer(JOB_NAME)
+                .record(Duration.ofNanos(totalNanos))
         }
     }
 
