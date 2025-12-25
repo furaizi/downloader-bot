@@ -15,8 +15,8 @@ RUN --mount=type=cache,target=/root/.gradle \
 
 
 FROM debian:bookworm-slim AS tools
-ARG PBS_DATE=20250818
-ARG PYTHON_VERSION=3.13.7
+ARG PBS_DATE=20251209
+ARG PYTHON_VERSION=3.14.2
 ENV PY_PREFIX=/opt/py
 WORKDIR /tmp
 
