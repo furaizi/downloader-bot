@@ -56,7 +56,7 @@ class NoMetadataCliTool(
         }
 
         return files.map { path ->
-            val mediaType = inferMediaType(path)
+            val mediaType = MediaType.fromPath(path) ?: getDefaultMediaType()
             Media(
                 type = mediaType,
                 fileUrl = path.toAbsolutePath().toString(),
@@ -66,20 +66,10 @@ class NoMetadataCliTool(
         }
     }
 
-    private fun inferMediaType(path: Path): MediaType {
-        val ext =
-            path.fileName.toString()
-                .substringAfterLast('.', "")
-                .lowercase()
-
-        return when (ext) {
-            "jpg", "jpeg", "png", "webp", "gif", "bmp" -> MediaType.IMAGE
-            "mp4", "m4v", "mov", "webm", "mkv", "avi" -> MediaType.VIDEO
-            else ->
-                when (toolId) {
-                    ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
-                    ToolId.GALLERY_DL -> MediaType.IMAGE
-                }
+    private fun getDefaultMediaType(): MediaType {
+        return when (toolId) {
+            ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
+            ToolId.GALLERY_DL -> MediaType.IMAGE
         }
     }
 }

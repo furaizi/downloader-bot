@@ -23,7 +23,8 @@ enum class MediaType {
         fun fromString(type: String) = valueOf(type.uppercase())
 
         fun fromPath(path: Path): MediaType? {
-            val extension = path.toString()
+            val extension = path.fileName
+                .toString()
                 .substringAfterLast('.', "")
                 .lowercase()
             return when (extension) {
