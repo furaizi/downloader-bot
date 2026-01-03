@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
-import com.download.downloaderbot.bot.commands.util.UrlValidator
+import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
@@ -20,7 +20,7 @@ class DownloadCommand(
     private val service: MediaService,
     private val botPort: BotPort,
     private val rateLimitGuard: RateLimitGuard,
-    private val validator: UrlValidator,
+    private val validator: InputValidator,
     private val downloadJobQueue: DownloadJobQueue,
 ) : BotCommand {
     override val name: String = "download"
