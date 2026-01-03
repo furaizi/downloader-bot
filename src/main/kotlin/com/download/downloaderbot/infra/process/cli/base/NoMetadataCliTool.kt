@@ -10,7 +10,6 @@ import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
 import mu.KotlinLogging
-import java.nio.file.Path
 
 private val log = KotlinLogging.logger {}
 

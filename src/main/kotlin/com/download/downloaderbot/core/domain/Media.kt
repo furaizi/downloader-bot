@@ -23,10 +23,11 @@ enum class MediaType {
         fun fromString(type: String) = valueOf(type.uppercase())
 
         fun fromPath(path: Path): MediaType? {
-            val extension = path.fileName
-                .toString()
-                .substringAfterLast('.', "")
-                .lowercase()
+            val extension =
+                path.fileName
+                    .toString()
+                    .substringAfterLast('.', "")
+                    .lowercase()
             return when (extension) {
                 "jpg", "jpeg", "png", "webp", "gif", "bmp", "tiff", "heic" -> IMAGE
                 "mp4", "m4v", "mov", "webm", "mkv", "avi", "flv" -> VIDEO
