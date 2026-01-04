@@ -6,7 +6,7 @@ import com.github.kotlintelegrambot.entities.ReplyMarkup
 import kotlinx.coroutines.delay
 
 private const val ALBUM_LIMIT = 10
-private const val ALBUM_COOLDOWN_MS = 1200L
+private const val ALBUM_COOLDOWN_MS = 1_200L
 
 data class MessageOptions(
     val caption: String? = null,
@@ -24,6 +24,11 @@ data class AudioOptions(
     val durationSeconds: Int? = null,
     val performer: String? = null,
     val title: String? = null,
+)
+
+data class MediaInput(
+    val type: MediaType,
+    val file: InputFile,
 )
 
 interface BotPort {
@@ -83,24 +88,24 @@ interface BotPort {
         options: MessageOptions = MessageOptions(),
     ): GatewayResult<Message>
 
-    suspend fun sendPhotoAlbum(
+    suspend fun sendMediaAlbum(
         chatId: Long,
-        files: List<InputFile>,
+        items: List<MediaInput>,
         caption: String? = null,
         replyToMessageId: Long? = null,
     ): GatewayResult<List<Message>>
 
-    suspend fun sendPhotoAlbumChunked(
+    suspend fun sendMediaAlbumChunked(
         chatId: Long,
-        files: List<InputFile>,
+        items: List<MediaInput>,
         chunk: Int = ALBUM_LIMIT,
         caption: String? = null,
         replyToMessageId: Long? = null,
     ): GatewayResult<List<Message>> {
         val all = mutableListOf<Message>()
-        for ((idx, part) in files.chunked(chunk).withIndex()) {
+        for ((idx, part) in items.chunked(chunk).withIndex()) {
             val cap = caption.takeIf { idx == 0 }
-            when (val res = sendPhotoAlbum(chatId, part, cap, replyToMessageId)) {
+            when (val res = sendMediaAlbum(chatId, part, cap, replyToMessageId)) {
                 is GatewayResult.Ok -> {
                     all += res.value
                     delay(ALBUM_COOLDOWN_MS) // heuristic delay to avoid Telegram limits

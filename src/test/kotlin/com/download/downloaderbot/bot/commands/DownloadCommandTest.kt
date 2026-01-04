@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
-import com.download.downloaderbot.bot.commands.util.UrlValidator
+import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.commands.util.ctx
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.bot.job.DownloadJob
@@ -23,7 +23,7 @@ import io.mockk.slot
 
 class DownloadCommandTest : FunSpec({
 
-    val validator = UrlValidator()
+    val validator = InputValidator()
 
     lateinit var service: MediaService
     lateinit var bot: RecordingBotPort

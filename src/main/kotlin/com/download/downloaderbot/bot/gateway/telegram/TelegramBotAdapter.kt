@@ -5,14 +5,18 @@ import com.download.downloaderbot.bot.gateway.AudioOptions
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.InputFile
+import com.download.downloaderbot.bot.gateway.MediaInput
 import com.download.downloaderbot.bot.gateway.MessageOptions
 import com.download.downloaderbot.bot.gateway.VideoOptions
+import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.ReplyMarkup
 import com.github.kotlintelegrambot.entities.files.PhotoSize
+import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
+import com.github.kotlintelegrambot.entities.inputmedia.InputMediaVideo
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
@@ -97,18 +101,22 @@ class TelegramBotAdapter(
         ).toGateway()
 
     @Suppress("SpreadOperator")
-    override suspend fun sendPhotoAlbum(
+    override suspend fun sendMediaAlbum(
         chatId: Long,
-        files: List<InputFile>,
+        items: List<MediaInput>,
         caption: String?,
         replyToMessageId: Long?,
     ): GatewayResult<List<Message>> {
         val media =
-            files.mapIndexed { index, file ->
-                InputMediaPhoto(
-                    media = file.toTelegram(),
-                    caption = caption.takeIf { index == 0 },
-                )
+            items.mapIndexed { index, item ->
+                val cap = caption.takeIf { index == 0 }
+                val m: GroupableMedia =
+                    when (item.type) {
+                        MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = cap)
+                        MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = cap)
+                        MediaType.AUDIO -> error("Audio is currently not supported")
+                    }
+                m
             }.toTypedArray()
 
         return bot.sendMediaGroup(
