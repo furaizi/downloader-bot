@@ -2,6 +2,7 @@ package com.download.downloaderbot.bot.job
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
@@ -41,6 +42,7 @@ class DefaultDownloadJobExecutor(
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
+    private val validator: InputValidator
 ) : DownloadJobExecutor {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -168,6 +170,11 @@ class DefaultDownloadJobExecutor(
         mediaList: List<Media>,
         messages: List<Message>,
     ) {
+        if (validator.isInstagramStoriesUrl(url)) {
+            log.debug { "Skipping cache for Instagram stories url=$url" }
+            return
+        }
+
         val updated =
             mediaList.zip(messages)
                 .map { (media, message) -> media.updateWith(message) }

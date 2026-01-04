@@ -34,4 +34,20 @@ class InputValidator {
         } else {
             INSTAGRAM_USERNAME_REGEX.matches(str.trim())
         }
+
+    fun isInstagramStoriesUrl(str: String): Boolean =
+        if (str.isBlank()) {
+            false
+        } else {
+            try {
+                val uri = URI(str.trim())
+                val host = uri.host?.lowercase() ?: return false
+                val path = uri.path ?: return false
+
+                val isInstagram = host == "instagram.com" || host.endsWith(".instagram.com")
+                isInstagram && path.startsWith("/stories/")
+            } catch (_: Exception) {
+                false
+            }
+        }
 }
