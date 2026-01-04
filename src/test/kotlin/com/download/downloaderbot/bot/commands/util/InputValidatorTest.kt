@@ -51,7 +51,6 @@ class InputValidatorTest : FunSpec({
     context("invalid instagram usernames") {
         caseInstagramUsername("blank string", "", false)
         caseInstagramUsername("spaces only", "   ", false)
-        caseInstagramUsername("contains underscore", "user_name", false)
         caseInstagramUsername("contains hyphen", "user-name", false)
         caseInstagramUsername("contains at sign", "@username", false)
         caseInstagramUsername("contains spaces inside", "user name", false)

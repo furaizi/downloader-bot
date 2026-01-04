@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.media.files
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
@@ -59,13 +59,13 @@ class DirectoryFilesByPrefixFinderTest : FunSpec({
             listOf(fromFirst, fromSecond).any { it == result } shouldBe true
         }
 
-        test("throws FilesByDirectoryPrefixNotFoundException when matching directory has no regular files") {
+        test("returns empty list when matching directory has no regular files") {
             val matchingDir = tempDir.createDirectory("gallery_empty")
             matchingDir.createDirectory("nested")
 
-            shouldThrow<FilesByDirectoryPrefixNotFoundException> {
-                finder.find("gallery_", tempDir)
-            }
+            val result = finder.find("gallery_", tempDir)
+
+            result.shouldBeEmpty()
         }
     }
 })

@@ -1,7 +1,7 @@
 package com.download.downloaderbot.infra.media.files
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
@@ -59,17 +59,17 @@ class SingleFileByPrefixFinderTest : FunSpec({
             val nested = tempDir.createDirectory("nested")
             nested.createFile("prefix_nested.dat")
 
-            shouldThrow<FilesByPrefixNotFoundException> {
-                finder.find("prefix_", tempDir)
-            }
+            val result = finder.find("prefix_", tempDir)
+
+            result.shouldBeEmpty()
         }
 
-        test("throws FilesByPrefixNotFoundException when no file with prefix exists") {
+        test("returns empty list when no file with prefix exists") {
             tempDir.createFile("some_other_file.txt")
 
-            shouldThrow<FilesByPrefixNotFoundException> {
-                finder.find("missing_", tempDir)
-            }
+            val result = finder.find("missing_", tempDir)
+
+            result.shouldBeEmpty()
         }
     }
 })
