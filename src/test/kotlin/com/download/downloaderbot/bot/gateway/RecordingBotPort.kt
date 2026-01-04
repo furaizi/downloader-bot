@@ -106,14 +106,14 @@ class RecordingBotPort : BotPort {
         return GatewayResult.Ok(message)
     }
 
-    override suspend fun sendPhotoAlbum(
+    override suspend fun sendMediaAlbum(
         chatId: Long,
-        files: List<InputFile>,
+        media: List<InputFile>,
         caption: String?,
         replyToMessageId: Long?,
     ): GatewayResult<List<Message>> {
-        val messages = files.map { newMessage() }
-        sentAlbums += SentAlbum(chatId, files, caption, replyToMessageId, messages)
+        val messages = media.map { newMessage() }
+        sentAlbums += SentAlbum(chatId, media, caption, replyToMessageId, messages)
         return GatewayResult.Ok(messages)
     }
 
