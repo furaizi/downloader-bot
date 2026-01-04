@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/furaizi/downloader-bot/compare/v0.16.1...v0.17.0) (2026-01-04)
+
+
+### Features
+
+* **bot:** add Instagram Stories and Highlights support ([#177](https://github.com/furaizi/downloader-bot/issues/177)) ([4f11256](https://github.com/furaizi/downloader-bot/commit/4f11256ee213b10ab249ba4b122904f3f416ba51))
+
 ## [0.16.1](https://github.com/furaizi/downloader-bot/compare/v0.16.0...v0.16.1) (2026-01-03)
 
 
