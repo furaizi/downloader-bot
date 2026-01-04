@@ -1,6 +1,8 @@
 package com.download.downloaderbot.infra.media.files
 
 import com.download.downloaderbot.infra.di.ForGalleryDl
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.nio.file.Files
@@ -17,16 +19,16 @@ class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
     override suspend fun find(
         prefix: String,
         dir: Path,
-    ): List<Path> {
-        val files = findAllFilesMatchingDirectory(prefix, dir)
-        if (files.isEmpty()) {
-            log.info { "No files found with directory prefix '$prefix' in directory '$dir'" }
-        } else {
-            log.info { "Files found with directory prefix '$prefix' in directory '$dir': $files" }
+    ): List<Path> =
+        withContext(Dispatchers.IO) {
+            val files = findAllFilesMatchingDirectory(prefix, dir)
+            if (files.isEmpty()) {
+                log.info { "No files found with directory prefix '$prefix' in directory '$dir'" }
+            } else {
+                log.info { "Files found with directory prefix '$prefix' in directory '$dir': $files" }
+            }
+            files
         }
-        log.info { "Files found with directory prefix '$prefix' in directory '$dir': $files" }
-        return files
-    }
 
     private fun findAllFilesMatchingDirectory(
         prefix: String,
