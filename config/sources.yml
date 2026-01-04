@@ -29,7 +29,7 @@ sources:
       stories:
         tool: gallery-dl
         url-patterns:
-          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/[A-Za-z0-9.]{1,30}/?(?:[?#].*)?$'
+          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/(?!\.)(?![^/?#]*\.\.)[A-Za-z0-9._]{1,30}(?<!\.)/?(?:[?#].*)?$'
       highlights:
         tool: gallery-dl
         url-patterns:

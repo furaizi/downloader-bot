@@ -24,11 +24,11 @@ class StoriesCommand(
 
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
-        val username = ctx.args.firstOrNull()?.trim() ?: ""
-        val isNotUsername = !validator.isInstagramUsername(username)
+        val raw = ctx.args.firstOrNull().orEmpty()
+        val username = raw.trim().removePrefix("@")
 
-        if (isNotUsername) {
-            log.info { "Executing /$name command but not username provided" }
+        if (!validator.isInstagramUsername(username)) {
+            log.info { "Executing /$name command but invalid username provided: '$username'" }
             rateLimitGuard.runOrReject(ctx) {
                 botPort.sendText(ctx.chatId, "Будь ласка, вкажіть дійсний username для завантаження історій.", replyTo)
             }
