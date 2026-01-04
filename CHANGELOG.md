@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/furaizi/downloader-bot/compare/v0.16.0...v0.16.1) (2026-01-03)
+
+
+### Bug Fixes
+
+* **core:** media type detection by path extension ([#175](https://github.com/furaizi/downloader-bot/issues/175)) ([67380d9](https://github.com/furaizi/downloader-bot/commit/67380d9f8c93423518e01ab4f3575e22caec9ddf))
+
 ## [0.16.0](https://github.com/furaizi/downloader-bot/compare/v0.15.1...v0.16.0) (2025-12-25)
 
 
