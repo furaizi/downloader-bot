@@ -20,22 +20,24 @@ class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
     ): List<Path> {
         val files = findAllFilesMatchingDirectory(prefix, dir)
         if (files.isEmpty()) {
-            throw FilesByDirectoryPrefixNotFoundException(prefix, dir)
+            log.info { "No files found with directory prefix '$prefix' in directory '$dir'" }
+        } else {
+            log.info { "Files found with directory prefix '$prefix' in directory '$dir': $files" }
         }
         log.info { "Files found with directory prefix '$prefix' in directory '$dir': $files" }
         return files
     }
 
-    private suspend fun findAllFilesMatchingDirectory(
+    private fun findAllFilesMatchingDirectory(
         prefix: String,
         dir: Path,
     ): List<Path> {
         val matchingDir =
             Files.list(dir).use { stream ->
                 stream.asSequence()
-                    .filter { Files.isDirectory(it) && it.fileName.toString().startsWith(prefix) }
-                    .first()
-            }
+                    .filter { Files.isDirectory(it) }
+                    .firstOrNull { it.fileName.toString().startsWith(prefix) }
+            } ?: return emptyList()
 
         return Files.list(matchingDir).use { stream ->
             stream.asSequence()

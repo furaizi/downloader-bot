@@ -19,26 +19,23 @@ private val log = KotlinLogging.logger {}
 @ForYtDlp
 @ForInstaloader
 class SingleFileByPrefixFinder : FilesByPrefixFinder {
-    override suspend fun find(
-        prefix: String,
-        dir: Path,
-    ): List<Path> {
-        val file =
-            findFirstMatchingFile(prefix, dir)
-                ?: throw FilesByPrefixNotFoundException(prefix, dir)
-        log.debug { "File found with prefix '$prefix' in directory '$dir': $file" }
-        return listOf(file)
+
+    override suspend fun find(prefix: String, dir: Path): List<Path> {
+        val file = findFirstMatchingFile(prefix, dir)
+        return if (file == null) {
+            log.info { "No file found with prefix '$prefix' in directory '$dir'" }
+            emptyList()
+        } else {
+            log.debug { "File found with prefix '$prefix' in directory '$dir': $file" }
+            listOf(file)
+        }
     }
 
-    private suspend fun findFirstMatchingFile(
-        prefix: String,
-        dir: Path,
-    ): Path? =
+    private suspend fun findFirstMatchingFile(prefix: String, dir: Path): Path? =
         withContext(Dispatchers.IO) {
             Files.list(dir).use { stream ->
                 stream.asSequence()
-                    .filter { it.isRegularFile() && it.name.startsWith(prefix) }
-                    .firstOrNull()
+                    .firstOrNull { it.isRegularFile() && it.name.startsWith(prefix) }
             }
         }
 }

@@ -46,15 +46,13 @@ class NoMetadataCliTool(
         sourceUrl: String,
     ): List<Media> {
         val files = fileFinder.find(basePrefix, props.basePath)
-
         when (files.size) {
+            0 -> log.info { "No files downloaded: $sourceUrl (prefix=$basePrefix)" }
             1 -> log.info { "Download finished: $sourceUrl -> ${files.first()}" }
-            else ->
-                files.forEachIndexed { i, path ->
-                    log.info { "Download finished [${i + 1}/${files.size}]: $sourceUrl -> $path" }
-                }
+            else -> files.forEachIndexed { i, path ->
+                log.info { "Download finished [${i + 1}/${files.size}]: $sourceUrl -> $path" }
+            }
         }
-
         return files.map { path ->
             val mediaType = inferMediaType(path)
             Media(
