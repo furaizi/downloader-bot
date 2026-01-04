@@ -30,7 +30,10 @@ sources:
         tool: gallery-dl
         url-patterns:
           - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/[A-Za-z0-9.]{1,30}/?(?:[?#].*)?$'
-        reels:
+      highlights:
+        tool: gallery-dl
+        url-patterns:
+          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/highlights/\d+/?(?:[?#].*)?$'
   some-extraordinary-source:
     enabled: false
     subresources:
