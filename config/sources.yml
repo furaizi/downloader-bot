@@ -26,6 +26,14 @@ sources:
         tool: gallery-dl
         url-patterns:
           - '^https?://([a-z0-9-]+\.)?instagram\.com/p/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$'
+      stories:
+        tool: gallery-dl
+        url-patterns:
+          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/(?!\.)(?![^/?#]*\.\.)[A-Za-z0-9._]{1,30}(?<!\.)/?(?:[?#].*)?$'
+      highlights:
+        tool: gallery-dl
+        url-patterns:
+          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/highlights/\d+/?(?:[?#].*)?$'
   some-extraordinary-source:
     enabled: false
     subresources:

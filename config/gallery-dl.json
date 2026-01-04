@@ -6,8 +6,8 @@
 
     "instagram": {
       "media-types": ["image", "video"],
-      "stories": false,
-      "highlights": false
+      "stories": true,
+      "highlights": true
     },
 
     "tiktok": {

@@ -41,7 +41,7 @@ downloader:
       photo: 10MB
       video: 50MB
     cleanup:
-      max-age: 3h
+      max-age: 1h
       max-total-size: 6GB
       interval: 1h
       initial-delay: 5m

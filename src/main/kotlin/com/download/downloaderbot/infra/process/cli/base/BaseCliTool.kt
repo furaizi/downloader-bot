@@ -110,6 +110,7 @@ open class BaseCliTool<META : MediaConvertible>(
     ): List<Media> {
         val files = fileFinder.find(basePrefix, props.basePath)
         when (files.size) {
+            0 -> log.info { "No files downloaded: $sourceUrl (prefix=$basePrefix)" }
             1 -> log.info { "Download finished: $sourceUrl -> ${files.first()}" }
             else ->
                 files.forEachIndexed { i, path ->

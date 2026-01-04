@@ -2,11 +2,12 @@ package com.download.downloaderbot.bot.job
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.app.download.MediaService
+import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.GatewayResult
-import com.download.downloaderbot.bot.gateway.InputFile
+import com.download.downloaderbot.bot.gateway.MediaInput
 import com.download.downloaderbot.bot.gateway.MessageOptions
 import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.fileId
@@ -41,6 +42,7 @@ class DefaultDownloadJobExecutor(
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
+    private val validator: InputValidator,
 ) : DownloadJobExecutor {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -100,10 +102,10 @@ class DefaultDownloadJobExecutor(
     ): List<Message> {
         val sendPromo = promoService.shouldSend(chatId)
 
-        return if (mediaList.isImageAlbum()) {
-            val inputs = mediaList.toInputFiles()
+        return if (mediaList.isVisualAlbum()) {
+            val items = mediaList.toMediaInputs()
             val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
-            when (val res = sendAlbum(chatId, inputs, replyTo, chunked)) {
+            when (val res = sendAlbum(chatId, items, replyTo, chunked)) {
                 is GatewayResult.Ok -> {
                     val sentPhotos = res.value
                     if (sendPromo) {
@@ -148,19 +150,19 @@ class DefaultDownloadJobExecutor(
 
     private suspend fun sendAlbum(
         chatId: Long,
-        inputs: List<InputFile>,
+        items: List<MediaInput>,
         replyTo: Long?,
         chunked: Boolean,
     ): GatewayResult<List<Message>> =
         if (chunked) {
-            botPort.sendPhotoAlbumChunked(
+            botPort.sendMediaAlbumChunked(
                 chatId,
-                inputs,
+                items,
                 TELEGRAM_ALBUM_LIMIT,
                 replyToMessageId = replyTo,
             )
         } else {
-            botPort.sendPhotoAlbum(chatId, inputs, replyToMessageId = replyTo)
+            botPort.sendMediaAlbum(chatId, items, replyToMessageId = replyTo)
         }
 
     private suspend fun updateCache(
@@ -168,6 +170,11 @@ class DefaultDownloadJobExecutor(
         mediaList: List<Media>,
         messages: List<Message>,
     ) {
+        if (validator.isInstagramStoriesUrl(url)) {
+            log.debug { "Skipping cache for Instagram stories url=$url" }
+            return
+        }
+
         val updated =
             mediaList.zip(messages)
                 .map { (media, message) -> media.updateWith(message) }
@@ -182,14 +189,18 @@ class DefaultDownloadJobExecutor(
             fileUniqueId = message.fileUniqueId ?: fileUniqueId,
         )
 
-    private fun List<Media>.isImageAlbum(): Boolean = this.size >= 2 && this.first().type == MediaType.IMAGE
+    private fun List<Media>.isVisualAlbum(): Boolean =
+        this.size >= 2 &&
+            this.all {
+                it.type == MediaType.IMAGE || it.type == MediaType.VIDEO
+            }
 
     private fun List<Media>.allHaveFileId(): Boolean = all { it.lastFileId != null }
 
-    private fun List<Media>.toInputFiles(): List<InputFile> =
+    private fun List<Media>.toMediaInputs(): List<MediaInput> =
         if (allHaveFileId()) {
-            map { it.lastFileId!!.asInputFile() }
+            map { media -> MediaInput(type = media.type, file = media.lastFileId!!.asInputFile()) }
         } else {
-            map { File(it.fileUrl).asInputFile() }
+            map { media -> MediaInput(type = media.type, file = File(media.fileUrl).asInputFile()) }
         }
 }
