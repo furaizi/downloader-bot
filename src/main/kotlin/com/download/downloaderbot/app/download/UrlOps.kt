@@ -7,7 +7,7 @@ import java.net.URI
 @Component
 class UrlOps(
     private val resolver: FinalUrlResolver,
-    private val normalizer: UrlNormalizer
+    private val normalizer: UrlNormalizer,
 ) {
     suspend fun finalOf(url: String): String {
         val normalized = normalizer.normalize(url)
