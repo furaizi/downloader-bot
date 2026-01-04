@@ -26,6 +26,11 @@ sources:
         tool: gallery-dl
         url-patterns:
           - '^https?://([a-z0-9-]+\.)?instagram\.com/p/[A-Za-z0-9_-]{5,}/?(?:[?#].*)?$'
+      stories:
+        tool: gallery-dl
+        url-patterns:
+          - '^https?://([a-z0-9-]+\.)?instagram\.com/stories/[A-Za-z0-9.]{1,30}/?(?:[?#].*)?$'
+        reels:
   some-extraordinary-source:
     enabled: false
     subresources:
