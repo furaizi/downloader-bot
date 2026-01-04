@@ -5,7 +5,6 @@ import java.net.URI
 
 @Component
 class InputValidator {
-
     private companion object {
         // Instagram username:
         // - 1..30 chars

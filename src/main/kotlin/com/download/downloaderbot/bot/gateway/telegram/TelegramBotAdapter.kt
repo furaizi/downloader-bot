@@ -110,11 +110,12 @@ class TelegramBotAdapter(
         val media =
             items.mapIndexed { index, item ->
                 val cap = caption.takeIf { index == 0 }
-                val m: GroupableMedia = when (item.type) {
-                    MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = cap)
-                    MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = cap)
-                    MediaType.AUDIO -> error("Audio is currently not supported")
-                }
+                val m: GroupableMedia =
+                    when (item.type) {
+                        MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = cap)
+                        MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = cap)
+                        MediaType.AUDIO -> error("Audio is currently not supported")
+                    }
                 m
             }.toTypedArray()
 

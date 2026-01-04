@@ -5,9 +5,14 @@ import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
-import com.download.downloaderbot.bot.gateway.*
+import com.download.downloaderbot.bot.gateway.BotPort
+import com.download.downloaderbot.bot.gateway.GatewayResult
+import com.download.downloaderbot.bot.gateway.MediaInput
+import com.download.downloaderbot.bot.gateway.MessageOptions
+import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
+import com.download.downloaderbot.bot.gateway.toInputFile
 import com.download.downloaderbot.bot.promo.PromoService
 import com.download.downloaderbot.bot.ui.shareKeyboard
 import com.download.downloaderbot.core.cache.CachePort
@@ -37,7 +42,7 @@ class DefaultDownloadJobExecutor(
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
-    private val validator: InputValidator
+    private val validator: InputValidator,
 ) : DownloadJobExecutor {
     private companion object {
         const val TELEGRAM_ALBUM_LIMIT = 10
@@ -185,9 +190,10 @@ class DefaultDownloadJobExecutor(
         )
 
     private fun List<Media>.isVisualAlbum(): Boolean =
-        this.size >= 2 && this.all {
-            it.type == MediaType.IMAGE || it.type == MediaType.VIDEO
-        }
+        this.size >= 2 &&
+            this.all {
+                it.type == MediaType.IMAGE || it.type == MediaType.VIDEO
+            }
 
     private fun List<Media>.allHaveFileId(): Boolean = all { it.lastFileId != null }
 

@@ -20,7 +20,6 @@ class StoriesCommand(
     private val validator: InputValidator,
     private val downloadJobQueue: DownloadJobQueue,
 ) : BotCommand {
-
     override val name = "stories"
 
     override suspend fun handle(ctx: CommandContext) {
