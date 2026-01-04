@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/furaizi/downloader-bot/compare/v0.17.0...v0.17.1) (2026-01-04)
+
+
+### Bug Fixes
+
+* **bot:** Instagram stories URLs being redirected to login page ([#179](https://github.com/furaizi/downloader-bot/issues/179)) ([b69866b](https://github.com/furaizi/downloader-bot/commit/b69866bd1a1a624141cfd0ba075ecd619690786f))
+
 ## [0.17.0](https://github.com/furaizi/downloader-bot/compare/v0.16.1...v0.17.0) (2026-01-04)
 
 
