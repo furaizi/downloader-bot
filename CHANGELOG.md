@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.2](https://github.com/furaizi/downloader-bot/compare/v0.17.1...v0.17.2) (2026-01-15)
+
+
+### Bug Fixes
+
+* **docker:** improve image stability and unify data directory ([#181](https://github.com/furaizi/downloader-bot/issues/181)) ([20c656c](https://github.com/furaizi/downloader-bot/commit/20c656c8aa0b448fa05dbdd33e6b8fa7d956373e))
+
 ## [0.17.1](https://github.com/furaizi/downloader-bot/compare/v0.17.0...v0.17.1) (2026-01-04)
 
 
