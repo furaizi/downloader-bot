@@ -23,8 +23,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      fix-perms:
-        condition: service_completed_successfully
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -40,7 +38,7 @@ services:
     cap_drop:
       - ALL
     volumes:
-      - downloads:/downloads
+      - downloads:/app/data
       - ./secrets:/app/secrets
       - ./config:/app/config
       - type: tmpfs
@@ -49,20 +47,11 @@ services:
           size: 67108864   # 64 MiB
           mode: 1777
     healthcheck:
-      test: ["CMD", "/usr/local/bin/busybox", "wget", "-q", "-O", "/dev/null", "http://localhost:8081/actuator/health/readiness"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health/readiness"]
       interval: 10s
       timeout: 3s
       retries: 6
       start_period: 30s
-
-  fix-perms:
-    image: busybox:1.36
-    command: [ "sh","-c","mkdir -p /downloads && chown -R 65532:65532 /downloads && chmod 755 /downloads" ]
-    volumes:
-      - downloads:/downloads
-    restart: "no"
-    labels:
-      org.springframework.boot.ignore: "true"
 
   prometheus:
     image: prom/prometheus:latest

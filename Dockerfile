@@ -4,9 +4,9 @@ WORKDIR /src
 COPY gradlew ./
 COPY gradle ./gradle
 COPY settings.gradle.kts build.gradle.kts ./
+
 RUN chmod +x ./gradlew
 RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew --no-daemon -v || true && \
     ./gradlew --no-daemon dependencies || true
 
 COPY src ./src
@@ -14,86 +14,52 @@ RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon clean bootJar
 
 
-FROM debian:bookworm-slim AS tools
-ARG PBS_DATE=20251209
-ARG PYTHON_VERSION=3.14.2
-ENV PY_PREFIX=/opt/py
-WORKDIR /tmp
+FROM eclipse-temurin:21-jre-noble AS runtime
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl xz-utils zstd busybox-static \
-    && rm -rf /var/lib/apt/lists/*
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV PATH="/opt/venv/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/app/data --add-modules=jdk.management"
 
-RUN set -eux; \
-  arch="$(dpkg --print-architecture)"; \
-  case "$arch" in \
-    amd64)  ffurl="https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" ;; \
-    arm64)  ffurl="https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz" ;; \
-    armhf)  ffurl="https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-armhf-static.tar.xz" ;; \
-    *) echo "Unsupported arch: $arch" >&2; exit 1 ;; \
-  esac; \
-  curl -fsSL "$ffurl" -o /tmp/ffmpeg.tar.xz; \
-  mkdir -p /opt/bin /tmp/ff && tar -C /tmp/ff -xJf /tmp/ffmpeg.tar.xz --strip-components=1; \
-  mv /tmp/ff/ffmpeg /tmp/ff/ffprobe /opt/bin/; \
-  chmod +x /opt/bin/ffmpeg /opt/bin/ffprobe; \
-  /opt/bin/ffmpeg -version >/dev/null
-
-RUN set -eux; \
-  arch="$(dpkg --print-architecture)"; \
-  case "$arch" in \
-    amd64)  ytdlp="yt-dlp_linux" ;; \
-    arm64)  ytdlp="yt-dlp_linux_aarch64" ;; \
-    armhf|armv7l|armel) ytdlp="yt-dlp_linux_armv7l" ;; \
-    *) echo "Unsupported arch: $arch" >&2; exit 1 ;; \
-  esac; \
-  curl -fsSL "https://github.com/yt-dlp/yt-dlp/releases/latest/download/${ytdlp}" -o /opt/bin/yt-dlp; \
-  chmod +x /opt/bin/yt-dlp; \
-  /opt/bin/yt-dlp --version >/dev/null
-
-RUN set -eux; \
-  arch="$(dpkg --print-architecture)"; \
-  case "$arch" in \
-    amd64)  triplet="x86_64-unknown-linux-gnu" ;; \
-    arm64)  triplet="aarch64-unknown-linux-gnu" ;; \
-    armhf)  triplet="armv7-unknown-linux-gnueabihf" ;; \
-    *) echo "Unsupported arch: $arch" >&2; exit 1 ;; \
-  esac; \
-  file="cpython-${PYTHON_VERSION}+${PBS_DATE}-${triplet}-pgo+lto-full.tar.zst"; \
-  url="https://github.com/astral-sh/python-build-standalone/releases/download/${PBS_DATE}/${file}"; \
-  curl -fsSL "$url" -o python.tar.zst; \
-  mkdir -p /tmp/py && tar --zstd -xf python.tar.zst -C /tmp/py; \
-  mkdir -p "${PY_PREFIX}"; \
-  cp -a /tmp/py/python/install/. "${PY_PREFIX}/"; \
-  ln -sf python3 "${PY_PREFIX}/bin/python"; \
-  "${PY_PREFIX}/bin/python3" -V
-
-RUN set -eux; \
-  "${PY_PREFIX}/bin/python3" -m ensurepip --upgrade; \
-  "${PY_PREFIX}/bin/python3" -m pip install --upgrade pip; \
-  "${PY_PREFIX}/bin/python3" -m pip install --no-cache-dir instaloader gallery-dl 'requests[socks]'; \
-  "${PY_PREFIX}/bin/instaloader" --version >/dev/null; \
-  "${PY_PREFIX}/bin/gallery-dl" --version >/dev/null
-
-RUN mkdir -p /opt/empty && rm -rf /tmp/*
-
-
-FROM gcr.io/distroless/java21-debian12 AS runtime
-ENV PATH="/usr/local/bin:/opt/py/bin:${PATH}" \
-    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Duser.home=/data --add-modules=jdk.management"
 WORKDIR /app
 
-COPY --from=tools /opt/bin/ffmpeg   /usr/local/bin/ffmpeg
-COPY --from=tools /opt/bin/ffprobe  /usr/local/bin/ffprobe
-COPY --from=tools /opt/bin/yt-dlp   /usr/local/bin/yt-dlp
-COPY --from=tools /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=tools /bin/busybox  /usr/local/bin/busybox
+# UID 65532 for backward compatibility
+RUN groupadd -g 65532 botuser && \
+    useradd -r -u 65532 -g botuser -m -d /app/data botuser
 
-COPY --from=tools --chown=65532:65532 /opt/empty/ /data/Downloads/downloader-bot/
+COPY --from=denoland/deno:bin /deno /usr/bin/deno
 
-COPY --from=tools /opt/py /opt/py
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    atomicparsley \
+    git \
+    ffmpeg \
+    python3 \
+    python3-pip \
+    python3-venv \
+    curl \
+    dumb-init \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /src/build/libs/*.jar /app/app.jar
+RUN python3 -m venv /opt/venv
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --upgrade --pre \
+      "yt-dlp[default,curl-cffi]" \
+      yt-dlp-ejs && \
+    pip install --no-cache-dir --force-reinstall \
+        https://github.com/mikf/gallery-dl/archive/master.tar.gz \
+        https://github.com/instaloader/instaloader/archive/master.tar.gz \
+        requests[socks]
 
-USER nonroot
+RUN deno --version && \
+    yt-dlp --version && \
+    gallery-dl --version && \
+    instaloader --version && \
+    ffmpeg -version
+
+COPY --from=builder --chown=botuser:botuser /src/build/libs/*.jar app.jar
+
+USER botuser
 EXPOSE 8080
-ENTRYPOINT ["java","-XX:MaxRAMPercentage=75","-jar","/app/app.jar"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
