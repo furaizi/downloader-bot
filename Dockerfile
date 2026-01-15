@@ -27,6 +27,8 @@ WORKDIR /app
 RUN groupadd -g 65532 botuser && \
     useradd -r -u 65532 -g botuser -m -d /app/data botuser
 
+COPY --from=denoland/deno:bin /deno /usr/bin/deno
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     atomicparsley \

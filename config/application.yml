@@ -6,7 +6,7 @@ telegram:
 
 downloader:
   media:
-    base-dir: /downloads
+    base-dir: /app/data
     max-size:
       photo: 10MB
       video: 50MB
