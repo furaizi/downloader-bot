@@ -6,6 +6,10 @@ spring:
     compose:
       enabled: true
 
+downloader:
+  media:
+    base-dir: /downloads
+
 management:
   endpoints:
     web:
