@@ -41,7 +41,7 @@ sources:
         tool: magic-tool
         url-patterns:
           - 'xxx'
-          - 'xxx'
+#          - 'xxx'
   youtube:
     enabled: true
     subresources:
