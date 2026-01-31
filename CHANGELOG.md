@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.3](https://github.com/furaizi/downloader-bot/compare/v0.17.2...v0.17.3) (2026-01-31)
+
+
+### Bug Fixes
+
+* **yt-dlp:** initiate yt-dlp update ([#183](https://github.com/furaizi/downloader-bot/issues/183)) ([400c0bb](https://github.com/furaizi/downloader-bot/commit/400c0bbe6c92c42ab7d605a77f178551d116a2bc))
+
 ## [0.17.2](https://github.com/furaizi/downloader-bot/compare/v0.17.1...v0.17.2) (2026-01-15)
 
 
