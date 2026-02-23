@@ -1,0 +1,56 @@
+name: Release Please (scheduled)
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scheduled-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release Please (create/update PR)
+        id: rp
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Checkout main to create release tick commit
+        if: ${{ steps.rp.outputs.pr == '' }}
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          ref: main
+          fetch-depth: 0
+
+      - name: Create empty patch-trigger commit
+        if: ${{ steps.rp.outputs.pr == '' }}
+        run: |
+          git config user.name "release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+          git commit --allow-empty -m "fix: release tick"
+          git push origin main
+
+      - name: Release Please (after tick)
+        if: ${{ steps.rp.outputs.pr == '' }}
+        id: rp2
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Enable auto-merge for release PR
+        if: ${{ steps.rp.outputs.pr != '' || steps.rp2.outputs.pr != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          PR_NUMBER='${{ steps.rp.outputs.pr_number }}'
+          if [ -z "$PR_NUMBER" ]; then PR_NUMBER='${{ steps.rp2.outputs.pr_number }}'; fi
+          gh pr merge "$PR_NUMBER" --auto --squash
