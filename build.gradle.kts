@@ -1,6 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -26,12 +25,12 @@ kotlin {
 }
 
 jmh {
-    jmhVersion.set("1.37")
+    jmhVersion = "1.37"
 }
 
 repositories {
     mavenCentral()
-    maven(url = "https://jitpack.io")
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -81,10 +80,6 @@ dependencies {
 }
 
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
 detekt {
     buildUponDefaultConfig = true
     allRules = false
@@ -95,22 +90,41 @@ detekt {
     source.from("src/main/kotlin", "src/test/kotlin")
 }
 
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = "21"
-    reports {
-        html.required.set(true)
-        xml.required.set(true)
-        txt.required.set(false)
-        sarif.required.set(false)
-        md.required.set(false)
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+
+    withType<Detekt> {
+        reports {
+            html.required = true
+            xml.required = true
+            txt.required = false
+            sarif.required = false
+            md.required = false
+        }
+    }
+
+    check {
+        dependsOn(detekt, ktlintCheck)
+    }
+
+    jmhJar {
+        isZip64 = true
+    }
+
+    register("format") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        dependsOn(ktlintFormat)
     }
 }
 
+
 ktlint {
-    android.set(false)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    verbose.set(true)
+    android = false
+    outputToConsole = true
+    ignoreFailures = false
+    verbose = true
 
     filter {
         exclude("**/build/**")
@@ -118,25 +132,15 @@ ktlint {
     }
 }
 
-tasks.named("check") {
-    dependsOn("detekt", "ktlintCheck")
-}
-
-tasks.named<Jar>("jmhJar") {
-    isZip64 = true
-}
-
-tasks.register("format") {
-    group = "verification"
-    description = "Runs ktlintFormat and detekt (formatting rules via detekt-formatting are auto-fixed by ktlint)."
-    dependsOn("ktlintFormat")
-}
-
 kover {
     reports {
         total {
-            html { onCheck = true }
-            xml { onCheck = true }
+            html {
+                onCheck = true
+            }
+            xml {
+                onCheck = true
+            }
 
             verify {
                 rule {
