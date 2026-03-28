@@ -1,4 +1,3 @@
-import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
@@ -81,31 +80,15 @@ dependencies {
 
 detekt {
     buildUponDefaultConfig = true
-    allRules = false
 
     // config = files("$rootDir/config/detekt/detekt.yml")
     // baseline = file("$rootDir/config/detekt/baseline.xml")
 
-    source.from("src/main/kotlin", "src/test/kotlin")
 }
 
 tasks {
     test {
         useJUnitPlatform()
-    }
-
-    withType<Detekt> {
-        reports {
-            html.required = true
-            xml.required = true
-            txt.required = false
-            sarif.required = false
-            md.required = false
-        }
-    }
-
-    check {
-        dependsOn(detekt, ktlintCheck)
     }
 
     jmhJar {
@@ -120,15 +103,7 @@ tasks {
 
 
 ktlint {
-    android = false
-    outputToConsole = true
-    ignoreFailures = false
     verbose = true
-
-    filter {
-        exclude("**/build/**")
-        include("**/src/**/*.kt")
-    }
 }
 
 kover {
