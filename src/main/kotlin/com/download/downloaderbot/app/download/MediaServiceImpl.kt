@@ -6,8 +6,8 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.lock.UrlLockManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
-import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
 private val log = KotlinLogging.logger {}
@@ -53,12 +53,11 @@ class MediaServiceImpl(
     private suspend fun CachePort<String, List<Media>>.getWithLog(
         url: String,
         afterLock: Boolean = false,
-    ): List<Media>? {
-        return this.get(url)?.also { cached ->
+    ): List<Media>? =
+        this.get(url)?.also { cached ->
             val stage = if (afterLock) "after lock" else "before lock"
             log.info { "Cache hit $stage for url=$url, returning ${cached.size} media item(s)" }
         }
-    }
 
     private suspend fun CachePort<String, List<Media>>.awaitGet(url: String): List<Media>? {
         val end = System.nanoTime() + cacheProps.waitTimeout.toNanos()

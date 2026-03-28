@@ -3,6 +3,7 @@ package com.download.downloaderbot.infra.process.runner
 import com.download.downloaderbot.core.downloader.ToolExecutionException
 import com.download.downloaderbot.core.downloader.ToolTimeoutException
 import com.download.downloaderbot.infra.process.cli.common.utils.human
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -15,7 +16,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import mu.KotlinLogging
 import java.time.Duration
 import kotlin.time.TimeSource
 

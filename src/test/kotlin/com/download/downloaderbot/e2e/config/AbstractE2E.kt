@@ -7,7 +7,6 @@ import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.github.kotlintelegrambot.entities.Update
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.nio.file.Files
@@ -20,8 +19,6 @@ abstract class AbstractE2E(
     private val errorGuard: BotErrorGuard? = null,
     body: AbstractE2E.() -> Unit,
 ) : FunSpec({
-
-        extension(SpringExtension)
 
         beforeTest {
             botPort.reset()

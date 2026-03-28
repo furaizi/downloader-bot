@@ -12,7 +12,8 @@ class BotIdentityInitializer(
 ) : SmartInitializingSingleton {
     override fun afterSingletonsInstantiated() {
         val botUser =
-            bot.getMe()
+            bot
+                .getMe()
                 .getOrNull()
                 ?: error("Failed to get bot info from Telegram API")
 

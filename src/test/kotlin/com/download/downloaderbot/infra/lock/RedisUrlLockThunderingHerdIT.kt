@@ -11,7 +11,6 @@ import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.infra.config.MediaServiceTestConfig
 import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
@@ -44,8 +43,6 @@ class RedisUrlLockThunderingHerdIT
         private val factory: ReactiveRedisConnectionFactory,
     ) : FunSpec({
 
-            extension(SpringExtension)
-
             beforeTest {
                 clearMocks(mediaProvider)
                 factory.reactiveConnection
@@ -77,11 +74,12 @@ class RedisUrlLockThunderingHerdIT
 
                 val results =
                     coroutineScope {
-                        (1..50).map {
-                            async(Dispatchers.Default) {
-                                mediaService.download(rawUrl)
-                            }
-                        }.awaitAll()
+                        (1..50)
+                            .map {
+                                async(Dispatchers.Default) {
+                                    mediaService.download(rawUrl)
+                                }
+                            }.awaitAll()
                     }
 
                 results.shouldHaveSize(50)

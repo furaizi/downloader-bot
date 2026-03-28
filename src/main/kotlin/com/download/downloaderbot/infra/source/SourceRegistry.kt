@@ -34,8 +34,8 @@ class SourceRegistry(
         compiled.set(compile(newProps))
     }
 
-    private fun compile(props: SourcesProperties): List<CompiledSource> {
-        return props.sources
+    private fun compile(props: SourcesProperties): List<CompiledSource> =
+        props.sources
             .filter { (_, def) -> def.enabled }
             .map { (name, def) ->
                 val compiledSubs =
@@ -50,5 +50,4 @@ class SourceRegistry(
                         }
                 CompiledSource(name = name, subresources = compiledSubs)
             }
-    }
 }

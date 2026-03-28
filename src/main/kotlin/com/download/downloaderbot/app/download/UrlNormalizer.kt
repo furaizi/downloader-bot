@@ -67,7 +67,8 @@ class UrlNormalizer {
 
     private fun normalizePath(rawPath: String?): String =
         URI(null, null, (rawPath ?: "/").ifEmpty { "/" }, null)
-            .normalize().path
+            .normalize()
+            .path
             .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
 
     private fun buildNormalizedQuery(
@@ -106,7 +107,8 @@ class UrlNormalizer {
     private fun parseQuery(q: String?): List<Pair<String, String?>> {
         if (q.isNullOrBlank()) return emptyList()
         val utf8 = StandardCharsets.UTF_8
-        return q.split('&')
+        return q
+            .split('&')
             .filter { it.isNotBlank() }
             .map { pair ->
                 val i = pair.indexOf('=')

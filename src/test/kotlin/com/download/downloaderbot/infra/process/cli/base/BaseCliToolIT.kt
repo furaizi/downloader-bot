@@ -27,101 +27,105 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
 @EnabledIf(PosixShellCondition::class)
-class BaseCliToolIT : FunSpec({
+class BaseCliToolIT :
+    FunSpec({
 
-    suspend fun withTempEnvironment(
-        maxVideoSize: DataSize? = null,
-        testBlock: suspend (Path, CliToolFixture) -> Unit,
-    ) {
-        val tempDir = Files.createTempDirectory("cli-tool-it-")
-        try {
-            val limits =
-                maxVideoSize?.let { MediaSizeLimits(video = it) }
-                    ?: MediaSizeLimits()
-            val props = MediaProperties(tempDir.toString(), maxSize = limits)
-            val fixture = CliToolFixture(props)
+        suspend fun withTempEnvironment(
+            maxVideoSize: DataSize? = null,
+            testBlock: suspend (Path, CliToolFixture) -> Unit,
+        ) {
+            val tempDir = Files.createTempDirectory("cli-tool-it-")
+            try {
+                val limits =
+                    maxVideoSize?.let { MediaSizeLimits(video = it) }
+                        ?: MediaSizeLimits()
+                val props = MediaProperties(tempDir.toString(), maxSize = limits)
+                val fixture = CliToolFixture(props)
 
-            testBlock(tempDir, fixture)
-        } finally {
-            tempDir.toFile().deleteRecursively()
-        }
-    }
-
-    test("yt-dlp. happy path: probe -> size ok -> download -> returns Media mapped from parsed metadata") {
-        withTempEnvironment { dir, factory ->
-            val url = "https://example.com/video"
-
-            val cmd =
-                ShellYtDlpCommandBuilder()
-                    .probeOk(ytDlpJson(title = "My video", type = "video", filesize = 1024))
-                    .downloadCreatesFiles(exts = listOf("mp4"))
-            val ytDlp = factory.ytDlp(cmd)
-
-            val result = ytDlp.download(url, formatOverride = "best")
-
-            result shouldHaveSize 1
-
-            val media = result.single()
-            assertSoftly(media) {
-                type shouldBe MediaType.VIDEO
-                sourceUrl shouldBe url
-                title shouldBe "My video"
-            }
-
-            assertSoftly(Path.of(media.fileUrl)) {
-                shouldExist()
-                shouldStartWith(dir)
-                name shouldEndWith ".mp4"
+                testBlock(tempDir, fixture)
+            } finally {
+                tempDir.toFile().deleteRecursively()
             }
         }
-    }
 
-    test("yt-dlp. estimated size too large -> throws and does not create output") {
-        withTempEnvironment(maxVideoSize = DataSize.ofBytes(1)) { dir, factory ->
-            val url = "https://example.com/video"
-            val cmd =
-                ShellYtDlpCommandBuilder()
-                    .probeOk(ytDlpJson(title = "Big", type = "video", filesize = 2))
-                    .downloadCreatesFiles(exts = listOf("mp4"))
-            val ytDlp = factory.ytDlp(cmd)
+        test("yt-dlp. happy path: probe -> size ok -> download -> returns Media mapped from parsed metadata") {
+            withTempEnvironment { dir, factory ->
+                val url = "https://example.com/video"
 
-            shouldThrow<MediaTooLargeException> {
-                ytDlp.download(url, formatOverride = "")
-            }
+                val cmd =
+                    ShellYtDlpCommandBuilder()
+                        .probeOk(ytDlpJson(title = "My video", type = "video", filesize = 1024))
+                        .downloadCreatesFiles(exts = listOf("mp4"))
+                val ytDlp = factory.ytDlp(cmd)
 
-            dir.listDirectoryEntries().shouldBeEmpty()
-        }
-    }
+                val result = ytDlp.download(url, formatOverride = "best")
 
-    test("gallery-dl. directory download -> DirectoryFilesByPrefixFinder returns sorted files -> Media for each file") {
-        withTempEnvironment { dir, factory ->
-            val url = "https://example.com/gallery"
-            val createdFiles = listOf("10.jpg", "2.jpg", "1.jpg", "abc.jpg")
-            val expectedOrder = listOf("1.jpg", "2.jpg", "10.jpg", "abc.jpg")
+                result shouldHaveSize 1
 
-            val cmd =
-                ShellGalleryDlCommandBuilder()
-                    .probeFails()
-                    .downloadCreatesDirWithFiles(fileNames = createdFiles)
-            val galleryDl = factory.galleryDl(cmd)
-
-            val result = galleryDl.download(url, formatOverride = "")
-
-            result.shouldHaveSize(4)
-            result.all { it.type == MediaType.IMAGE } shouldBe true
-
-            val paths = result.map { Paths.get(it.fileUrl) }
-            assertSoftly(paths) {
-                forEach {
-                    it.shouldExist()
-                    it shouldStartWith dir
+                val media = result.single()
+                assertSoftly(media) {
+                    type shouldBe MediaType.VIDEO
+                    sourceUrl shouldBe url
+                    title shouldBe "My video"
                 }
-                map { it.name } shouldContainExactly expectedOrder
-                map { it.parent }.distinct() shouldHaveSize 1
+
+                assertSoftly(Path.of(media.fileUrl)) {
+                    shouldExist()
+                    shouldStartWith(dir)
+                    name shouldEndWith ".mp4"
+                }
             }
         }
-    }
-})
+
+        test("yt-dlp. estimated size too large -> throws and does not create output") {
+            withTempEnvironment(maxVideoSize = DataSize.ofBytes(1)) { dir, factory ->
+                val url = "https://example.com/video"
+                val cmd =
+                    ShellYtDlpCommandBuilder()
+                        .probeOk(ytDlpJson(title = "Big", type = "video", filesize = 2))
+                        .downloadCreatesFiles(exts = listOf("mp4"))
+                val ytDlp = factory.ytDlp(cmd)
+
+                shouldThrow<MediaTooLargeException> {
+                    ytDlp.download(url, formatOverride = "")
+                }
+
+                dir.listDirectoryEntries().shouldBeEmpty()
+            }
+        }
+
+        test(
+            "gallery-dl. directory download -> " +
+                "DirectoryFilesByPrefixFinder returns sorted files -> Media for each file",
+        ) {
+            withTempEnvironment { dir, factory ->
+                val url = "https://example.com/gallery"
+                val createdFiles = listOf("10.jpg", "2.jpg", "1.jpg", "abc.jpg")
+                val expectedOrder = listOf("1.jpg", "2.jpg", "10.jpg", "abc.jpg")
+
+                val cmd =
+                    ShellGalleryDlCommandBuilder()
+                        .probeFails()
+                        .downloadCreatesDirWithFiles(fileNames = createdFiles)
+                val galleryDl = factory.galleryDl(cmd)
+
+                val result = galleryDl.download(url, formatOverride = "")
+
+                result.shouldHaveSize(4)
+                result.all { it.type == MediaType.IMAGE } shouldBe true
+
+                val paths = result.map { Paths.get(it.fileUrl) }
+                assertSoftly(paths) {
+                    forEach {
+                        it.shouldExist()
+                        it shouldStartWith dir
+                    }
+                    map { it.name } shouldContainExactly expectedOrder
+                    map { it.parent }.distinct() shouldHaveSize 1
+                }
+            }
+        }
+    })
 
 private fun ytDlpJson(
     title: String,

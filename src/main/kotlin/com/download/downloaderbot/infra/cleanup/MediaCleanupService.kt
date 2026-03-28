@@ -1,9 +1,9 @@
 package com.download.downloaderbot.infra.cleanup
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Files
@@ -40,7 +40,8 @@ class MediaCleanupService(
             if (!basePath.exists()) return@withContext emptyList()
             try {
                 Files.walk(basePath).use { stream ->
-                    stream.asSequence()
+                    stream
+                        .asSequence()
                         .filter { it.isRegularFile() }
                         .mapNotNull { toMediaFile(it) }
                         .toList()

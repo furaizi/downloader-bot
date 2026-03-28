@@ -5,7 +5,7 @@ import com.download.downloaderbot.core.downloader.MediaProvider
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.infra.process.cli.api.ToolRegistry
 import com.download.downloaderbot.infra.source.SourceRegistry
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

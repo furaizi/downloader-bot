@@ -1,6 +1,6 @@
 package com.download.downloaderbot.infra.config
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
@@ -29,20 +29,20 @@ class ConfigLocationLogger(
                 }
 
         if (relevantNames.isEmpty()) {
-            log.info("No application configuration property sources detected.")
+            log.info { "No application configuration property sources detected." }
             return
         }
 
-        log.info("Resolved application configuration property sources (highest precedence first):")
+        log.info { "Resolved application configuration property sources (highest precedence first):" }
         relevantNames.forEachIndexed { index, name ->
-            log.info("  ${index + 1}. $name")
+            log.info { "  ${index + 1}. $name" }
         }
 
         val usesExternal = relevantNames.any { it.contains("file:") }
         if (usesExternal) {
-            log.info("External configuration detected (file-based application.yml overrides packaged defaults).")
+            log.info { "External configuration detected (file-based application.yml overrides packaged defaults)." }
         } else {
-            log.info("Using only packaged application.yml from the JAR (no external application.yml found).")
+            log.info { "Using only packaged application.yml from the JAR (no external application.yml found)." }
         }
     }
 }

@@ -2,7 +2,9 @@ package com.download.downloaderbot.infra.media.files
 
 import java.nio.file.Path
 
-open class FilesByPrefixFinderException(message: String) : RuntimeException(message)
+open class FilesByPrefixFinderException(
+    message: String,
+) : RuntimeException(message)
 
 class FilesByPrefixNotFoundException(
     val prefix: String,

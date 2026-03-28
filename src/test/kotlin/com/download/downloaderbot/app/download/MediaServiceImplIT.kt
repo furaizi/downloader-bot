@@ -10,7 +10,6 @@ import com.download.downloaderbot.core.lock.UrlLockManager
 import com.download.downloaderbot.infra.config.MediaServiceTestConfig
 import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -37,8 +36,6 @@ class MediaServiceImplIT(
     private val normalizer: UrlNormalizer,
     private val urlLock: UrlLockManager,
 ) : FunSpec({
-
-        extension(SpringExtension)
 
         beforeTest {
             clearMocks(mediaProvider)

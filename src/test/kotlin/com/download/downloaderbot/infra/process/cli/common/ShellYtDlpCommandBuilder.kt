@@ -85,6 +85,4 @@ private object Scripts {
     fun mkdir(path: String): String = "mkdir -p ${path.quoted()}"
 }
 
-private fun String.quoted(): String {
-    return "'" + this.replace("'", "'\"'\"'") + "'"
-}
+private fun String.quoted(): String = "'" + this.replace("'", "'\"'\"'") + "'"

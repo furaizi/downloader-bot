@@ -3,9 +3,7 @@ import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spring.dependency.management)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kover)
@@ -17,17 +15,21 @@ version = "0.17.11" // x-release-please-version
 description = "downloader-bot"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
 
 jmh {
-    jmhVersion = "1.37"
+    jmhVersion =
+        libs.versions.jmh.core
+            .get()
 }
 
 dependencies {
+    implementation(platform(libs.spring.boot.dependencies))
+
     implementation(libs.spring.boot.starter.data.redis.reactive)
     implementation(libs.spring.boot.starter.webflux)
     implementation(libs.spring.boot.starter.validation)
@@ -39,7 +41,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.reactor)
-    implementation(libs.coroutines.jdk8)
+//    implementation(libs.coroutines.jdk8)
 
     implementation(libs.kotlin.logging)
     implementation(libs.telegram.bot)
@@ -72,13 +74,11 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-
 detekt {
     buildUponDefaultConfig = true
 
     // config = files("$rootDir/config/detekt/detekt.yml")
     // baseline = file("$rootDir/config/detekt/baseline.xml")
-
 }
 
 tasks {
@@ -95,7 +95,6 @@ tasks {
         dependsOn(ktlintFormat)
     }
 }
-
 
 ktlint {
     verbose = true

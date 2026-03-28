@@ -8,7 +8,5 @@ class RejectAllRateLimitGuard : RateLimitGuard {
     override suspend fun <T> runOrReject(
         ctx: CommandContext,
         block: suspend () -> T,
-    ): T {
-        throw TooManyRequestsException("test", ctx.chatId)
-    }
+    ): T = throw TooManyRequestsException("test", ctx.chatId)
 }

@@ -9,9 +9,9 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.proxy.AsyncProxyManager
 import io.github.bucket4j.distributed.proxy.ProxyManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
-import mu.KotlinLogging
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
@@ -76,16 +76,14 @@ class Bucket4jRateLimiter(
         key: String,
         cfg: RateLimitProperties.Bucket,
     ): AsyncBucketProxy {
-        log.debug(
-            "[rate-limit] build bucket key={} cap={} refill={}/{} greedy={}",
-            key,
-            cfg.capacity,
-            cfg.refill.tokens,
-            cfg.refill.period,
-            cfg.refill.greedy,
-        )
+        log.debug {
+            "[rate-limit] build bucket " +
+                "key=$key cap=${cfg.capacity} refill=${cfg.refill.tokens}/${cfg.refill.period} " +
+                "greedy=${cfg.refill.greedy}"
+        }
         val config =
-            BucketConfiguration.builder()
+            BucketConfiguration
+                .builder()
                 .addLimit(cfg.toBandwidth())
                 .build()
         return async.builder().build(key) { CompletableFuture.completedFuture(config) }
@@ -101,7 +99,8 @@ class Bucket4jRateLimiter(
 
     private fun RateLimitProperties.Bucket.toBandwidth(): Bandwidth {
         val builder =
-            BandwidthBuilder.builder()
+            BandwidthBuilder
+                .builder()
                 .capacity(capacity)
         return if (refill.greedy) {
             builder

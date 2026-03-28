@@ -7,7 +7,8 @@ class OutputJsonExtractor(
     private val toolName: String,
 ) : JsonExtractor {
     override suspend fun extract(source: String): String =
-        source.lineSequence()
+        source
+            .lineSequence()
             .map { it.trim() }
             .firstOrNull { it.startsWith("{") && it.endsWith("}") }
             ?: throw MediaDownloaderToolException("$toolName produced no JSON", output = source)

@@ -8,119 +8,120 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 
-class CommandAddressingTest : FunSpec({
+class CommandAddressingTest :
+    FunSpec({
 
-    val targetBotName = "my_bot"
+        val targetBotName = "my_bot"
 
-    context("Update field priority") {
-        test("uses message over editedMessage (no fallback)") {
-            val msg = mockMessage(text = "hello")
-            val edited = mockMessage(text = "/start", entities = listOf("/start".toEntity()))
+        context("Update field priority") {
+            test("uses message over editedMessage (no fallback)") {
+                val msg = mockMessage(text = "hello")
+                val edited = mockMessage(text = "/start", entities = listOf("/start".toEntity()))
 
-            val update = mockUpdate(message = msg, editedMessage = edited)
+                val update = mockUpdate(message = msg, editedMessage = edited)
 
-            update.addressing(targetBotName) shouldBe CommandAddressing.NO_COMMAND
-        }
+                update.addressing(targetBotName) shouldBe CommandAddressing.NO_COMMAND
+            }
 
-        test("falls back to editedMessage when message is null") {
-            val edited = mockMessage(text = "/start", entities = listOf("/start".toEntity()))
-            val update = mockUpdate(message = null, editedMessage = edited)
+            test("falls back to editedMessage when message is null") {
+                val edited = mockMessage(text = "/start", entities = listOf("/start".toEntity()))
+                val update = mockUpdate(message = null, editedMessage = edited)
 
-            update.addressing(targetBotName) shouldBe CommandAddressing.OUR
-        }
+                update.addressing(targetBotName) shouldBe CommandAddressing.OUR
+            }
 
-        test("returns NO_COMMAND when update is empty") {
-            mockUpdate().addressing(targetBotName) shouldBe CommandAddressing.NO_COMMAND
-        }
-    }
-
-    context("Command parsing and addressing logic") {
-
-        data class TestCase(
-            val name: String,
-            val text: String? = null,
-            val caption: String? = null,
-            val entities: List<MessageEntity>? = null,
-            val captionEntities: List<MessageEntity>? = null,
-            val expected: CommandAddressing,
-        )
-
-        val testCases =
-            listOf(
-                TestCase(
-                    name = "returns NO_COMMAND when entities present but text/caption null",
-                    entities = listOf("/start".toEntity()),
-                    expected = CommandAddressing.NO_COMMAND,
-                ),
-                TestCase(
-                    name = "returns NO_COMMAND when first token does not start with '/'",
-                    text = "start",
-                    entities = listOf("start".toEntity()),
-                    expected = CommandAddressing.NO_COMMAND,
-                ),
-                TestCase(
-                    name = "returns NO_COMMAND when BOT_COMMAND entity has negative offset",
-                    text = "/start",
-                    entities = listOf("/start".toEntity(offset = -1)),
-                    expected = CommandAddressing.NO_COMMAND,
-                ),
-                TestCase(
-                    name = "returns OUR when command has no @mention",
-                    text = "/start hello",
-                    entities = listOf("/start".toEntity()),
-                    expected = CommandAddressing.OUR,
-                ),
-                TestCase(
-                    name = "returns OUR when command mentions our username (case-insensitive)",
-                    text = "/start@My_Bot hello",
-                    entities = listOf("/start@My_Bot".toEntity()),
-                    expected = CommandAddressing.OUR,
-                ),
-                TestCase(
-                    name = "returns OTHER when command mentions different username",
-                    text = "/start@other_bot hello",
-                    entities = listOf("/start@other_bot".toEntity()),
-                    expected = CommandAddressing.OTHER,
-                ),
-                TestCase(
-                    name = "prefers entities over captionEntities (text is OTHER, caption is OUR)",
-                    text = "/start@other_bot",
-                    caption = "/start@my_bot",
-                    entities = listOf("/start@other_bot".toEntity()),
-                    captionEntities = listOf("/start@my_bot".toEntity()),
-                    expected = CommandAddressing.OTHER,
-                ),
-                TestCase(
-                    name = "uses captionEntities when entities missing/invalid (fallback to caption)",
-                    caption = "/start@my_bot foo",
-                    entities = listOf(mockEntity(2, 6)),
-                    captionEntities = listOf("/start@my_bot".toEntity()),
-                    expected = CommandAddressing.OUR,
-                ),
-                TestCase(
-                    name = "handles entity length exceeding text length (safe substring)",
-                    text = "/start",
-                    entities = listOf("/start".toEntity(length = 999)),
-                    expected = CommandAddressing.OUR,
-                ),
-            )
-
-        testCases.forEach { testCase ->
-            test(testCase.name) {
-                val msg =
-                    mockMessage(
-                        text = testCase.text,
-                        caption = testCase.caption,
-                        entities = testCase.entities,
-                        captionEntities = testCase.captionEntities,
-                    )
-                val update = mockUpdate(message = msg)
-
-                update.addressing(targetBotName) shouldBe testCase.expected
+            test("returns NO_COMMAND when update is empty") {
+                mockUpdate().addressing(targetBotName) shouldBe CommandAddressing.NO_COMMAND
             }
         }
-    }
-})
+
+        context("Command parsing and addressing logic") {
+
+            data class TestCase(
+                val name: String,
+                val text: String? = null,
+                val caption: String? = null,
+                val entities: List<MessageEntity>? = null,
+                val captionEntities: List<MessageEntity>? = null,
+                val expected: CommandAddressing,
+            )
+
+            val testCases =
+                listOf(
+                    TestCase(
+                        name = "returns NO_COMMAND when entities present but text/caption null",
+                        entities = listOf("/start".toEntity()),
+                        expected = CommandAddressing.NO_COMMAND,
+                    ),
+                    TestCase(
+                        name = "returns NO_COMMAND when first token does not start with '/'",
+                        text = "start",
+                        entities = listOf("start".toEntity()),
+                        expected = CommandAddressing.NO_COMMAND,
+                    ),
+                    TestCase(
+                        name = "returns NO_COMMAND when BOT_COMMAND entity has negative offset",
+                        text = "/start",
+                        entities = listOf("/start".toEntity(offset = -1)),
+                        expected = CommandAddressing.NO_COMMAND,
+                    ),
+                    TestCase(
+                        name = "returns OUR when command has no @mention",
+                        text = "/start hello",
+                        entities = listOf("/start".toEntity()),
+                        expected = CommandAddressing.OUR,
+                    ),
+                    TestCase(
+                        name = "returns OUR when command mentions our username (case-insensitive)",
+                        text = "/start@My_Bot hello",
+                        entities = listOf("/start@My_Bot".toEntity()),
+                        expected = CommandAddressing.OUR,
+                    ),
+                    TestCase(
+                        name = "returns OTHER when command mentions different username",
+                        text = "/start@other_bot hello",
+                        entities = listOf("/start@other_bot".toEntity()),
+                        expected = CommandAddressing.OTHER,
+                    ),
+                    TestCase(
+                        name = "prefers entities over captionEntities (text is OTHER, caption is OUR)",
+                        text = "/start@other_bot",
+                        caption = "/start@my_bot",
+                        entities = listOf("/start@other_bot".toEntity()),
+                        captionEntities = listOf("/start@my_bot".toEntity()),
+                        expected = CommandAddressing.OTHER,
+                    ),
+                    TestCase(
+                        name = "uses captionEntities when entities missing/invalid (fallback to caption)",
+                        caption = "/start@my_bot foo",
+                        entities = listOf(mockEntity(2, 6)),
+                        captionEntities = listOf("/start@my_bot".toEntity()),
+                        expected = CommandAddressing.OUR,
+                    ),
+                    TestCase(
+                        name = "handles entity length exceeding text length (safe substring)",
+                        text = "/start",
+                        entities = listOf("/start".toEntity(length = 999)),
+                        expected = CommandAddressing.OUR,
+                    ),
+                )
+
+            testCases.forEach { testCase ->
+                test(testCase.name) {
+                    val msg =
+                        mockMessage(
+                            text = testCase.text,
+                            caption = testCase.caption,
+                            entities = testCase.entities,
+                            captionEntities = testCase.captionEntities,
+                        )
+                    val update = mockUpdate(message = msg)
+
+                    update.addressing(targetBotName) shouldBe testCase.expected
+                }
+            }
+        }
+    })
 
 private fun mockUpdate(
     message: Message? = null,

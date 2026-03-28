@@ -17,7 +17,9 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Duration
 
-class CliToolFixture(private val props: MediaProperties) {
+class CliToolFixture(
+    private val props: MediaProperties,
+) {
     private val runner = DefaultProcessRunner("/bin/sh", Duration.ofSeconds(3))
     private val extractor = OutputJsonExtractor("test-cli")
     private val mapper = jacksonObjectMapper()

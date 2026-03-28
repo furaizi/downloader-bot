@@ -21,10 +21,10 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.infra.metrics.BotMetrics
 import com.github.kotlintelegrambot.entities.Message
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Timer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.File
 import java.time.Duration
@@ -81,7 +81,8 @@ class DefaultDownloadJobExecutor(
         block: suspend () -> T,
     ): T {
         val startNanos = System.nanoTime()
-        botMetrics.jobQueueDelayTimer(JOB_NAME)
+        botMetrics
+            .jobQueueDelayTimer(JOB_NAME)
             .record(Duration.ofNanos(startNanos - job.enqueuedAtNanos))
 
         val executionSample = Timer.start()
@@ -90,7 +91,8 @@ class DefaultDownloadJobExecutor(
         } finally {
             executionSample.stop(botMetrics.jobDurationTimer(JOB_NAME))
             val totalNanos = System.nanoTime() - job.enqueuedAtNanos
-            botMetrics.jobTotalDurationTimer(JOB_NAME)
+            botMetrics
+                .jobTotalDurationTimer(JOB_NAME)
                 .record(Duration.ofNanos(totalNanos))
         }
     }
@@ -142,7 +144,8 @@ class DefaultDownloadJobExecutor(
                 }
 
             results.mapNotNull { result ->
-                result.onErr { log.warn(it.cause) { it.description } }
+                result
+                    .onErr { log.warn(it.cause) { it.description } }
                     .getOrNull()
             }
         }
@@ -176,7 +179,8 @@ class DefaultDownloadJobExecutor(
         }
 
         val updated =
-            mediaList.zip(messages)
+            mediaList
+                .zip(messages)
                 .map { (media, message) -> media.updateWith(message) }
         if (updated.any { it.lastFileId != null }) {
             cachePort.put(url, updated, cacheProps.mediaTtl)

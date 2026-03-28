@@ -66,7 +66,8 @@ class DefaultUpdateHandler(
     ): T {
         val sample = Timer.start()
         return try {
-            botMetrics.commandCounter(commandName)
+            botMetrics
+                .commandCounter(commandName)
                 .increment()
             block()
         } finally {

@@ -8,7 +8,11 @@ class ToolRegistry(
 ) {
     private val byName: Map<String, CliTool> =
         tools.associateBy { it.toolId.label } +
-            tools.associateBy { it.toolId.name.lowercase().replace('_', '-') }
+            tools.associateBy {
+                it.toolId.name
+                    .lowercase()
+                    .replace('_', '-')
+            }
 
     fun get(tool: String): CliTool = byName[tool] ?: error("Tool not found: $tool. Available: ${byName.keys}")
 }

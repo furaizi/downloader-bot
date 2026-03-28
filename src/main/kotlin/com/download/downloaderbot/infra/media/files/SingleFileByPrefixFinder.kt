@@ -2,9 +2,9 @@ package com.download.downloaderbot.infra.media.files
 
 import com.download.downloaderbot.infra.di.ForInstaloader
 import com.download.downloaderbot.infra.di.ForYtDlp
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -26,7 +26,8 @@ class SingleFileByPrefixFinder : FilesByPrefixFinder {
         withContext(Dispatchers.IO) {
             val file =
                 Files.list(dir).use { stream ->
-                    stream.asSequence()
+                    stream
+                        .asSequence()
                         .firstOrNull { it.isRegularFile() && it.name.startsWith(prefix) }
                 }
 

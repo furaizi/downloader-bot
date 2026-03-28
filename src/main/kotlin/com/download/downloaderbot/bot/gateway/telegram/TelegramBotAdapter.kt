@@ -34,25 +34,27 @@ class TelegramBotAdapter(
         replyToMessageId: Long?,
         replyMarkup: ReplyMarkup?,
     ): GatewayResult<Message> =
-        bot.sendMessage(
-            chatId = ChatId.fromId(chatId),
-            text = text,
-            replyToMessageId = replyToMessageId,
-            replyMarkup = replyMarkup,
-        ).toGateway()
+        bot
+            .sendMessage(
+                chatId = ChatId.fromId(chatId),
+                text = text,
+                replyToMessageId = replyToMessageId,
+                replyMarkup = replyMarkup,
+            ).toGateway()
 
     override suspend fun sendPhoto(
         chatId: Long,
         file: InputFile,
         options: MessageOptions,
     ): GatewayResult<Message> =
-        bot.sendPhoto(
-            chatId = ChatId.fromId(chatId),
-            photo = file.toTelegram(),
-            caption = options.caption,
-            replyToMessageId = options.replyToMessageId,
-            replyMarkup = options.replyMarkup,
-        ).toGateway()
+        bot
+            .sendPhoto(
+                chatId = ChatId.fromId(chatId),
+                photo = file.toTelegram(),
+                caption = options.caption,
+                replyToMessageId = options.replyToMessageId,
+                replyMarkup = options.replyMarkup,
+            ).toGateway()
 
     override suspend fun sendVideo(
         chatId: Long,
@@ -60,16 +62,17 @@ class TelegramBotAdapter(
         messageOptions: MessageOptions,
         videoOptions: VideoOptions,
     ): GatewayResult<Message> =
-        bot.sendVideo(
-            chatId = ChatId.fromId(chatId),
-            video = file.toTelegram(),
-            caption = messageOptions.caption,
-            duration = videoOptions.durationSeconds,
-            width = videoOptions.width,
-            height = videoOptions.height,
-            replyToMessageId = messageOptions.replyToMessageId,
-            replyMarkup = messageOptions.replyMarkup,
-        ).toGateway()
+        bot
+            .sendVideo(
+                chatId = ChatId.fromId(chatId),
+                video = file.toTelegram(),
+                caption = messageOptions.caption,
+                duration = videoOptions.durationSeconds,
+                width = videoOptions.width,
+                height = videoOptions.height,
+                replyToMessageId = messageOptions.replyToMessageId,
+                replyMarkup = messageOptions.replyMarkup,
+            ).toGateway()
 
     override suspend fun sendAudio(
         chatId: Long,
@@ -77,28 +80,30 @@ class TelegramBotAdapter(
         messageOptions: MessageOptions,
         audioOptions: AudioOptions,
     ): GatewayResult<Message> =
-        bot.sendAudio(
-            chatId = ChatId.fromId(chatId),
-            audio = file.toTelegram(),
-            duration = audioOptions.durationSeconds,
-            performer = audioOptions.performer,
-            title = audioOptions.title,
-            replyToMessageId = messageOptions.replyToMessageId,
-            replyMarkup = messageOptions.replyMarkup,
-        ).toGateway()
+        bot
+            .sendAudio(
+                chatId = ChatId.fromId(chatId),
+                audio = file.toTelegram(),
+                duration = audioOptions.durationSeconds,
+                performer = audioOptions.performer,
+                title = audioOptions.title,
+                replyToMessageId = messageOptions.replyToMessageId,
+                replyMarkup = messageOptions.replyMarkup,
+            ).toGateway()
 
     override suspend fun sendDocument(
         chatId: Long,
         file: InputFile,
         options: MessageOptions,
     ): GatewayResult<Message> =
-        bot.sendDocument(
-            chatId = ChatId.fromId(chatId),
-            document = file.toTelegram(),
-            caption = options.caption,
-            replyToMessageId = options.replyToMessageId,
-            replyMarkup = options.replyMarkup,
-        ).toGateway()
+        bot
+            .sendDocument(
+                chatId = ChatId.fromId(chatId),
+                document = file.toTelegram(),
+                caption = options.caption,
+                replyToMessageId = options.replyToMessageId,
+                replyMarkup = options.replyMarkup,
+            ).toGateway()
 
     @Suppress("SpreadOperator")
     override suspend fun sendMediaAlbum(
@@ -108,29 +113,34 @@ class TelegramBotAdapter(
         replyToMessageId: Long?,
     ): GatewayResult<List<Message>> {
         val media =
-            items.mapIndexed { index, item ->
-                val cap = caption.takeIf { index == 0 }
-                val m: GroupableMedia =
-                    when (item.type) {
-                        MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = cap)
-                        MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = cap)
-                        MediaType.AUDIO -> error("Audio is currently not supported")
-                    }
-                m
-            }.toTypedArray()
+            items
+                .mapIndexed { index, item ->
+                    val cap = caption.takeIf { index == 0 }
+                    val m: GroupableMedia =
+                        when (item.type) {
+                            MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = cap)
+                            MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = cap)
+                            MediaType.AUDIO -> error("Audio is currently not supported")
+                        }
+                    m
+                }.toTypedArray()
 
-        return bot.sendMediaGroup(
-            chatId = ChatId.fromId(chatId),
-            mediaGroup = MediaGroup.from(*media),
-            replyToMessageId = replyToMessageId,
-        ).toGateway()
+        return bot
+            .sendMediaGroup(
+                chatId = ChatId.fromId(chatId),
+                mediaGroup = MediaGroup.from(*media),
+                replyToMessageId = replyToMessageId,
+            ).toGateway()
     }
 }
 
 val CommandContext.chatId: Long
     get() =
         update.message?.chat?.id
-            ?: update.callbackQuery?.message?.chat?.id
+            ?: update.callbackQuery
+                ?.message
+                ?.chat
+                ?.id
             ?: error("No chatId in update")
 
 val CommandContext.replyToMessageId: Long?
@@ -141,7 +151,10 @@ val CommandContext.replyToMessageId: Long?
 val CommandContext.chatType: String
     get() =
         update.message?.chat?.type
-            ?: update.callbackQuery?.message?.chat?.type
+            ?: update.callbackQuery
+                ?.message
+                ?.chat
+                ?.type
             ?: error("No chat type in update")
 
 val CommandContext.isPrivateChat: Boolean

@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.lifecycle
 
 import com.github.kotlintelegrambot.Bot
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicBoolean
@@ -9,7 +9,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 private val log = KotlinLogging.logger {}
 
 @Component
-class PollingBotLifecycle(private val bot: Bot) : SmartLifecycle {
+class PollingBotLifecycle(
+    private val bot: Bot,
+) : SmartLifecycle {
     private val running = AtomicBoolean(false)
 
     override fun isRunning(): Boolean = running.get()

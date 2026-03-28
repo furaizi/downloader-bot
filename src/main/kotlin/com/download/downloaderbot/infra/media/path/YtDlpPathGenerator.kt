@@ -11,7 +11,8 @@ class YtDlpPathGenerator(
     override fun generate(url: String): DownloadPath {
         val basePrefix = BasePrefixGenerator.generate(url)
         val outputTemplate =
-            props.basePath.resolve("$basePrefix.%(ext)s")
+            props.basePath
+                .resolve("$basePrefix.%(ext)s")
                 .toString()
         return DownloadPath(basePrefix, outputTemplate)
     }
