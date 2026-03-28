@@ -27,11 +27,6 @@ jmh {
     jmhVersion = "1.37"
 }
 
-repositories {
-    mavenCentral()
-    maven("https://jitpack.io")
-}
-
 dependencies {
     implementation(libs.spring.boot.starter.data.redis.reactive)
     implementation(libs.spring.boot.starter.webflux)
