@@ -18,9 +18,10 @@ group = "com.download"
 version = "0.17.11" // x-release-please-version
 description = "downloader-bot"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
 
@@ -35,47 +36,50 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation("org.springframework.boot:spring-boot-docker-compose")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-docker-compose")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.3")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.3.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
     implementation("com.bucket4j:bucket4j_jdk17-core:8.15.0")
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.15.0")
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("io.projectreactor:reactor-test")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("io.projectreactor:reactor-test")
+
     testImplementation("io.mockk:mockk:1.13.11")
+
     testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
     testImplementation("io.kotest:kotest-property-jvm:5.9.1")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
+
     testImplementation(platform("org.testcontainers:testcontainers-bom:1.21.3"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:testcontainers")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
 
 tasks.withType<Test> {
     useJUnitPlatform()
