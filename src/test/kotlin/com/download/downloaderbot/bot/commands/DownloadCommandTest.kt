@@ -3,7 +3,7 @@ package com.download.downloaderbot.bot.commands
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.commands.util.ctx
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.bot.job.DownloadJob
 import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.NoopRateLimitGuard
@@ -27,13 +27,13 @@ class DownloadCommandTest :
         val validator = InputValidator()
 
         lateinit var service: MediaService
-        lateinit var bot: RecordingBotPort
+        lateinit var bot: RecordingTelegramBot
         lateinit var queue: DownloadJobQueue
         lateinit var jobSlot: CapturingSlot<DownloadJob>
 
         beforeTest {
             service = mockk(relaxed = true)
-            bot = RecordingBotPort()
+            bot = RecordingTelegramBot()
 
             jobSlot = slot()
             queue = mockk()
@@ -41,7 +41,7 @@ class DownloadCommandTest :
         }
 
         test("private chat: blank -> sends hint text, no job") {
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("   "), 100, 42, "private"))
 
@@ -55,7 +55,7 @@ class DownloadCommandTest :
         }
 
         test("private chat: not an URL -> sends hint text, no job") {
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("not-a-url"), 100, 42, "private"))
 
@@ -64,7 +64,7 @@ class DownloadCommandTest :
         }
 
         test("private chat: valid URL -> submits job (trimmed), no hint") {
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("  https://example.com/a  "), 101, 7, "private"))
 
@@ -79,7 +79,7 @@ class DownloadCommandTest :
 
         test("group chat: valid URL but service does not support -> no side effects") {
             coEvery { service.supports(any()) } returns false
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("https://example.com/x"), -10, 1, "group"))
 
@@ -89,7 +89,7 @@ class DownloadCommandTest :
 
         test("group chat: valid URL and service supports -> submits job") {
             coEvery { service.supports(any()) } returns true
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("https://example.com/x"), -11, 99, "supergroup"))
 
@@ -98,7 +98,7 @@ class DownloadCommandTest :
         }
 
         test("group chat: not an URL -> no side effects") {
-            val sut = DownloadCommand(service, bot, NoopRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, NoopRateLimitGuard(), validator, queue)
 
             sut.handle(ctx(listOf("not-a-url"), -12, 5, "group"))
 
@@ -107,7 +107,7 @@ class DownloadCommandTest :
         }
 
         test("rate limited: private invalid URL branch -> exception, no message sent") {
-            val sut = DownloadCommand(service, bot, RejectAllRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, RejectAllRateLimitGuard(), validator, queue)
 
             shouldThrow<TooManyRequestsException> {
                 sut.handle(ctx(listOf(" "), 100, 42, "private"))
@@ -118,7 +118,7 @@ class DownloadCommandTest :
         }
 
         test("rate limited: allowed branch -> exception, job not submitted") {
-            val sut = DownloadCommand(service, bot, RejectAllRateLimitGuard(), validator, queue)
+            val sut = DownloadCommand(service, bot.bot, RejectAllRateLimitGuard(), validator, queue)
 
             shouldThrow<TooManyRequestsException> {
                 sut.handle(ctx(listOf("https://example.com"), 100, 42, "private"))

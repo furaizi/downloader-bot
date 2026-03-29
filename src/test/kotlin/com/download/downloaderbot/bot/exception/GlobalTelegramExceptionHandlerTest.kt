@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.util.ctx
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.core.downloader.BusyException
 import com.download.downloaderbot.core.downloader.DownloadInProgressException
 import com.download.downloaderbot.core.downloader.MediaDownloaderException
@@ -28,8 +28,8 @@ class GlobalTelegramExceptionHandlerTest :
     FunSpec({
 
         val metrics = mockk<BotMetrics>(relaxed = true)
-        val botPort = RecordingBotPort()
-        val handler = GlobalTelegramExceptionHandler(botPort, metrics)
+        val botPort = RecordingTelegramBot()
+        val handler = GlobalTelegramExceptionHandler(botPort.bot, metrics)
 
         beforeTest {
             botPort.sentTexts.clear()

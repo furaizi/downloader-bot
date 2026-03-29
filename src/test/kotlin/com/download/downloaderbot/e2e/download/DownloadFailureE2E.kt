@@ -5,7 +5,7 @@ import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.commands.util.updateDownload
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.lock.UrlLockManager
@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 @TestPropertySource(properties = ["downloader.yt-dlp.runner=fail"])
 class DownloadFailureE2E(
     updateHandler: UpdateHandler,
-    botPort: RecordingBotPort,
+    botPort: RecordingTelegramBot,
     mediaProps: MediaProperties,
     errorGuard: BotErrorGuard,
     private val urlLock: UrlLockManager,

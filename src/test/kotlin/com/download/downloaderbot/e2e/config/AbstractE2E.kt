@@ -4,7 +4,7 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.github.kotlintelegrambot.entities.Update
 import io.kotest.core.spec.style.FunSpec
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -14,7 +14,7 @@ import java.nio.file.Path
 
 abstract class AbstractE2E(
     protected val updateHandler: UpdateHandler,
-    protected val botPort: RecordingBotPort,
+    protected val botPort: RecordingTelegramBot,
     protected val mediaProps: MediaProperties,
     private val errorGuard: BotErrorGuard? = null,
     body: AbstractE2E.() -> Unit,

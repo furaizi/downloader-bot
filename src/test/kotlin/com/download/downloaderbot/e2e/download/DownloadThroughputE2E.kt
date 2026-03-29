@@ -4,7 +4,7 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.bot.commands.util.updateDownload
 import com.download.downloaderbot.bot.core.UpdateHandler
 import com.download.downloaderbot.bot.exception.BotErrorGuard
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.e2e.config.AbstractE2E
 import com.download.downloaderbot.e2e.config.DownloaderBotE2E
 import io.kotest.assertions.nondeterministic.eventually
@@ -20,7 +20,7 @@ import kotlin.time.toDuration
 @TestPropertySource(properties = ["downloader.yt-dlp.runner=sleepy"])
 class DownloadThroughputE2E(
     updateHandler: UpdateHandler,
-    botPort: RecordingBotPort,
+    botPort: RecordingTelegramBot,
     mediaProps: MediaProperties,
     errorGuard: BotErrorGuard,
 ) : AbstractE2E(

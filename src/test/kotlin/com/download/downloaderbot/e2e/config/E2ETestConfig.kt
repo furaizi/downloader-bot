@@ -1,6 +1,5 @@
 package com.download.downloaderbot.e2e.config
 
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
 import com.download.downloaderbot.core.net.FinalUrlResolver
 import com.download.downloaderbot.infra.di.ForYtDlp
 import com.download.downloaderbot.infra.network.StubFinalUrlResolver
@@ -15,10 +14,6 @@ import org.springframework.context.annotation.Primary
 
 @TestConfiguration
 class E2ETestConfig {
-    @Bean
-    @Primary
-    fun recordingBotPort() = RecordingBotPort()
-
     @Bean
     @Primary
     fun stubFinalUrlResolver(): FinalUrlResolver = StubFinalUrlResolver()

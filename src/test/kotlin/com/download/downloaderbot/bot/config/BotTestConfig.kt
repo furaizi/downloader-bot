@@ -1,11 +1,8 @@
 package com.download.downloaderbot.bot.config
 
 import com.download.downloaderbot.bot.config.properties.BotIdentity
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.github.kotlintelegrambot.Bot
-import com.github.kotlintelegrambot.entities.User
-import com.github.kotlintelegrambot.types.TelegramBotResult
-import io.mockk.every
-import io.mockk.mockk
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
@@ -18,17 +15,9 @@ class BotTestConfig {
 
     @Primary
     @Bean
-    fun testBot(): Bot {
-        val me =
-            User(
-                id = 0L,
-                isBot = true,
-                firstName = "t",
-                username = "test-bot",
-            )
+    fun recordingTelegramBot() = RecordingTelegramBot(username = "test-bot")
 
-        return mockk(relaxed = true) {
-            every { getMe() } returns TelegramBotResult.Success(me)
-        }
-    }
+    @Primary
+    @Bean
+    fun testBot(recordingTelegramBot: RecordingTelegramBot): Bot = recordingTelegramBot.bot
 }

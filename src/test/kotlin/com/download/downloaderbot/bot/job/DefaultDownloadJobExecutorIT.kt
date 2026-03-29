@@ -4,7 +4,7 @@ import com.download.downloaderbot.app.download.StubMediaService
 import com.download.downloaderbot.bot.config.BotTestConfig
 import com.download.downloaderbot.bot.config.DownloadJobExecutorTestConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
@@ -37,7 +37,7 @@ class DefaultDownloadJobExecutorIT
     constructor(
         private val executor: DefaultDownloadJobExecutor,
         private val mediaService: StubMediaService,
-        private val botPort: RecordingBotPort,
+        private val botPort: RecordingTelegramBot,
         private val cache: CachePort<String, List<Media>>,
         private val botProps: BotProperties,
     ) : FunSpec({
@@ -80,8 +80,8 @@ class DefaultDownloadJobExecutorIT
                 botPort.sentTexts.shouldBeEmpty()
 
                 val sent = botPort.sentMedia.single()
-                sent.options.caption shouldBe botProps.promoText
-                sent.options.replyMarkup.shouldNotBeNull()
+                sent.caption shouldBe botProps.promoText
+                sent.replyMarkup.shouldNotBeNull()
 
                 val cached = cache.get(url)
                 cached.shouldNotBeNull()

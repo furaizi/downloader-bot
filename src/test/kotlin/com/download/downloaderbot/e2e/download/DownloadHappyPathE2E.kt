@@ -4,13 +4,13 @@ import com.download.downloaderbot.app.config.properties.MediaProperties
 import com.download.downloaderbot.app.download.UrlNormalizer
 import com.download.downloaderbot.bot.commands.util.updateDownload
 import com.download.downloaderbot.bot.core.UpdateHandler
-import com.download.downloaderbot.bot.gateway.InputFile
-import com.download.downloaderbot.bot.gateway.RecordingBotPort
+import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.core.cache.CachePort
 import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.e2e.config.AbstractE2E
 import com.download.downloaderbot.e2e.config.DownloaderBotE2E
+import com.github.kotlintelegrambot.entities.TelegramFile
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.collections.shouldHaveSize
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 @TestPropertySource(properties = ["downloader.yt-dlp.runner=fake"])
 class DownloadHappyPathE2E(
     updateHandler: UpdateHandler,
-    botPort: RecordingBotPort,
+    botPort: RecordingTelegramBot,
     mediaProps: MediaProperties,
     private val cache: CachePort<String, List<Media>>,
     private val normalizer: UrlNormalizer,
@@ -54,8 +54,8 @@ class DownloadHappyPathE2E(
 
                 assertSoftly(sent) {
                     this.chatId shouldBe chatId
-                    options.replyToMessageId shouldBe messageId
-                    (file as InputFile.Local).file.shouldExist()
+                    replyToMessageId shouldBe messageId
+                    (file as TelegramFile.ByFile).file.shouldExist()
                 }
 
                 val cached =
