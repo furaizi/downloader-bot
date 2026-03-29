@@ -4,8 +4,8 @@ import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.commands.util.InstagramUrls
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
+import com.download.downloaderbot.bot.job.DownloadJobDispatcher
 import com.download.downloaderbot.bot.job.DownloadJob
-import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
@@ -19,7 +19,7 @@ class StoriesCommand(
     private val bot: Bot,
     private val rateLimitGuard: RateLimitGuard,
     private val validator: InputValidator,
-    private val downloadJobQueue: DownloadJobQueue,
+    private val downloadJobDispatcher: DownloadJobDispatcher,
 ) : BotCommand {
     override val name = "stories"
 
@@ -51,7 +51,7 @@ class StoriesCommand(
                     replyToMessageId = replyTo,
                     commandContext = ctx,
                 )
-            downloadJobQueue.submit(job)
+            downloadJobDispatcher.submit(job)
         }
     }
 }

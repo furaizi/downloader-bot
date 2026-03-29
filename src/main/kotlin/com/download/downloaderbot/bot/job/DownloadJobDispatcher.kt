@@ -1,10 +1,12 @@
 package com.download.downloaderbot.bot.job
 
 import com.download.downloaderbot.app.config.properties.CacheProperties
+import com.download.downloaderbot.app.config.properties.ConcurrencyProperties
 import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
+import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
 import com.download.downloaderbot.bot.gateway.telegram.getOrThrow
@@ -26,7 +28,10 @@ import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaVideo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Timer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Component
 import java.io.File
@@ -36,24 +41,44 @@ private val log = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 @Component
-class DefaultDownloadJobExecutor(
+class DownloadJobDispatcher(
+    props: ConcurrencyProperties,
     private val service: MediaService,
     private val bot: Bot,
-    private val props: BotProperties,
+    private val botProps: BotProperties,
     private val cachePort: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
     private val validator: InputValidator,
-) : DownloadJobExecutor {
+    botScope: CoroutineScope,
+    private val errorGuard: BotErrorGuard,
+) {
     private companion object {
         const val JOB_NAME = "download"
     }
 
-    private val share by lazy { shareKeyboard(botIdentity.username, props.shareText) }
+    private val channel = Channel<DownloadJob>(capacity = Channel.UNLIMITED)
+    private val share by lazy { shareKeyboard(botIdentity.username, botProps.shareText) }
 
-    override suspend fun execute(job: DownloadJob) {
+    init {
+        repeat(props.maxDownloads) {
+            botScope.launch {
+                for (job in channel) {
+                    errorGuard.runSafely(job.commandContext) {
+                        dispatch(job)
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun submit(job: DownloadJob) {
+        channel.send(job)
+    }
+
+    suspend fun dispatch(job: DownloadJob) {
         measureJob(job) {
             log.info { "Executing download job id=${job.id} url=${job.sourceUrl} chatId=${job.chatId}" }
 
@@ -123,7 +148,7 @@ class DefaultDownloadJobExecutor(
                     bot
                         .sendMessage(
                             chatId = ChatId.fromId(chatId),
-                            text = props.promoText,
+                            text = botProps.promoText,
                             replyToMessageId = sentPhotos.first().messageId,
                             replyMarkup = share,
                         ).getOrThrow()
@@ -134,23 +159,21 @@ class DefaultDownloadJobExecutor(
                 emptyList()
             }
         } else {
-            val results =
-                mediaList.mapNotNull { media ->
-                    try {
-                        bot.sendSmartMedia(
-                            type = media.type,
-                            chatId = chatId,
-                            file = media.toTelegramFile(),
-                            caption = if (sendPromo) props.promoText else null,
-                            replyToMessageId = replyTo,
-                            replyMarkup = if (sendPromo) share else null,
-                        )
-                    } catch (e: Exception) {
-                        log.warn(e) { "Failed to send media item" }
-                        null
-                    }
+            mediaList.mapNotNull { media ->
+                try {
+                    bot.sendSmartMedia(
+                        type = media.type,
+                        chatId = chatId,
+                        file = media.toTelegramFile(),
+                        caption = if (sendPromo) botProps.promoText else null,
+                        replyToMessageId = replyTo,
+                        replyMarkup = if (sendPromo) share else null,
+                    )
+                } catch (e: Exception) {
+                    log.warn(e) { "Failed to send media item" }
+                    null
                 }
-            results
+            }
         }
     }
 
@@ -186,8 +209,8 @@ class DefaultDownloadJobExecutor(
         )
 
     private fun List<Media>.isVisualAlbum(): Boolean =
-        this.size >= 2 &&
-            this.all {
+        size >= 2 &&
+            all {
                 it.type == MediaType.IMAGE || it.type == MediaType.VIDEO
             }
 

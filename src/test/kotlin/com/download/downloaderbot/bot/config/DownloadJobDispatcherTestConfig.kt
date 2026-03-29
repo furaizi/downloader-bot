@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 
 @TestConfiguration
-class DownloadJobExecutorTestConfig {
+class DownloadJobDispatcherTestConfig {
     @Primary
     @Bean
     fun stubMediaService() = StubMediaService()

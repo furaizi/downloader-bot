@@ -2,7 +2,7 @@ package com.download.downloaderbot.bot.job
 
 import com.download.downloaderbot.app.download.StubMediaService
 import com.download.downloaderbot.bot.config.BotTestConfig
-import com.download.downloaderbot.bot.config.DownloadJobExecutorTestConfig
+import com.download.downloaderbot.bot.config.DownloadJobDispatcherTestConfig
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.gateway.RecordingTelegramBot
 import com.download.downloaderbot.bot.gateway.telegram.fileId
@@ -26,16 +26,16 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest(
     classes = [
         BotTestConfig::class,
-        DownloadJobExecutorTestConfig::class,
+        DownloadJobDispatcherTestConfig::class,
         RedisTestConfig::class,
     ],
     properties = ["spring.config.location=classpath:/"],
 )
 @ActiveProfiles("test")
-class DefaultDownloadJobExecutorIT
+class DownloadJobDispatcherIT
     @Autowired
     constructor(
-        private val executor: DefaultDownloadJobExecutor,
+        private val dispatcher: DownloadJobDispatcher,
         private val mediaService: StubMediaService,
         private val botPort: RecordingTelegramBot,
         private val cache: CachePort<String, List<Media>>,
@@ -74,7 +74,7 @@ class DefaultDownloadJobExecutorIT
                 )
 
                 val job = downloadJob(url, chatId)
-                executor.execute(job)
+                dispatcher.dispatch(job)
 
                 botPort.sentMedia.shouldHaveSize(1)
                 botPort.sentTexts.shouldBeEmpty()
@@ -111,7 +111,7 @@ class DefaultDownloadJobExecutorIT
                 )
 
                 val job = downloadJob(url, chatId)
-                executor.execute(job)
+                dispatcher.dispatch(job)
 
                 botPort.sentAlbums.shouldHaveSize(1)
                 botPort.sentTexts.shouldHaveSize(1)
@@ -128,7 +128,7 @@ class DefaultDownloadJobExecutorIT
                 mediaService.stubDownload(url, emptyList())
 
                 val job = downloadJob(url, chatId)
-                shouldThrow<MediaNotFoundException> { executor.execute(job) }
+                shouldThrow<MediaNotFoundException> { dispatcher.dispatch(job) }
 
                 botPort.sentMedia.shouldHaveSize(0)
                 botPort.sentAlbums.shouldHaveSize(0)
