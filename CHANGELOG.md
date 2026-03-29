@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0](https://github.com/furaizi/downloader-bot/compare/v0.17.11...v1.0.0) (2026-03-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* upgrade to Spring Boot 4, Java 25, Kotlin 2.3, refactor Gradle scripts ([#195](https://github.com/furaizi/downloader-bot/issues/195))
+
+### Bug Fixes
+
+* release tick ([3c0e1e7](https://github.com/furaizi/downloader-bot/commit/3c0e1e7a18e9652926faae064cc775e46cc3a933))
+
+
+### Build System
+
+* upgrade to Spring Boot 4, Java 25, Kotlin 2.3, refactor Gradle scripts ([#195](https://github.com/furaizi/downloader-bot/issues/195)) ([d4fcbe0](https://github.com/furaizi/downloader-bot/commit/d4fcbe000a2cd05d8a12c9f8e2b45da3fa90a236))
+
 ## [0.17.11](https://github.com/furaizi/downloader-bot/compare/v0.17.10...v0.17.11) (2026-03-26)
 
 
