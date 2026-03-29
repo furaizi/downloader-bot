@@ -12,15 +12,15 @@ import io.mockk.coVerify
 import io.mockk.coVerifySequence
 import io.mockk.mockk
 
-class DefaultRateLimitGuardTest :
+class RateLimitGuardTest :
     FunSpec({
 
         lateinit var limiter: RateLimiter
-        lateinit var guard: DefaultRateLimitGuard
+        lateinit var guard: RateLimitGuard
 
         beforeTest {
             limiter = mockk()
-            guard = DefaultRateLimitGuard(limiter)
+            guard = RateLimitGuard(limiter)
         }
 
         test("rejects when local limit denies: does not await global and does not execute block") {
@@ -99,5 +99,19 @@ class DefaultRateLimitGuardTest :
                 limiter.tryConsumePerChatOrGroup(chatId)
                 limiter.awaitGlobal()
             }
+        }
+
+        test("passes through when limiter bean is absent") {
+            val ctx = ctx(chatId = 123L)
+            var blockCalled = false
+
+            val result =
+                RateLimitGuard().runOrReject(ctx) {
+                    blockCalled = true
+                    "OK_RESULT"
+                }
+
+            result shouldBe "OK_RESULT"
+            blockCalled shouldBe true
         }
     })

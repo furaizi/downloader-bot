@@ -33,7 +33,6 @@ class Bucket4jRateLimiter(
     }
 
     override suspend fun awaitGlobal() {
-        if (!props.enabled) return
         val key = keyGlobal()
         val bucket = asyncBucket(key, props.global)
         while (true) {
@@ -49,7 +48,6 @@ class Bucket4jRateLimiter(
     }
 
     override suspend fun tryConsumePerChatOrGroup(chatId: Long): Boolean {
-        if (!props.enabled) return true
         val (key, cfg) =
             if (isGroup(chatId)) {
                 keyGroup(chatId) to props.group

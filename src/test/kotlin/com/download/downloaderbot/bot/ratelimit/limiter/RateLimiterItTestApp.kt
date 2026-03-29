@@ -12,5 +12,9 @@ import org.springframework.context.annotation.Import
 @SpringBootConfiguration
 @EnableAutoConfiguration
 @EnableConfigurationProperties(RateLimitProperties::class)
-@Import(RedisTestConfig::class, RedisRateLimitConfiguration::class, MappingConfig::class)
+@Import(
+    RedisTestConfig::class,
+    RedisRateLimitConfiguration::class,
+    MappingConfig::class,
+)
 class RateLimiterItTestApp

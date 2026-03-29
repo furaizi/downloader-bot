@@ -33,10 +33,10 @@ private const val NAMESPACE = "rl-concurrency-it"
     ],
 )
 @ActiveProfiles("test")
-class DefaultRateLimitGuardConcurrencyIT
+class RateLimitGuardConcurrencyIT
     @Autowired
     constructor(
-        private val guard: DefaultRateLimitGuard,
+        private val guard: RateLimitGuard,
         private val redisConnection: StatefulRedisConnection<String, ByteArray>,
     ) : FunSpec({
 
