@@ -1,22 +1,20 @@
 package com.download.downloaderbot.bot.gateway.telegram
 
+import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.exception.*
-import com.github.kotlintelegrambot.types.TelegramBotResult
-import com.download.downloaderbot.bot.gateway.MediaInput
-import com.download.downloaderbot.bot.gateway.MessageOptions
 import com.download.downloaderbot.core.domain.MediaType
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
+import com.github.kotlintelegrambot.entities.ReplyMarkup
 import com.github.kotlintelegrambot.entities.TelegramFile
+import com.github.kotlintelegrambot.entities.files.PhotoSize
 import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
-import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
-import com.github.kotlintelegrambot.entities.inputmedia.InputMediaVideo
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
+import com.github.kotlintelegrambot.types.TelegramBotResult
 import kotlinx.coroutines.delay
-import kotlin.collections.toTypedArray
+import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
-
 import com.github.kotlintelegrambot.network.Response as TgEnvelope
 import retrofit2.Response as HttpResponse
 
@@ -88,41 +86,31 @@ suspend fun Bot.sendSmartMedia(
     type: MediaType,
     chatId: Long,
     file: TelegramFile,
-    options: MessageOptions = MessageOptions()
+    caption: String? = null,
+    replyToMessageId: Long? = null,
+    replyMarkup: ReplyMarkup? = null
 ): Message {
     val id = ChatId.fromId(chatId)
     val result = when (type) {
-        MediaType.IMAGE -> sendPhoto(chatId = id, photo = file, caption = options.caption, replyToMessageId = options.replyToMessageId, replyMarkup = options.replyMarkup)
-        MediaType.VIDEO -> sendVideo(chatId = id, video = file, caption = options.caption, replyToMessageId = options.replyToMessageId, replyMarkup = options.replyMarkup)
-        MediaType.AUDIO -> sendAudio(chatId = id, audio = file, title = options.caption, replyToMessageId = options.replyToMessageId, replyMarkup = options.replyMarkup)
+        MediaType.IMAGE -> sendPhoto(chatId = id, photo = file, caption = caption, replyToMessageId = replyToMessageId, replyMarkup = replyMarkup)
+        MediaType.VIDEO -> sendVideo(chatId = id, video = file, caption = caption, replyToMessageId = replyToMessageId, replyMarkup = replyMarkup)
+        MediaType.AUDIO -> sendAudio(chatId = id, audio = file, title = caption, replyToMessageId = replyToMessageId, replyMarkup = replyMarkup)
     }
     return result.getOrThrow()
 }
 
 suspend fun Bot.sendMediaAlbumChunked(
     chatId: Long,
-    items: List<MediaInput>,
-    caption: String? = null,
+    items: List<GroupableMedia>,
     replyToMessageId: Long? = null
 ): List<Message> {
     val allMessages = mutableListOf<Message>()
     val id = ChatId.fromId(chatId)
 
     items.chunked(ALBUM_LIMIT).forEachIndexed { idx, part ->
-        val groupCaption = caption.takeIf { idx == 0 }
-
-        val mediaArray = part.mapIndexed { itemIdx, item ->
-            val itemCaption = groupCaption.takeIf { itemIdx == 0 }
-            when (item.type) {
-                MediaType.IMAGE -> InputMediaPhoto(media = item.file.toTelegram(), caption = itemCaption)
-                MediaType.VIDEO -> InputMediaVideo(media = item.file.toTelegram(), caption = itemCaption)
-                MediaType.AUDIO -> error("Audio album is currently not supported")
-            }
-        }.toTypedArray<GroupableMedia>()
-
         val messages = sendMediaGroup(
             chatId = id,
-            mediaGroup = MediaGroup.from(*mediaArray),
+            mediaGroup = MediaGroup.from(*part.toTypedArray()),
             replyToMessageId = replyToMessageId
         ).getOrThrow()
 
@@ -135,3 +123,51 @@ suspend fun Bot.sendMediaAlbumChunked(
 
     return allMessages
 }
+
+
+val CommandContext.chatId: Long
+    get() =
+        update.message?.chat?.id
+            ?: update.callbackQuery
+                ?.message
+                ?.chat
+                ?.id
+            ?: error("No chatId in update")
+
+val CommandContext.replyToMessageId: Long?
+    get() =
+        update.message?.messageId
+            ?: update.callbackQuery?.message?.messageId
+
+val CommandContext.chatType: String
+    get() =
+        update.message?.chat?.type
+            ?: update.callbackQuery
+                ?.message
+                ?.chat
+                ?.type
+            ?: error("No chat type in update")
+
+val CommandContext.isPrivateChat: Boolean
+    get() = chatType == "private"
+
+val CommandContext.isGroupChat: Boolean
+    get() = chatType == "group" || chatType == "supergroup"
+
+val Message.fileId: String?
+    get() =
+        this.photo.largest()?.fileId
+            ?: this.document?.fileId
+            ?: this.video?.fileId
+            ?: this.audio?.fileId
+            ?: this.animation?.fileId
+
+val Message.fileUniqueId: String?
+    get() =
+        this.photo.largest()?.fileUniqueId
+            ?: this.document?.fileUniqueId
+            ?: this.video?.fileUniqueId
+            ?: this.audio?.fileUniqueId
+            ?: this.animation?.fileUniqueId
+
+private fun List<PhotoSize>?.largest(): PhotoSize? = this?.maxByOrNull { max(it.width, it.height) }
