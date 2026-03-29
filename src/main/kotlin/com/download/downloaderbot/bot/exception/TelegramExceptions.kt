@@ -14,11 +14,11 @@ class TelegramHttpException(
 
 class TelegramInvalidResponseException(
     val httpCode: Int,
-    val httpStatusMessage: String?,
+    val httpMessage: String?,
     val telegramErrorCode: Int?,
     val telegramErrorDescription: String?
 ) : TelegramBotException(
-    "Invalid response HTTP $httpCode (${httpStatusMessage ?: "Unknown"}). " +
+    "Invalid response HTTP $httpCode (${httpMessage ?: "Unknown"}). " +
         "Telegram details: code=${telegramErrorCode ?: "N/A"}, description=${telegramErrorDescription ?: "N/A"}"
 )
 

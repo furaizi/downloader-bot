@@ -2,10 +2,11 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
-import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.download.downloaderbot.bot.ui.shareKeyboard
+import com.github.kotlintelegrambot.Bot
+import com.github.kotlintelegrambot.entities.ChatId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
@@ -13,7 +14,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class StartCommand(
-    private val botPort: BotPort,
+    private val bot: Bot,
     private val rateLimitGuard: RateLimitGuard,
     private val props: BotProperties,
     private val botIdentity: BotIdentity,
@@ -25,9 +26,9 @@ class StartCommand(
     override suspend fun handle(ctx: CommandContext) {
         log.info { "Executing command /$name" }
         rateLimitGuard.runOrReject(ctx) {
-            botPort.sendText(
-                ctx.chatId,
-                "Привіт! Надішли мені посилання - я завантажу і відправлю відео.",
+            bot.sendMessage(
+                chatId = ChatId.fromId(ctx.chatId),
+                text = "Привіт! Надішли мені посилання - я завантажу і відправлю відео.",
                 replyMarkup = share,
             )
         }

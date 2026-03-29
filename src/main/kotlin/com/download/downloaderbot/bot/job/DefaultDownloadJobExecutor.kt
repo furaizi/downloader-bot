@@ -5,13 +5,15 @@ import com.download.downloaderbot.app.download.MediaService
 import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
-import com.download.downloaderbot.bot.gateway.BotPort
-import com.download.downloaderbot.bot.gateway.GatewayResult
 import com.download.downloaderbot.bot.gateway.MediaInput
 import com.download.downloaderbot.bot.gateway.MessageOptions
 import com.download.downloaderbot.bot.gateway.asInputFile
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
+import com.download.downloaderbot.bot.gateway.telegram.getOrThrow
+import com.download.downloaderbot.bot.gateway.telegram.sendMediaAlbumChunked
+import com.download.downloaderbot.bot.gateway.telegram.sendSmartMedia
+import com.download.downloaderbot.bot.gateway.telegram.toTelegram
 import com.download.downloaderbot.bot.gateway.toInputFile
 import com.download.downloaderbot.bot.promo.PromoService
 import com.download.downloaderbot.bot.ui.shareKeyboard
@@ -20,6 +22,8 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.infra.metrics.BotMetrics
+import com.github.kotlintelegrambot.Bot
+import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Timer
@@ -35,7 +39,7 @@ private val log = KotlinLogging.logger {}
 @Component
 class DefaultDownloadJobExecutor(
     private val service: MediaService,
-    private val botPort: BotPort,
+    private val bot: Bot,
     private val props: BotProperties,
     private val cachePort: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
@@ -106,67 +110,53 @@ class DefaultDownloadJobExecutor(
 
         return if (mediaList.isVisualAlbum()) {
             val items = mediaList.toMediaInputs()
-            val chunked = mediaList.size > TELEGRAM_ALBUM_LIMIT
-            when (val res = sendAlbum(chatId, items, replyTo, chunked)) {
-                is GatewayResult.Ok -> {
-                    val sentPhotos = res.value
-                    if (sendPromo) {
-                        botPort.sendText(
-                            chatId,
-                            props.promoText,
-                            replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
-                            replyMarkup = share,
-                        )
-                    }
-                    sentPhotos
+
+            try {
+                val sentPhotos = sendAlbum(chatId, items, replyTo)
+                if (sendPromo && sentPhotos.isNotEmpty()) {
+                    bot.sendMessage(
+                        chatId = ChatId.fromId(chatId),
+                        text = props.promoText,
+                        replyToMessageId = sentPhotos.firstOrNull()?.messageId ?: replyTo,
+                        replyMarkup = share,
+                    ).getOrThrow()
                 }
-                is GatewayResult.Err -> {
-                    log.warn(res.cause) { res.description }
-                    emptyList()
-                }
+                sentPhotos
+            } catch (e: Exception) {
+                log.warn(e) { "Failed to send media album" }
+                emptyList()
             }
         } else {
             val results =
-                mediaList.map { media ->
-                    val input = media.toInputFile()
-                    val options =
-                        MessageOptions(
-                            caption = if (sendPromo) props.promoText else null,
-                            replyToMessageId = replyTo,
-                            replyMarkup = if (sendPromo) share else null,
+                mediaList.mapNotNull { media ->
+                    try {
+                        val input = media.toInputFile()
+                        val options =
+                            MessageOptions(
+                                caption = if (sendPromo) props.promoText else null,
+                                replyToMessageId = replyTo,
+                                replyMarkup = if (sendPromo) share else null,
+                            )
+                        bot.sendSmartMedia(
+                            type = media.type,
+                            chatId = chatId,
+                            file = input.toTelegram(),
+                            options = options,
                         )
-                    botPort.sendMedia(
-                        media.type,
-                        chatId,
-                        input,
-                        options = options,
-                    )
+                    } catch (e: Exception) {
+                        log.warn(e) { "Failed to send media item" }
+                        null
+                    }
                 }
-
-            results.mapNotNull { result ->
-                result
-                    .onErr { log.warn(it.cause) { it.description } }
-                    .getOrNull()
-            }
+            results
         }
     }
 
     private suspend fun sendAlbum(
         chatId: Long,
         items: List<MediaInput>,
-        replyTo: Long?,
-        chunked: Boolean,
-    ): GatewayResult<List<Message>> =
-        if (chunked) {
-            botPort.sendMediaAlbumChunked(
-                chatId,
-                items,
-                TELEGRAM_ALBUM_LIMIT,
-                replyToMessageId = replyTo,
-            )
-        } else {
-            botPort.sendMediaAlbum(chatId, items, replyToMessageId = replyTo)
-        }
+        replyTo: Long?
+    ): List<Message> = bot.sendMediaAlbumChunked(chatId, items, replyToMessageId = replyTo)
 
     private suspend fun updateCache(
         url: String,

@@ -2,12 +2,13 @@ package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.commands.util.InstagramUrls
-import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.job.DownloadJob
 import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
+import com.github.kotlintelegrambot.Bot
+import com.github.kotlintelegrambot.entities.ChatId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
@@ -15,7 +16,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class StoriesCommand(
-    private val botPort: BotPort,
+    private val bot: Bot,
     private val rateLimitGuard: RateLimitGuard,
     private val validator: InputValidator,
     private val downloadJobQueue: DownloadJobQueue,
@@ -30,7 +31,11 @@ class StoriesCommand(
         if (!validator.isInstagramUsername(username)) {
             log.info { "Executing /$name command but invalid username provided: '$username'" }
             rateLimitGuard.runOrReject(ctx) {
-                botPort.sendText(ctx.chatId, "Будь ласка, вкажіть дійсний username для завантаження історій.", replyTo)
+                bot.sendMessage(
+                    chatId = ChatId.fromId(ctx.chatId),
+                    text = "Будь ласка, вкажіть дійсний username для завантаження історій.",
+                    replyToMessageId = replyTo
+                )
             }
             return
         }

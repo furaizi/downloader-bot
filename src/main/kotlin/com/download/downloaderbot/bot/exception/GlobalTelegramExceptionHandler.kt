@@ -1,21 +1,12 @@
 package com.download.downloaderbot.bot.exception
 
 import com.download.downloaderbot.bot.commands.CommandContext
-import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
-import com.download.downloaderbot.core.downloader.BusyException
-import com.download.downloaderbot.core.downloader.DownloadInProgressException
-import com.download.downloaderbot.core.downloader.MediaDownloaderException
-import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
-import com.download.downloaderbot.core.downloader.MediaNotFoundException
-import com.download.downloaderbot.core.downloader.MediaTooLargeException
-import com.download.downloaderbot.core.downloader.TooManyRequestsException
-import com.download.downloaderbot.core.downloader.ToolExecutionException
-import com.download.downloaderbot.core.downloader.ToolTimeoutException
-import com.download.downloaderbot.core.downloader.UnsupportedSourceException
-import com.download.downloaderbot.core.downloader.toMB
+import com.download.downloaderbot.core.downloader.*
 import com.download.downloaderbot.infra.metrics.BotMetrics
+import com.github.kotlintelegrambot.Bot
+import com.github.kotlintelegrambot.entities.ChatId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
 import org.springframework.stereotype.Component
@@ -24,7 +15,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class GlobalTelegramExceptionHandler(
-    val botPort: BotPort,
+    val bot: Bot,
     private val botMetrics: BotMetrics,
 ) {
     suspend fun handle(
@@ -36,7 +27,11 @@ class GlobalTelegramExceptionHandler(
         }
         botMetrics.errors.increment()
         logAtProperLevel(e, ctx.chatId)
-        botPort.sendText(ctx.chatId, e.toUserMessage(), ctx.replyToMessageId)
+        bot.sendMessage(
+            chatId = ChatId.fromId(ctx.chatId),
+            text = e.toUserMessage(),
+            replyToMessageId = ctx.replyToMessageId
+        )
     }
 
     private fun Exception.toUserMessage(): String =
