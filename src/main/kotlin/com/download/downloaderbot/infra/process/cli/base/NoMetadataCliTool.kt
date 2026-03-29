@@ -9,7 +9,7 @@ import com.download.downloaderbot.infra.process.cli.api.CliTool
 import com.download.downloaderbot.infra.process.cli.api.ToolId
 import com.download.downloaderbot.infra.process.cli.api.interfaces.CommandBuilder
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
@@ -64,10 +64,9 @@ class NoMetadataCliTool(
         }
     }
 
-    private fun getDefaultMediaType(): MediaType {
-        return when (toolId) {
+    private fun getDefaultMediaType(): MediaType =
+        when (toolId) {
             ToolId.YT_DLP, ToolId.INSTALOADER -> MediaType.VIDEO
             ToolId.GALLERY_DL -> MediaType.IMAGE
         }
-    }
 }

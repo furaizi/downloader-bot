@@ -41,7 +41,6 @@ class InputValidator {
 
             val isInstagram = host != null && (host == "instagram.com" || host.endsWith(".instagram.com"))
             isInstagram && path != null && path.startsWith("/stories/")
-        }
-            .getOrDefault(false)
+        }.getOrDefault(false)
     }
 }

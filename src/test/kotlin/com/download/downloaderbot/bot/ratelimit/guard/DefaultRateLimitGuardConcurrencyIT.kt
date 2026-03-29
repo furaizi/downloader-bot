@@ -4,7 +4,6 @@ import com.download.downloaderbot.bot.commands.util.ctx
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiterItTestApp
 import com.download.downloaderbot.core.downloader.TooManyRequestsException
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.lettuce.core.api.StatefulRedisConnection
 import kotlinx.coroutines.CompletableDeferred
@@ -41,7 +40,6 @@ class DefaultRateLimitGuardConcurrencyIT
         private val redisConnection: StatefulRedisConnection<String, ByteArray>,
     ) : FunSpec({
 
-            extension(SpringExtension)
             beforeTest {
                 val sync = redisConnection.sync()
                 val keys = sync.keys("$NAMESPACE*")

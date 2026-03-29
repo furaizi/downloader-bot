@@ -1,10 +1,10 @@
 package com.download.downloaderbot.infra.cleanup
 
 import com.download.downloaderbot.app.config.properties.MediaProperties
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.SchedulingConfigurer
@@ -20,7 +20,9 @@ class MediaCleanupSchedulingConfig(
     private val props: MediaProperties,
     private val maintenanceScope: CoroutineScope,
 ) : SchedulingConfigurer {
-    private val running = java.util.concurrent.atomic.AtomicBoolean(false)
+    private val running =
+        java.util.concurrent.atomic
+            .AtomicBoolean(false)
 
     override fun configureTasks(registrar: ScheduledTaskRegistrar) {
         val handler =

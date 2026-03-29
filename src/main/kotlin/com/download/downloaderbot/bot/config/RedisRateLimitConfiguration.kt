@@ -7,18 +7,17 @@ import com.download.downloaderbot.bot.ratelimit.limiter.Bucket4jRateLimiter
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.distributed.proxy.ProxyManager
-import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
+import io.github.bucket4j.redis.lettuce.Bucket4jLettuce
 import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.ByteArrayCodec
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.autoconfigure.data.redis.RedisConnectionDetails
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 
 @Configuration
 @ConditionalOnProperty(
@@ -27,37 +26,20 @@ import org.springframework.context.annotation.Configuration
     havingValue = "true",
 )
 class RedisRateLimitConfiguration {
-    @Bean(destroyMethod = "shutdown")
+    @Bean
     @ConditionalOnMissingBean
-    fun redisClient(details: RedisConnectionDetails): RedisClient {
-        val standalone = details.standalone
-        val uri =
-            RedisURI.Builder.redis(standalone.host, standalone.port)
-                .apply {
-                    val password = details.password
-                    if (!password.isNullOrBlank()) withPassword(password.toCharArray())
-                    if (standalone.sslBundle != null) withSsl(true)
-                    withDatabase(standalone.database)
-                }
-                .build()
-
-        return RedisClient.create(uri)
-    }
-
-    @Bean(destroyMethod = "close")
-    @ConditionalOnMissingBean
-    fun redisConnection(client: RedisClient): StatefulRedisConnection<String, ByteArray> {
+    fun redisConnection(connectionFactory: LettuceConnectionFactory): StatefulRedisConnection<String, ByteArray> {
+        val client = connectionFactory.requiredNativeClient as RedisClient
         val codec: RedisCodec<String, ByteArray> = RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE)
         return client.connect(codec)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun bucket4jProxyManager(connection: StatefulRedisConnection<String, ByteArray>): ProxyManager<String> {
-        return LettuceBasedProxyManager
-            .builderFor(connection)
+    fun bucket4jProxyManager(connection: StatefulRedisConnection<String, ByteArray>): ProxyManager<String> =
+        Bucket4jLettuce
+            .casBasedBuilder(connection)
             .build()
-    }
 
     @Bean
     @ConditionalOnMissingBean(RateLimiter::class)

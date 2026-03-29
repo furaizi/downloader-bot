@@ -16,8 +16,8 @@ import com.download.downloaderbot.core.downloader.ToolTimeoutException
 import com.download.downloaderbot.core.downloader.UnsupportedSourceException
 import com.download.downloaderbot.core.downloader.toMB
 import com.download.downloaderbot.infra.metrics.BotMetrics
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CancellationException
-import mu.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

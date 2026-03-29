@@ -1,9 +1,9 @@
 package com.download.downloaderbot.infra.media.files
 
 import com.download.downloaderbot.infra.di.ForGalleryDl
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -36,22 +36,25 @@ class DirectoryFilesByPrefixFinder : FilesByPrefixFinder {
     ): List<Path> {
         val matchingDir =
             Files.list(dir).use { stream ->
-                stream.asSequence()
+                stream
+                    .asSequence()
                     .filter { Files.isDirectory(it) }
                     .firstOrNull { it.fileName.toString().startsWith(prefix) }
             } ?: return emptyList()
 
         return Files.list(matchingDir).use { stream ->
-            stream.asSequence()
+            stream
+                .asSequence()
                 .filter { it.isRegularFile() }
                 .sortedWith(
                     compareBy<Path> {
-                        leadingNumber.find(it.fileName.toString())
-                            ?.groupValues?.get(1)
+                        leadingNumber
+                            .find(it.fileName.toString())
+                            ?.groupValues
+                            ?.get(1)
                             ?.toLongOrNull() ?: Long.MAX_VALUE
                     }.thenBy { it.fileName.toString() },
-                )
-                .toList()
+                ).toList()
         }
     }
 }

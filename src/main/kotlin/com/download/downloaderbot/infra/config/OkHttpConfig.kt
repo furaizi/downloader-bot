@@ -11,7 +11,8 @@ private const val OKHTTP_CALL_TIMEOUT_SECONDS = 20L
 class OkHttpConfig {
     @Bean
     fun okHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
+        OkHttpClient
+            .Builder()
             .followRedirects(true)
             .followSslRedirects(true)
             .callTimeout(Duration.ofSeconds(OKHTTP_CALL_TIMEOUT_SECONDS))

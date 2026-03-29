@@ -1,138 +1,114 @@
-import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.spring") version "1.9.23"
-    kotlin("kapt") version "1.9.23"
-    id("org.springframework.boot") version "3.5.4"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
-    id("org.jetbrains.kotlinx.kover") version "0.8.3"
-    id("me.champeau.jmh") version "0.7.2"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.jmh)
 }
 
 group = "com.download"
-version = "0.17.11" // x-release-please-version
+version = "1.0.0" // x-release-please-version
 description = "downloader-bot"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-jmh {
-    jmhVersion.set("1.37")
-}
-
-repositories {
-    mavenCentral()
-    maven(url = "https://jitpack.io")
-}
-
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation("org.springframework.boot:spring-boot-docker-compose")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.3")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.3.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.bucket4j:bucket4j_jdk17-core:8.15.0")
-    implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.15.0")
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-
-    testImplementation(kotlin("test"))
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
-    testImplementation("io.kotest:kotest-property-jvm:5.9.1")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.21.3"))
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:testcontainers")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
 kotlin {
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+jmh {
+    jmhVersion =
+        libs.versions.jmh.core
+            .get()
+}
+
+dependencies {
+    implementation(platform(libs.spring.boot.dependencies))
+
+    implementation(libs.spring.boot.starter.data.redis.reactive)
+    implementation(libs.spring.boot.starter.webflux)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.docker.compose)
+    developmentOnly(libs.spring.boot.devtools)
+    implementation(libs.micrometer.registry.prometheus)
+
+    implementation(libs.kotlin.reflect)
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.reactor)
+//    implementation(libs.coroutines.jdk8)
+
+    implementation(libs.kotlin.logging)
+    implementation(libs.telegram.bot)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+
+    implementation(libs.bucket4j.core)
+    implementation(libs.bucket4j.lettuce)
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.reactor.test)
+
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.coroutines.test)
+
+    testImplementation(libs.mockk)
+
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.property)
+    testImplementation(libs.kotest.extensions.spring)
+
+    testImplementation(platform(libs.testcontainers.bom))
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.core)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 detekt {
     buildUponDefaultConfig = true
-    allRules = false
 
     // config = files("$rootDir/config/detekt/detekt.yml")
     // baseline = file("$rootDir/config/detekt/baseline.xml")
-
-    source.from("src/main/kotlin", "src/test/kotlin")
 }
 
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = "21"
-    reports {
-        html.required.set(true)
-        xml.required.set(true)
-        txt.required.set(false)
-        sarif.required.set(false)
-        md.required.set(false)
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+
+    jmhJar {
+        isZip64 = true
+    }
+
+    register("format") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        dependsOn(ktlintFormat)
     }
 }
 
 ktlint {
-    android.set(false)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    verbose.set(true)
-
-    filter {
-        exclude("**/build/**")
-        include("**/src/**/*.kt")
-    }
-}
-
-tasks.named("check") {
-    dependsOn("detekt", "ktlintCheck")
-}
-
-tasks.named<Jar>("jmhJar") {
-    isZip64 = true
-}
-
-tasks.register("format") {
-    group = "verification"
-    description = "Runs ktlintFormat and detekt (formatting rules via detekt-formatting are auto-fixed by ktlint)."
-    dependsOn("ktlintFormat")
+    verbose = true
 }
 
 kover {
     reports {
         total {
-            html { onCheck = true }
-            xml { onCheck = true }
+            html {
+                onCheck = true
+            }
+            xml {
+                onCheck = true
+            }
 
             verify {
                 rule {

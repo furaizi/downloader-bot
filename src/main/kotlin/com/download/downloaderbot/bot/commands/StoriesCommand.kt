@@ -8,7 +8,7 @@ import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.job.DownloadJob
 import com.download.downloaderbot.bot.job.DownloadJobQueue
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

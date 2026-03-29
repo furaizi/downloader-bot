@@ -8,7 +8,5 @@ class FailingProcessRunner(
     override suspend fun run(
         args: List<String>,
         url: String,
-    ): String {
-        throw throwable
-    }
+    ): String = throw throwable
 }

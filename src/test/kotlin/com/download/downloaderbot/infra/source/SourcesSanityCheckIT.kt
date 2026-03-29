@@ -8,38 +8,39 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 
-class SourcesSanityCheckIT : FunSpec({
+class SourcesSanityCheckIT :
+    FunSpec({
 
-    val validContextRunner =
-        ApplicationContextRunner()
-            .withUserConfiguration(ValidSourcesConfig::class.java)
+        val validContextRunner =
+            ApplicationContextRunner()
+                .withUserConfiguration(ValidSourcesConfig::class.java)
 
-    val invalidContextRunner =
-        ApplicationContextRunner()
-            .withUserConfiguration(InvalidSourcesConfig::class.java)
+        val invalidContextRunner =
+            ApplicationContextRunner()
+                .withUserConfiguration(InvalidSourcesConfig::class.java)
 
-    test("context starts when all tools are known") {
-        validContextRunner.run { ctx ->
-            ctx.startupFailure.shouldBeNull()
+        test("context starts when all tools are known") {
+            validContextRunner.run { ctx ->
+                ctx.startupFailure.shouldBeNull()
 
-            ctx.getBean(SourcesSanityCheck::class.java).shouldNotBeNull()
+                ctx.getBean(SourcesSanityCheck::class.java).shouldNotBeNull()
 
-            val registry = ctx.getBean(SourceRegistry::class.java)
-            registry.list().shouldNotBeEmpty()
+                val registry = ctx.getBean(SourceRegistry::class.java)
+                registry.list().shouldNotBeEmpty()
+            }
         }
-    }
 
-    test("context fails to start when there are unknown tools in sources") {
-        invalidContextRunner.run { ctx ->
-            val failure = ctx.startupFailure
-            failure.shouldNotBeNull()
+        test("context fails to start when there are unknown tools in sources") {
+            invalidContextRunner.run { ctx ->
+                val failure = ctx.startupFailure
+                failure.shouldNotBeNull()
 
-            val rootCause = failure.rootCause()
-            rootCause.shouldBeInstanceOf<IllegalArgumentException>()
-            rootCause.message.shouldContain("Unknown tools in sources.yml")
-            rootCause.message.shouldContain("unknown-tool")
+                val rootCause = failure.rootCause()
+                rootCause.shouldBeInstanceOf<IllegalArgumentException>()
+                rootCause.message.shouldContain("Unknown tools in sources.yml")
+                rootCause.message.shouldContain("unknown-tool")
+            }
         }
-    }
-})
+    })
 
 private fun Throwable.rootCause(): Throwable = generateSequence(this) { it.cause }.last()

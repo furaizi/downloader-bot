@@ -4,7 +4,7 @@ import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.ratelimit.limiter.RateLimiter
 import com.download.downloaderbot.core.downloader.TooManyRequestsException
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 

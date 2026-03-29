@@ -21,11 +21,13 @@ class UrlNormalizerPropertyTest : StringSpec() {
     private val tokenArb = Arb.string(3..10, Codepoint.alphanumeric())
 
     private val tldArb =
-        Arb.string(2..10, Codepoint.alphanumeric())
+        Arb
+            .string(2..10, Codepoint.alphanumeric())
             .filter { it.first().isLetter() }
 
     private val hostArb =
-        Arb.list(tokenArb, 0..2)
+        Arb
+            .list(tokenArb, 0..2)
             .flatMap { subdomains ->
                 tldArb.map { tld ->
                     (subdomains + tld).joinToString(".")
@@ -33,7 +35,8 @@ class UrlNormalizerPropertyTest : StringSpec() {
             }
 
     private val pathArb =
-        Arb.list(tokenArb, 0..4)
+        Arb
+            .list(tokenArb, 0..4)
             .map { "/" + it.joinToString("/") }
 
     private val tikTokInstaHostArb =
@@ -89,8 +92,7 @@ class UrlNormalizerPropertyTest : StringSpec() {
         }
 
         "tracking params do not affect canonical url" {
-            checkAll(hostArb, pathArb, tokenArb, tokenArb, tokenArb, tokenArb) {
-                    host, path, v1, v2, t1, t2 ->
+            checkAll(hostArb, pathArb, tokenArb, tokenArb, tokenArb, tokenArb) { host, path, v1, v2, t1, t2 ->
                 val base = "https://$host$path"
 
                 val cleanQuery = "a=$v1&b=$v2"
@@ -165,6 +167,5 @@ class UrlNormalizerPropertyTest : StringSpec() {
                 val name = part.substringBefore("=")
                 val value = part.substringAfter("=", "")
                 name to value
-            }
-            .orEmpty()
+            }.orEmpty()
 }

@@ -11,18 +11,18 @@ object BasePrefixGenerator {
         val host = getHostName(url) ?: "media"
         val timestamp = Instant.now().toEpochMilli()
         val shortUuid =
-            UUID.randomUUID()
+            UUID
+                .randomUUID()
                 .toString()
                 .take(SHORT_UUID_LENGTH)
         return "$host-$timestamp-$shortUuid"
     }
 
-    private fun getHostName(url: String): String? {
-        return runCatching {
-            URI(url).host
+    private fun getHostName(url: String): String? =
+        runCatching {
+            URI(url)
+                .host
                 ?.replace(oldValue = ":", newValue = "-")
-        }
-            .getOrNull()
+        }.getOrNull()
             ?.takeIf { it.isNotBlank() }
-    }
 }

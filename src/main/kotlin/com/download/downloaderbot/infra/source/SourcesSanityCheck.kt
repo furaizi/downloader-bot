@@ -20,8 +20,7 @@ class SourcesSanityCheck(
                     s.subresources.values
                         .filter { it.enabled }
                         .map { it.tool }
-                }
-                .distinct()
+                }.distinct()
                 .filter { runCatching { tools.get(it) }.isFailure }
         require(unknown.isEmpty()) {
             "Unknown tools in sources.yml: $unknown"

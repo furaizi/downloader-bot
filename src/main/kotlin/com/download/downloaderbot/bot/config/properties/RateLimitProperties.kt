@@ -54,7 +54,8 @@ fun RateLimitProperties.fingerprint(mapper: ObjectMapper): String {
         )
     val bytes = mapper.writeValueAsBytes(norm)
     val hash = MessageDigest.getInstance("SHA-256").digest(bytes)
-    return hash.joinToString("") { "%02x".format(it) }
+    return hash
+        .joinToString("") { "%02x".format(it) }
         .take(FINGERPRINT_LENGTH)
 }
 

@@ -5,7 +5,9 @@ import com.download.downloaderbot.core.domain.MediaType
 import com.download.downloaderbot.infra.process.cli.api.MediaConvertible
 import java.nio.file.Path
 
-data class EmptyPhotoMedia(val title: String = "") : MediaConvertible {
+data class EmptyPhotoMedia(
+    val title: String = "",
+) : MediaConvertible {
     override fun toMedia(
         filePath: Path,
         sourceUrl: String,
@@ -19,7 +21,9 @@ data class EmptyPhotoMedia(val title: String = "") : MediaConvertible {
     override fun mediaType() = MediaType.IMAGE
 }
 
-data class EmptyVideoMedia(val title: String = "") : MediaConvertible {
+data class EmptyVideoMedia(
+    val title: String = "",
+) : MediaConvertible {
     override fun toMedia(
         filePath: Path,
         sourceUrl: String,

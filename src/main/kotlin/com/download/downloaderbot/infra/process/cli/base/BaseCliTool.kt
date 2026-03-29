@@ -16,7 +16,7 @@ import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyPhot
 import com.download.downloaderbot.infra.process.cli.common.placeholder.EmptyVideoMedia
 import com.download.downloaderbot.infra.process.cli.common.utils.preview
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 

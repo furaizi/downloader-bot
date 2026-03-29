@@ -12,91 +12,92 @@ import io.mockk.coVerify
 import io.mockk.coVerifySequence
 import io.mockk.mockk
 
-class DefaultRateLimitGuardTest : FunSpec({
+class DefaultRateLimitGuardTest :
+    FunSpec({
 
-    lateinit var limiter: RateLimiter
-    lateinit var guard: DefaultRateLimitGuard
+        lateinit var limiter: RateLimiter
+        lateinit var guard: DefaultRateLimitGuard
 
-    beforeTest {
-        limiter = mockk()
-        guard = DefaultRateLimitGuard(limiter)
-    }
-
-    test("rejects when local limit denies: does not await global and does not execute block") {
-        val chatId = 52L
-        val ctx = ctx(chatId = chatId)
-
-        coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
-
-        val ex =
-            shouldThrow<TooManyRequestsException> {
-                guard.runOrReject(ctx) { error("block must not be called when rate-limit rejects") }
-            }
-
-        ex.chatId shouldBe chatId
-        ex.chatType shouldBe "private"
-
-        coVerify(exactly = 1) { limiter.tryConsumePerChatOrGroup(chatId) }
-        coVerify(exactly = 0) { limiter.awaitGlobal() }
-    }
-
-    test("rejects and identifies group chat when chatId is negative") {
-        val chatId = -100500L
-        val ctx = ctx(chatId = chatId)
-
-        coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
-
-        val ex =
-            shouldThrow<TooManyRequestsException> {
-                guard.runOrReject(ctx) { "nope" }
-            }
-
-        ex.chatId shouldBe chatId
-        ex.chatType shouldBe "group"
-        coVerify(exactly = 0) { limiter.awaitGlobal() }
-    }
-
-    test("passes when local ok: awaits global then executes block (order) and returns result") {
-        val chatId = 777L
-        val ctx = ctx(chatId = chatId)
-
-        coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns true
-        coJustRun { limiter.awaitGlobal() }
-
-        var blockCalled = false
-
-        val result =
-            guard.runOrReject(ctx) {
-                blockCalled = true
-                "OK_RESULT"
-            }
-
-        result shouldBe "OK_RESULT"
-        blockCalled shouldBe true
-
-        coVerifySequence {
-            limiter.tryConsumePerChatOrGroup(chatId)
-            limiter.awaitGlobal()
+        beforeTest {
+            limiter = mockk()
+            guard = DefaultRateLimitGuard(limiter)
         }
-    }
 
-    test("propagates exception from block after both limits passed") {
-        val chatId = 1L
-        val ctx = ctx(chatId = chatId)
+        test("rejects when local limit denies: does not await global and does not execute block") {
+            val chatId = 52L
+            val ctx = ctx(chatId = chatId)
 
-        coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns true
-        coJustRun { limiter.awaitGlobal() }
+            coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
 
-        val ex =
-            shouldThrow<IllegalStateException> {
-                guard.runOrReject(ctx) { error("boom") }
-            }
+            val ex =
+                shouldThrow<TooManyRequestsException> {
+                    guard.runOrReject(ctx) { error("block must not be called when rate-limit rejects") }
+                }
 
-        ex.message shouldBe "boom"
+            ex.chatId shouldBe chatId
+            ex.chatType shouldBe "private"
 
-        coVerifySequence {
-            limiter.tryConsumePerChatOrGroup(chatId)
-            limiter.awaitGlobal()
+            coVerify(exactly = 1) { limiter.tryConsumePerChatOrGroup(chatId) }
+            coVerify(exactly = 0) { limiter.awaitGlobal() }
         }
-    }
-})
+
+        test("rejects and identifies group chat when chatId is negative") {
+            val chatId = -100500L
+            val ctx = ctx(chatId = chatId)
+
+            coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns false
+
+            val ex =
+                shouldThrow<TooManyRequestsException> {
+                    guard.runOrReject(ctx) { "nope" }
+                }
+
+            ex.chatId shouldBe chatId
+            ex.chatType shouldBe "group"
+            coVerify(exactly = 0) { limiter.awaitGlobal() }
+        }
+
+        test("passes when local ok: awaits global then executes block (order) and returns result") {
+            val chatId = 777L
+            val ctx = ctx(chatId = chatId)
+
+            coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns true
+            coJustRun { limiter.awaitGlobal() }
+
+            var blockCalled = false
+
+            val result =
+                guard.runOrReject(ctx) {
+                    blockCalled = true
+                    "OK_RESULT"
+                }
+
+            result shouldBe "OK_RESULT"
+            blockCalled shouldBe true
+
+            coVerifySequence {
+                limiter.tryConsumePerChatOrGroup(chatId)
+                limiter.awaitGlobal()
+            }
+        }
+
+        test("propagates exception from block after both limits passed") {
+            val chatId = 1L
+            val ctx = ctx(chatId = chatId)
+
+            coEvery { limiter.tryConsumePerChatOrGroup(chatId) } returns true
+            coJustRun { limiter.awaitGlobal() }
+
+            val ex =
+                shouldThrow<IllegalStateException> {
+                    guard.runOrReject(ctx) { error("boom") }
+                }
+
+            ex.message shouldBe "boom"
+
+            coVerifySequence {
+                limiter.tryConsumePerChatOrGroup(chatId)
+                limiter.awaitGlobal()
+            }
+        }
+    })

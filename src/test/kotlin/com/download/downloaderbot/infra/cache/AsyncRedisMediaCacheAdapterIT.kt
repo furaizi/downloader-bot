@@ -5,7 +5,6 @@ import com.download.downloaderbot.core.domain.Media
 import com.download.downloaderbot.core.domain.MediaType
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -31,8 +30,6 @@ class AsyncRedisMediaCacheAdapterIT
         private val redisTemplate: ReactiveRedisTemplate<String, List<Media>>,
         private val connectionFactory: ReactiveRedisConnectionFactory,
     ) : FunSpec({
-
-            extension(SpringExtension)
 
             fun url(path: String) = "https://example.com/$path"
 

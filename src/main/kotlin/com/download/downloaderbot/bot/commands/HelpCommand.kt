@@ -3,7 +3,7 @@ package com.download.downloaderbot.bot.commands
 import com.download.downloaderbot.bot.gateway.BotPort
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

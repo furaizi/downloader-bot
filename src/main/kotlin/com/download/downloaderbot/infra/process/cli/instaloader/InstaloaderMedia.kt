@@ -23,7 +23,10 @@ data class InstaloaderMedia(
         val dimensions: Dimensions,
     )
 
-    data class Dimensions(val height: Int, val width: Int)
+    data class Dimensions(
+        val height: Int,
+        val width: Int,
+    )
 
     override fun toMedia(
         filePath: Path,

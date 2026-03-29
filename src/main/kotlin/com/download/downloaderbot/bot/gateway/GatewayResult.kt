@@ -1,7 +1,9 @@
 package com.download.downloaderbot.bot.gateway
 
 sealed class GatewayResult<out T> {
-    data class Ok<T>(val value: T) : GatewayResult<T>()
+    data class Ok<T>(
+        val value: T,
+    ) : GatewayResult<T>()
 
     data class Err(
         val kind: Kind,

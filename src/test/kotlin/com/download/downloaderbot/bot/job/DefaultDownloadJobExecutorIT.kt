@@ -13,7 +13,6 @@ import com.download.downloaderbot.core.downloader.MediaNotFoundException
 import com.download.downloaderbot.infra.config.RedisTestConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -42,8 +41,6 @@ class DefaultDownloadJobExecutorIT
         private val cache: CachePort<String, List<Media>>,
         private val botProps: BotProperties,
     ) : FunSpec({
-
-            extension(SpringExtension)
 
             beforeTest {
                 mediaService.reset()

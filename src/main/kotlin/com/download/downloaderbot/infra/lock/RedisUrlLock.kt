@@ -20,7 +20,8 @@ class RedisUrlLock(
     ): String? {
         val token = UUID.randomUUID().toString()
         val acquired =
-            redis.opsForValue()
+            redis
+                .opsForValue()
                 .setIfAbsent(key(url), token, ttl)
                 .awaitFirstOrNull() ?: false
         return if (acquired) token else null
@@ -44,7 +45,8 @@ class RedisUrlLock(
                 Long::class.java,
             )
 
-        redis.execute(script, listOf(key(url)), token)
+        redis
+            .execute(script, listOf(key(url)), token)
             .collectList()
             .awaitFirstOrNull()
     }

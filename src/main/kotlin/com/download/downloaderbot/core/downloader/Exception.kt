@@ -33,23 +33,26 @@ class MediaTooLargeException(
             "Actual size: ${actualSize.toMB()} MB, Limit: ${limit.toMB()} MB",
     )
 
-class MediaNotFoundException(url: String) :
-    MediaDownloaderException(url, "No media found at URL: $url")
+class MediaNotFoundException(
+    url: String,
+) : MediaDownloaderException(url, "No media found at URL: $url")
 
-class UnsupportedSourceException(url: String) :
-    MediaDownloaderException(url, "No downloader supports the URL: $url")
+class UnsupportedSourceException(
+    url: String,
+) : MediaDownloaderException(url, "No downloader supports the URL: $url")
 
-class DownloadInProgressException(url: String) :
-    MediaDownloaderException(url, "Download already in progress for url=$url")
+class DownloadInProgressException(
+    url: String,
+) : MediaDownloaderException(url, "Download already in progress for url=$url")
 
-class BusyException(url: String) :
-    MediaDownloaderException(url, "Downloader is busy now, try again later for url=$url")
+class BusyException(
+    url: String,
+) : MediaDownloaderException(url, "Downloader is busy now, try again later for url=$url")
 
 class TooManyRequestsException(
     val chatType: String,
     val chatId: Long,
-) :
-    MediaDownloaderException("", "Too many requests, try again later for $chatType chat: $chatId")
+) : MediaDownloaderException("", "Too many requests, try again later for $chatType chat: $chatId")
 
 class ToolTimeoutException(
     val tool: String,

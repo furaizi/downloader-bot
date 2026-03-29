@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
@@ -16,6 +15,7 @@ import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.test.context.ActiveProfiles
 import java.time.Duration
 
@@ -34,10 +34,8 @@ class Bucket4jRateLimiterIT
         private val redisConnection: StatefulRedisConnection<String, ByteArray>,
         private val proxyManager: ProxyManager<String>,
         private val mapper: ObjectMapper,
-        private val redisClient: RedisClient,
+        private val connectionFactory: LettuceConnectionFactory,
     ) : FunSpec({
-
-            extension(SpringExtension)
 
             val codec: RedisCodec<String, ByteArray> =
                 RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE)
@@ -109,6 +107,7 @@ class Bucket4jRateLimiterIT
             }
 
             test("fail-open: if Redis connection is closed, tryConsumePerChatOrGroup returns true") {
+                val redisClient = connectionFactory.requiredNativeClient as RedisClient
                 val conn = redisClient.connect(codec)
                 val brokenProxyManager = LettuceBasedProxyManager.builderFor(conn).build()
 

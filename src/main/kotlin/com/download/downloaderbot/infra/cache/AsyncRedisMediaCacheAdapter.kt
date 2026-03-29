@@ -13,7 +13,8 @@ class AsyncRedisMediaCacheAdapter(
     private fun key(url: String) = "media:v$schemaVersion:url:$url"
 
     override suspend fun get(id: String): List<Media>? =
-        mediaTemplate.opsForValue()
+        mediaTemplate
+            .opsForValue()
             .get(key(url = id))
             .awaitFirstOrNull()
 
@@ -23,13 +24,15 @@ class AsyncRedisMediaCacheAdapter(
         ttl: Duration,
     ) {
         if (values.isEmpty()) return
-        mediaTemplate.opsForValue()
+        mediaTemplate
+            .opsForValue()
             .set(key(url = id), values, ttl)
             .awaitFirstOrNull()
     }
 
     override suspend fun evict(id: String) {
-        mediaTemplate.delete(key(url = id))
+        mediaTemplate
+            .delete(key(url = id))
             .awaitFirstOrNull()
     }
 }
