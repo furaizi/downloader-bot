@@ -34,7 +34,7 @@ class StoriesCommand(
                 bot.sendMessage(
                     chatId = ChatId.fromId(ctx.chatId),
                     text = "Будь ласка, вкажіть дійсний username для завантаження історій.",
-                    replyToMessageId = replyTo
+                    replyToMessageId = replyTo,
                 )
             }
             return

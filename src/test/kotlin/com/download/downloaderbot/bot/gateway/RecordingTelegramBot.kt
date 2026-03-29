@@ -22,9 +22,9 @@ import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import com.github.kotlintelegrambot.types.TelegramBotResult
 import io.mockk.every
 import io.mockk.mockk
-import retrofit2.Response as HttpResponse
 import java.util.concurrent.CopyOnWriteArrayList
 import com.github.kotlintelegrambot.network.Response as TgEnvelope
+import retrofit2.Response as HttpResponse
 
 class RecordingTelegramBot(
     username: String = "test-bot",
@@ -108,12 +108,12 @@ class RecordingTelegramBot(
         } answers {
             okResponse(
                 recordMedia(
-                type = MediaType.IMAGE,
-                chatId = firstArg<ChatId>().requireId(),
-                file = secondArg(),
-                caption = arg(2),
-                replyToMessageId = arg(6),
-                replyMarkup = arg(8),
+                    type = MediaType.IMAGE,
+                    chatId = firstArg<ChatId>().requireId(),
+                    file = secondArg(),
+                    caption = arg(2),
+                    replyToMessageId = arg(6),
+                    replyMarkup = arg(8),
                 ),
             )
         }
@@ -123,12 +123,12 @@ class RecordingTelegramBot(
         } answers {
             okResponse(
                 recordMedia(
-                type = MediaType.VIDEO,
-                chatId = firstArg<ChatId>().requireId(),
-                file = secondArg(),
-                caption = arg(5),
-                replyToMessageId = arg(9),
-                replyMarkup = arg(11),
+                    type = MediaType.VIDEO,
+                    chatId = firstArg<ChatId>().requireId(),
+                    file = secondArg(),
+                    caption = arg(5),
+                    replyToMessageId = arg(9),
+                    replyMarkup = arg(11),
                 ),
             )
         }
@@ -138,12 +138,12 @@ class RecordingTelegramBot(
         } answers {
             okResponse(
                 recordMedia(
-                type = MediaType.AUDIO,
-                chatId = firstArg<ChatId>().requireId(),
-                file = secondArg(),
-                caption = arg(4),
-                replyToMessageId = arg(7),
-                replyMarkup = arg(9),
+                    type = MediaType.AUDIO,
+                    chatId = firstArg<ChatId>().requireId(),
+                    file = secondArg(),
+                    caption = arg(4),
+                    replyToMessageId = arg(7),
+                    replyMarkup = arg(9),
                 ),
             )
         }

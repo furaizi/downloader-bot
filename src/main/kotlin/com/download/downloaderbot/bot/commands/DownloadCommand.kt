@@ -46,9 +46,8 @@ class DownloadCommand(
                     bot.sendMessage(
                         chatId = ChatId.fromId(ctx.chatId),
                         text = "Будь ласка, вкажіть URL для завантаження.",
-                        replyToMessageId = replyTo
+                        replyToMessageId = replyTo,
                     )
-
                 }
             }
             return

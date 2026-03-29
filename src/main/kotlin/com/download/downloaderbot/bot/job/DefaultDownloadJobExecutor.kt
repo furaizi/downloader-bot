@@ -107,24 +107,26 @@ class DefaultDownloadJobExecutor(
         val sendPromo = promoService.shouldSend(chatId)
 
         return if (mediaList.isVisualAlbum()) {
-            val items = mediaList.map { media ->
-                val file = media.toTelegramFile()
-                when (media.type) {
-                    MediaType.IMAGE -> InputMediaPhoto(media = file)
-                    MediaType.VIDEO -> InputMediaVideo(media = file)
-                    MediaType.AUDIO -> error("Audio album is currently not supported")
+            val items =
+                mediaList.map { media ->
+                    val file = media.toTelegramFile()
+                    when (media.type) {
+                        MediaType.IMAGE -> InputMediaPhoto(media = file)
+                        MediaType.VIDEO -> InputMediaVideo(media = file)
+                        MediaType.AUDIO -> error("Audio album is currently not supported")
+                    }
                 }
-            }
 
             try {
                 val sentPhotos = sendAlbum(chatId, items, replyTo)
                 if (sendPromo && sentPhotos.isNotEmpty()) {
-                    bot.sendMessage(
-                        chatId = ChatId.fromId(chatId),
-                        text = props.promoText,
-                        replyToMessageId = sentPhotos.first().messageId,
-                        replyMarkup = share,
-                    ).getOrThrow()
+                    bot
+                        .sendMessage(
+                            chatId = ChatId.fromId(chatId),
+                            text = props.promoText,
+                            replyToMessageId = sentPhotos.first().messageId,
+                            replyMarkup = share,
+                        ).getOrThrow()
                 }
                 sentPhotos
             } catch (e: Exception) {
@@ -155,7 +157,7 @@ class DefaultDownloadJobExecutor(
     private suspend fun sendAlbum(
         chatId: Long,
         items: List<GroupableMedia>,
-        replyTo: Long?
+        replyTo: Long?,
     ): List<Message> = bot.sendMediaAlbumChunked(chatId, items, replyTo)
 
     private suspend fun updateCache(

@@ -20,16 +20,18 @@ class HelpCommand(
     override suspend fun handle(ctx: CommandContext) {
         log.info { "Executing command /$name" }
         rateLimitGuard.runOrReject(ctx) {
-            bot.sendMessage(
-                chatId = ChatId.fromId(ctx.chatId),
-                text = """
-                /start – привітання
-                /help – допомога
-                /download <URL> – завантажити медіафайл за посиланням
-                /stories <Instagram username> – завантажити актуальні історії Instagram користувача
-                Або можеш просто надіслати посилання на медіафайл, і я спробую його завантажити!
-                """.trimIndent(),
-            ).getOrThrow()
+            bot
+                .sendMessage(
+                    chatId = ChatId.fromId(ctx.chatId),
+                    text =
+                        """
+                        /start – привітання
+                        /help – допомога
+                        /download <URL> – завантажити медіафайл за посиланням
+                        /stories <Instagram username> – завантажити актуальні історії Instagram користувача
+                        Або можеш просто надіслати посилання на медіафайл, і я спробую його завантажити!
+                        """.trimIndent(),
+                ).getOrThrow()
         }
     }
 }

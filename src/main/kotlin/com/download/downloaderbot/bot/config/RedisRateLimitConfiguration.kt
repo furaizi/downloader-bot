@@ -22,7 +22,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Configuration
 @ConditionalOnBooleanProperty(
     prefix = "downloader.ratelimit",
-    name = ["enabled"]
+    name = ["enabled"],
 )
 class RedisRateLimitConfiguration {
     @Bean

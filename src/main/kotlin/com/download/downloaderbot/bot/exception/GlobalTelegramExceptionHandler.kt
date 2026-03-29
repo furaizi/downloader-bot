@@ -3,7 +3,17 @@ package com.download.downloaderbot.bot.exception
 import com.download.downloaderbot.bot.commands.CommandContext
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
-import com.download.downloaderbot.core.downloader.*
+import com.download.downloaderbot.core.downloader.BusyException
+import com.download.downloaderbot.core.downloader.DownloadInProgressException
+import com.download.downloaderbot.core.downloader.MediaDownloaderException
+import com.download.downloaderbot.core.downloader.MediaDownloaderToolException
+import com.download.downloaderbot.core.downloader.MediaNotFoundException
+import com.download.downloaderbot.core.downloader.MediaTooLargeException
+import com.download.downloaderbot.core.downloader.TooManyRequestsException
+import com.download.downloaderbot.core.downloader.ToolExecutionException
+import com.download.downloaderbot.core.downloader.ToolTimeoutException
+import com.download.downloaderbot.core.downloader.UnsupportedSourceException
+import com.download.downloaderbot.core.downloader.toMB
 import com.download.downloaderbot.infra.metrics.BotMetrics
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
@@ -30,7 +40,7 @@ class GlobalTelegramExceptionHandler(
         bot.sendMessage(
             chatId = ChatId.fromId(ctx.chatId),
             text = e.toUserMessage(),
-            replyToMessageId = ctx.replyToMessageId
+            replyToMessageId = ctx.replyToMessageId,
         )
     }
 
