@@ -26,7 +26,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
     havingValue = "true",
 )
 class RedisRateLimitConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     fun redisConnection(connectionFactory: LettuceConnectionFactory): StatefulRedisConnection<String, ByteArray> {
