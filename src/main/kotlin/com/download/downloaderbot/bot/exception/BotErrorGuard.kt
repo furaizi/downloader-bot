@@ -19,7 +19,6 @@ class BotErrorGuard(
             throw e
         } catch (e: Exception) {
             exceptionHandler.handle(e, ctx)
-
             null
         }
 }

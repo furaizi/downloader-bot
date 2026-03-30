@@ -10,8 +10,8 @@ import com.download.downloaderbot.bot.exception.BotErrorGuard
 import com.download.downloaderbot.bot.gateway.telegram.fileId
 import com.download.downloaderbot.bot.gateway.telegram.fileUniqueId
 import com.download.downloaderbot.bot.gateway.telegram.getOrThrow
-import com.download.downloaderbot.bot.gateway.telegram.sendMediaAlbumChunked
-import com.download.downloaderbot.bot.gateway.telegram.sendSmartMedia
+import com.download.downloaderbot.bot.gateway.telegram.sendMediaAlbum
+import com.download.downloaderbot.bot.gateway.telegram.sendMedia
 import com.download.downloaderbot.bot.promo.PromoService
 import com.download.downloaderbot.bot.ui.shareKeyboard
 import com.download.downloaderbot.core.cache.CachePort
@@ -160,7 +160,7 @@ class DownloadJobDispatcher(
         } else {
             mediaList.mapNotNull { media ->
                 try {
-                    bot.sendSmartMedia(
+                    bot.sendMedia(
                         type = media.type,
                         chatId = chatId,
                         file = media.toTelegramFile(),
@@ -180,7 +180,7 @@ class DownloadJobDispatcher(
         chatId: Long,
         items: List<GroupableMedia>,
         replyTo: Long?,
-    ): List<Message> = bot.sendMediaAlbumChunked(chatId, items, replyTo)
+    ): List<Message> = bot.sendMediaAlbum(chatId, items, replyTo)
 
     private suspend fun updateCache(
         url: String,

@@ -3,7 +3,7 @@ package com.download.downloaderbot.bot.promo
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 
-interface PromoCounter {
+fun interface PromoCounter {
     fun incrementAndGet(chatId: Long): Long
 }
 

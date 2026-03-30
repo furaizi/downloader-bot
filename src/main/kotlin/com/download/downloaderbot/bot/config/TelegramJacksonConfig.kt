@@ -20,27 +20,27 @@ class TelegramJacksonConfig {
                     override fun deserialize(
                         p: JsonParser,
                         ctxt: DeserializationContext,
-                    ): MessageEntity.Type {
-                        val raw =
-                            p.valueAsString
-                                ?: throw ctxt.weirdStringException(
-                                    "",
-                                    MessageEntity.Type::class.java,
-                                    "Missing entity type",
-                                )
-
-                        val normalized = raw.trim().uppercase().replace('-', '_')
-                        return try {
-                            MessageEntity.Type.valueOf(normalized)
-                        } catch (_: IllegalArgumentException) {
-                            throw ctxt.weirdStringException(
-                                raw,
-                                MessageEntity.Type::class.java,
-                                "Unknown MessageEntity.Type",
-                            )
-                        }
-                    }
+                    ): MessageEntity.Type =
+                        ctxt.parseEnum(p.valueAsString, MessageEntity.Type::class.java)
                 },
             )
         }
+}
+
+private inline fun <reified T : Enum<T>> DeserializationContext.parseEnum(
+    raw: String?,
+    enumClass: Class<T>,
+): T {
+    val value = raw
+        ?: throw weirdStringException("", enumClass, "Missing enum value")
+
+    val normalized = value.trim()
+        .uppercase()
+        .replace('-', '_')
+
+    return try {
+        enumValueOf<T>(normalized)
+    } catch (_: IllegalArgumentException) {
+        throw weirdStringException(value, enumClass, "Unknown enum value")
+    }
 }

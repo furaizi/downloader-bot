@@ -11,49 +11,37 @@ enum class CommandAddressing {
     OTHER,
 }
 
-@Suppress("ReturnCount")
-private fun Message.firstCommandToken(): String? {
-    val messageEntity =
-        (entities ?: emptyList())
-            .firstOrNull { it.type == MessageEntity.Type.BOT_COMMAND && it.offset == 0 }
-            ?: (captionEntities ?: emptyList())
-                .firstOrNull { it.type == MessageEntity.Type.BOT_COMMAND && it.offset == 0 }
-            ?: return null
-
-    val src = text ?: caption ?: return null
-    val end = min(messageEntity.offset + messageEntity.length, src.length)
-    if (messageEntity.offset < 0 || end > src.length) {
-        return null
-    }
-    return src.substring(messageEntity.offset, end)
-}
+private val Update.anyMessage: Message?
+    get() = message ?: editedMessage ?: channelPost ?: editedChannelPost
 
 @Suppress("ReturnCount")
 fun Update.addressing(username: String): CommandAddressing {
-    val msg =
-        message
-            ?: editedMessage
-            ?: channelPost
-            ?: editedChannelPost
-            ?: return CommandAddressing.NO_COMMAND
+    val token = anyMessage
+        ?.firstCommandToken()
+        ?: return CommandAddressing.NO_COMMAND
 
-    val token =
-        msg.firstCommandToken()
-            ?: return CommandAddressing.NO_COMMAND
-
-    if (!token.startsWith("/")) {
-        return CommandAddressing.NO_COMMAND
+    val mention = token.substringAfter('@', "")
+    return when {
+        mention.isEmpty() -> CommandAddressing.OUR  // for all bots
+        mention.equals(username, ignoreCase = true) -> CommandAddressing.OUR    // for this bot only
+        else -> CommandAddressing.OTHER
     }
+}
 
-    val at = token.indexOf('@')
-    if (at < 0) {
-        return CommandAddressing.OUR
-    }
+@Suppress("ReturnCount")
+private fun Message.firstCommandToken(): String? {
+    val content = text
+        ?: caption
+        ?: return null
 
-    val mention = token.substring(at + 1)
-    return if (mention.equals(username, ignoreCase = true)) {
-        CommandAddressing.OUR
-    } else {
-        CommandAddressing.OTHER
-    }
+    val entityList = entities
+        ?: captionEntities
+        ?: return null
+
+    val commandLength = entityList
+        .firstOrNull { it.type == MessageEntity.Type.BOT_COMMAND && it.offset == 0 }
+        ?.length
+        ?: return null
+
+    return content.take(commandLength)
 }

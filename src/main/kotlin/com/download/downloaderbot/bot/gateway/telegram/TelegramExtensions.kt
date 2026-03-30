@@ -17,7 +17,6 @@ import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.MediaGroup
 import com.github.kotlintelegrambot.types.TelegramBotResult
 import kotlinx.coroutines.delay
-import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import com.github.kotlintelegrambot.network.Response as TgEnvelope
 import retrofit2.Response as HttpResponse
@@ -91,72 +90,64 @@ fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.toResult(): Result
     }
 
 fun <T : Any> TelegramBotResult<T>.getOrThrow(): T = toResult().getOrThrow()
-
 fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.getOrThrow(): T = toResult().getOrThrow()
 
-suspend fun Bot.sendSmartMedia(
+suspend fun Bot.sendMedia(
     type: MediaType,
     chatId: Long,
     file: TelegramFile,
     caption: String? = null,
     replyToMessageId: Long? = null,
     replyMarkup: ReplyMarkup? = null,
-): Message {
-    val id = ChatId.fromId(chatId)
-    val result =
-        when (type) {
-            MediaType.IMAGE ->
-                sendPhoto(
-                    chatId = id,
-                    photo = file,
-                    caption = caption,
-                    replyToMessageId = replyToMessageId,
-                    replyMarkup = replyMarkup,
-                )
-            MediaType.VIDEO ->
-                sendVideo(
-                    chatId = id,
-                    video = file,
-                    caption = caption,
-                    replyToMessageId = replyToMessageId,
-                    replyMarkup = replyMarkup,
-                )
-            MediaType.AUDIO ->
-                sendAudio(
-                    chatId = id,
-                    audio = file,
-                    title = caption,
-                    replyToMessageId = replyToMessageId,
-                    replyMarkup = replyMarkup,
-                )
-        }
-    return result.getOrThrow()
-}
+): Message =
+    when (type) {
+        MediaType.IMAGE ->
+            sendPhoto(
+                chatId = ChatId.fromId(chatId),
+                photo = file,
+                caption = caption,
+                replyToMessageId = replyToMessageId,
+                replyMarkup = replyMarkup,
+            )
+        MediaType.VIDEO ->
+            sendVideo(
+                chatId = ChatId.fromId(chatId),
+                video = file,
+                caption = caption,
+                replyToMessageId = replyToMessageId,
+                replyMarkup = replyMarkup,
+            )
+        MediaType.AUDIO ->
+            sendAudio(
+                chatId = ChatId.fromId(chatId),
+                audio = file,
+                title = caption,
+                replyToMessageId = replyToMessageId,
+                replyMarkup = replyMarkup,
+            )
+    }.getOrThrow()
 
-suspend fun Bot.sendMediaAlbumChunked(
+suspend fun Bot.sendMediaAlbum(
     chatId: Long,
     items: List<GroupableMedia>,
     replyToMessageId: Long? = null,
 ): List<Message> {
-    val allMessages = mutableListOf<Message>()
+    val chunks = items.chunked(ALBUM_LIMIT)
     val id = ChatId.fromId(chatId)
 
-    items.chunked(ALBUM_LIMIT).forEachIndexed { idx, part ->
-        val messages =
-            sendMediaGroup(
-                chatId = id,
-                mediaGroup = MediaGroup.from(*part.toTypedArray()),
-                replyToMessageId = replyToMessageId,
-            ).getOrThrow()
+    return chunks.flatMapIndexed { index, part ->
+        val messages = sendMediaGroup(
+            chatId = id,
+            mediaGroup = MediaGroup.from(*part.toTypedArray()),
+            replyToMessageId = replyToMessageId,
+        ).getOrThrow()
 
-        allMessages.addAll(messages)
-
-        if (idx < items.chunked(ALBUM_LIMIT).size - 1) {
+        if (index < chunks.lastIndex) {
             delay(ALBUM_COOLDOWN_MS.milliseconds)
         }
-    }
 
-    return allMessages
+        messages
+    }
 }
 
 val CommandContext.chatId: Long
@@ -204,4 +195,5 @@ val Message.fileUniqueId: String?
             ?: this.audio?.fileUniqueId
             ?: this.animation?.fileUniqueId
 
-private fun List<PhotoSize>?.largest(): PhotoSize? = this?.maxByOrNull { max(it.width, it.height) }
+private fun List<PhotoSize>?.largest(): PhotoSize? =
+    this?.maxByOrNull { it.width * it.height }

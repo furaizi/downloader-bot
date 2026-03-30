@@ -1,6 +1,5 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.bot.commands.util.InstagramUrls
 import com.download.downloaderbot.bot.commands.util.isNotInstagramUsername
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
@@ -40,7 +39,7 @@ class StoriesCommand(
         }
 
         log.info { "Scheduling /$name command with username: $username" }
-        val url = InstagramUrls.stories(username)
+        val url = "https://www.instagram.com/stories/$username/"
 
         rateLimitGuard.runOrReject(ctx) {
             val job =
