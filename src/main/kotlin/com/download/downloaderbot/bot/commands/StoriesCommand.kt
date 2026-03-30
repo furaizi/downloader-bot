@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
-import com.download.downloaderbot.bot.commands.util.InputValidator
 import com.download.downloaderbot.bot.commands.util.InstagramUrls
+import com.download.downloaderbot.bot.commands.util.isNotInstagramUsername
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
 import com.download.downloaderbot.bot.job.DownloadJobDispatcher
@@ -18,7 +18,6 @@ private val log = KotlinLogging.logger {}
 class StoriesCommand(
     private val bot: Bot,
     private val rateLimitGuard: RateLimitGuard,
-    private val validator: InputValidator,
     private val downloadJobDispatcher: DownloadJobDispatcher,
 ) : BotCommand {
     override val name = "stories"
@@ -28,7 +27,7 @@ class StoriesCommand(
         val raw = ctx.args.firstOrNull().orEmpty()
         val username = raw.trim().removePrefix("@")
 
-        if (!validator.isInstagramUsername(username)) {
+        if (username.isNotInstagramUsername()) {
             log.info { "Executing /$name command but invalid username provided: '$username'" }
             rateLimitGuard.runOrReject(ctx) {
                 bot.sendMessage(

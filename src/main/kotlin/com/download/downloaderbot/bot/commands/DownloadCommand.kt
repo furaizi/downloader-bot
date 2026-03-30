@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.commands
 
 import com.download.downloaderbot.app.download.MediaService
-import com.download.downloaderbot.bot.commands.util.InputValidator
+import com.download.downloaderbot.bot.commands.util.isNotHttpUrl
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.isGroupChat
 import com.download.downloaderbot.bot.gateway.telegram.isPrivateChat
@@ -21,7 +21,6 @@ class DownloadCommand(
     private val service: MediaService,
     private val bot: Bot,
     private val rateLimitGuard: RateLimitGuard,
-    private val validator: InputValidator,
     private val downloadJobDispatcher: DownloadJobDispatcher,
 ) : BotCommand {
     override val name: String = "download"
@@ -29,11 +28,10 @@ class DownloadCommand(
     override suspend fun handle(ctx: CommandContext) {
         val replyTo = ctx.replyToMessageId
         val url = ctx.args.firstOrNull()?.trim() ?: ""
-        val isNotUrl = !validator.isHttpUrl(url)
 
         val allowed =
             when {
-                isNotUrl -> false
+                url.isNotHttpUrl() -> false
                 ctx.isPrivateChat -> true
                 ctx.isGroupChat -> service.supports(url)
                 else -> false

@@ -7,19 +7,17 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 class InputValidatorTest :
     FunSpec({
 
-        val inputValidator = InputValidator()
-
         suspend fun FunSpecContainerScope.caseHttpUrl(
             name: String,
             input: String,
             expected: Boolean,
-        ) = case(name, input, expected, inputValidator::isHttpUrl)
+        ) = case(name, input, expected) { it.isHttpUrl() }
 
         suspend fun FunSpecContainerScope.caseInstagramUsername(
             name: String,
             input: String,
             expected: Boolean,
-        ) = case(name, input, expected, inputValidator::isInstagramUsername)
+        ) = case(name, input, expected) { it.isInstagramUsername() }
 
         context("invalid http urls") {
             caseHttpUrl("blank string", "", false)

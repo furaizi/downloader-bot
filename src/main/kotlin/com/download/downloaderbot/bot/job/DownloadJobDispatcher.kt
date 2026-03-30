@@ -3,7 +3,7 @@ package com.download.downloaderbot.bot.job
 import com.download.downloaderbot.app.config.properties.CacheProperties
 import com.download.downloaderbot.app.config.properties.ConcurrencyProperties
 import com.download.downloaderbot.app.download.MediaService
-import com.download.downloaderbot.bot.commands.util.InputValidator
+import com.download.downloaderbot.bot.commands.util.isInstagramStoriesUrl
 import com.download.downloaderbot.bot.config.properties.BotIdentity
 import com.download.downloaderbot.bot.config.properties.BotProperties
 import com.download.downloaderbot.bot.exception.BotErrorGuard
@@ -51,7 +51,6 @@ class DownloadJobDispatcher(
     private val promoService: PromoService,
     private val botIdentity: BotIdentity,
     private val botMetrics: BotMetrics,
-    private val validator: InputValidator,
     botScope: CoroutineScope,
     private val errorGuard: BotErrorGuard,
 ) {
@@ -188,7 +187,7 @@ class DownloadJobDispatcher(
         mediaList: List<Media>,
         messages: List<Message>,
     ) {
-        if (validator.isInstagramStoriesUrl(url)) {
+        if (url.isInstagramStoriesUrl()) {
             log.debug { "Skipping cache for Instagram stories url=$url" }
             return
         }
