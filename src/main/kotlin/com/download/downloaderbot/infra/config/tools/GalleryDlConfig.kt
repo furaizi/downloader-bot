@@ -11,12 +11,12 @@ import com.download.downloaderbot.infra.process.cli.base.NoMetadataCliTool
 import com.download.downloaderbot.infra.process.cli.gallerydl.GalleryDlCommandBuilder
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConditionalOnProperty(prefix = "downloader.gallery-dl", name = ["enabled"], havingValue = "true")
+@ConditionalOnBooleanProperty(prefix = "downloader.gallery-dl", name = ["enabled"])
 class GalleryDlConfig(
     val mediaProps: MediaProperties,
     val toolProps: GalleryDlProperties,
