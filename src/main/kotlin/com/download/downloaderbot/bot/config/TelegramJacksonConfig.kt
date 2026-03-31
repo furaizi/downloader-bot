@@ -20,8 +20,7 @@ class TelegramJacksonConfig {
                     override fun deserialize(
                         p: JsonParser,
                         ctxt: DeserializationContext,
-                    ): MessageEntity.Type =
-                        ctxt.parseEnum(p.valueAsString, MessageEntity.Type::class.java)
+                    ): MessageEntity.Type = ctxt.parseEnum(p.valueAsString, MessageEntity.Type::class.java)
                 },
             )
         }
@@ -31,12 +30,15 @@ private inline fun <reified T : Enum<T>> DeserializationContext.parseEnum(
     raw: String?,
     enumClass: Class<T>,
 ): T {
-    val value = raw
-        ?: throw weirdStringException("", enumClass, "Missing enum value")
+    val value =
+        raw
+            ?: throw weirdStringException("", enumClass, "Missing enum value")
 
-    val normalized = value.trim()
-        .uppercase()
-        .replace('-', '_')
+    val normalized =
+        value
+            .trim()
+            .uppercase()
+            .replace('-', '_')
 
     return try {
         enumValueOf<T>(normalized)

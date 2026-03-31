@@ -58,6 +58,5 @@ class RedisRateLimitConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun rateLimitGuard(rateLimiterProvider: ObjectProvider<RateLimiter>): RateLimitGuard =
-        RateLimitGuard(rateLimiterProvider.ifAvailable)
+    fun rateLimitGuard(rateLimiterProvider: ObjectProvider<RateLimiter>): RateLimitGuard = RateLimitGuard(rateLimiterProvider.ifAvailable)
 }

@@ -90,6 +90,7 @@ fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.toResult(): Result
     }
 
 fun <T : Any> TelegramBotResult<T>.getOrThrow(): T = toResult().getOrThrow()
+
 fun <T : Any> Pair<HttpResponse<TgEnvelope<T>?>?, Exception?>.getOrThrow(): T = toResult().getOrThrow()
 
 suspend fun Bot.sendMedia(
@@ -136,11 +137,12 @@ suspend fun Bot.sendMediaAlbum(
     val id = ChatId.fromId(chatId)
 
     return chunks.flatMapIndexed { index, part ->
-        val messages = sendMediaGroup(
-            chatId = id,
-            mediaGroup = MediaGroup.from(*part.toTypedArray()),
-            replyToMessageId = replyToMessageId,
-        ).getOrThrow()
+        val messages =
+            sendMediaGroup(
+                chatId = id,
+                mediaGroup = MediaGroup.from(*part.toTypedArray()),
+                replyToMessageId = replyToMessageId,
+            ).getOrThrow()
 
         if (index < chunks.lastIndex) {
             delay(ALBUM_COOLDOWN_MS.milliseconds)
@@ -195,5 +197,4 @@ val Message.fileUniqueId: String?
             ?: this.audio?.fileUniqueId
             ?: this.animation?.fileUniqueId
 
-private fun List<PhotoSize>?.largest(): PhotoSize? =
-    this?.maxByOrNull { it.width * it.height }
+private fun List<PhotoSize>?.largest(): PhotoSize? = this?.maxByOrNull { it.width * it.height }

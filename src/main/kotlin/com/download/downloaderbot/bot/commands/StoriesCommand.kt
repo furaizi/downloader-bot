@@ -3,8 +3,8 @@ package com.download.downloaderbot.bot.commands
 import com.download.downloaderbot.bot.commands.util.isNotInstagramUsername
 import com.download.downloaderbot.bot.gateway.telegram.chatId
 import com.download.downloaderbot.bot.gateway.telegram.replyToMessageId
-import com.download.downloaderbot.bot.job.DownloadJobDispatcher
 import com.download.downloaderbot.bot.job.DownloadJob
+import com.download.downloaderbot.bot.job.DownloadJobDispatcher
 import com.download.downloaderbot.bot.ratelimit.guard.RateLimitGuard
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId

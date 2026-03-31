@@ -2,9 +2,9 @@ package com.download.downloaderbot.infra.config
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.stereotype.Component
 import org.springframework.context.event.EventListener
 import org.springframework.core.env.ConfigurableEnvironment
+import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}
 
