@@ -15,18 +15,18 @@ private val log = KotlinLogging.logger {}
 @Service
 class MediaServiceImpl(
     private val provider: MediaProvider,
-    private val urlOps: UrlOps,
+    private val urlProcessor: UrlProcessor,
     private val cache: CachePort<String, List<Media>>,
     private val cacheProps: CacheProperties,
     private val urlLock: UrlLockManager,
 ) : MediaService {
     override suspend fun supports(url: String): Boolean {
-        val finalUrl = urlOps.finalOf(url)
+        val finalUrl = urlProcessor.process(url)
         return provider.supports(finalUrl)
     }
 
     override suspend fun download(url: String): List<Media> {
-        val finalUrl = urlOps.finalOf(url)
+        val finalUrl = urlProcessor.process(url)
 
         cache.getWithLog(finalUrl)?.let { return it }
 

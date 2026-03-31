@@ -1,15 +1,15 @@
 package com.download.downloaderbot.app.download
 
 import com.download.downloaderbot.core.net.FinalUrlResolver
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.springframework.stereotype.Component
-import java.net.URI
 
 @Component
-class UrlOps(
+class UrlProcessor(
     private val resolver: FinalUrlResolver,
     private val normalizer: UrlNormalizer,
 ) {
-    suspend fun finalOf(url: String): String {
+    suspend fun process(url: String): String {
         val normalized = normalizer.normalize(url)
 
         if (shouldSkipResolve(normalized)) {
@@ -20,11 +20,12 @@ class UrlOps(
         return normalizer.normalize(resolved)
     }
 
-    private fun shouldSkipResolve(url: String): Boolean =
-        runCatching {
-            val uri = URI(url.trim())
-            val host = uri.host?.lowercase().orEmpty()
+    private fun shouldSkipResolve(url: String): Boolean {
+        val host = url.toHttpUrlOrNull()
+            ?.host
+            ?.lowercase()
+            ?: return false
 
-            host == "instagram.com" || host.endsWith(".instagram.com")
-        }.getOrDefault(false)
+        return host == "instagram.com" || host.endsWith(".instagram.com")
+    }
 }

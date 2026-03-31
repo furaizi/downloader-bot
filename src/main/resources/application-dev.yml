@@ -8,7 +8,7 @@ spring:
 
 downloader:
   media:
-    base-dir: /downloads
+    base-path: /downloads
 
 management:
   endpoints:

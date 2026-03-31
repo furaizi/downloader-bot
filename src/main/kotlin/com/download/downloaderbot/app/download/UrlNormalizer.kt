@@ -1,132 +1,74 @@
 package com.download.downloaderbot.app.download
 
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.springframework.stereotype.Component
-import java.net.URI
-import java.net.URLDecoder
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
-private const val UNSPECIFIED_PORT = -1
-private const val HTTP_DEFAULT_PORT = 80
-private const val HTTPS_DEFAULT_PORT = 443
 private val DROP_EXACT = setOf("fbclid", "gclid", "msclkid", "dclid", "igshid")
+private val ALPHABETICAL_PARAM_COMPARATOR = compareBy<Pair<String, String?>>({ it.first.lowercase() }, { it.second.orEmpty() })
 
 @Component
 class UrlNormalizer {
-    private fun isNoise(name: String) = name.startsWith("utm_", ignoreCase = true) || name.lowercase() in DROP_EXACT
-
-    private data class Platforms(
-        val isTiktok: Boolean,
-        val isInstagram: Boolean,
-        val isYoutube: Boolean,
-    ) {
-        val dropAllQuery: Boolean get() = isTiktok || isInstagram
-    }
 
     fun normalize(url: String): String {
         val trimmed = url.trim()
-        return runCatching { normalizedUrl(trimmed) }
-            .getOrDefault(trimmed)
+        val httpUrl = trimmed.toHttpUrlOrNull() ?: return trimmed
+
+        return httpUrl.newBuilder()
+            .applyPlatformRules(httpUrl)
+            .build()
+            .toString()
+            .removeRedundantTrailingSlash(httpUrl)
     }
 
-    private fun normalizedUrl(trimmed: String): String {
-        val uri = URI(trimmed)
-        val scheme = requireNotNull(uri.scheme?.lowercase()) { "Missing scheme" }
-        require(scheme == "http" || scheme == "https") { "Unsupported scheme" }
-
-        val host = requireNotNull(uri.host?.lowercase()) { "Missing host" }
-        val platforms = detectPlatforms(host)
-
-        val port = normalizePort(scheme, uri.port)
-        val path = normalizePath(uri.rawPath)
-        val query = buildNormalizedQuery(uri.rawQuery, path, platforms)
-
-        return URI(scheme, uri.userInfo, host, port, path, query, null).toASCIIString()
-    }
-
-    private fun detectPlatforms(host: String): Platforms {
-        fun matches(base: String) = host == base || host.endsWith(".$base")
-
-        return Platforms(
-            isTiktok = matches("tiktok.com"),
-            isInstagram = matches("instagram.com"),
-            isYoutube = matches("youtube.com") || matches("youtu.be"),
-        )
-    }
-
-    private fun normalizePort(
-        scheme: String,
-        port: Int,
-    ): Int =
+    private fun HttpUrl.Builder.applyPlatformRules(url: HttpUrl): HttpUrl.Builder = apply {
+        val host = url.host
         when {
-            port == UNSPECIFIED_PORT -> UNSPECIFIED_PORT
-            scheme == "http" && port == HTTP_DEFAULT_PORT -> UNSPECIFIED_PORT
-            scheme == "https" && port == HTTPS_DEFAULT_PORT -> UNSPECIFIED_PORT
-            else -> port
-        }
-
-    private fun normalizePath(rawPath: String?): String =
-        URI(null, null, (rawPath ?: "/").ifEmpty { "/" }, null)
-            .normalize()
-            .path
-            .let { if (it.length > 1 && it.endsWith('/')) it.dropLast(1) else it }
-
-    private fun buildNormalizedQuery(
-        rawQuery: String?,
-        path: String,
-        platforms: Platforms,
-    ): String? {
-        if (platforms.dropAllQuery) return null
-
-        val params =
-            parseQuery(rawQuery)
-                .filterNot { isNoise(it.first) }
-
-        val normalizedParams =
-            if (platforms.isYoutube && path == "/watch") {
-                normalizeYoutubeParams(params)
-            } else {
-                params.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
+            host.matchesDomain("tiktok.com") || host.matchesDomain("instagram.com") -> {
+                query(null)
             }
-
-        return buildQuery(normalizedParams)
-    }
-
-    private fun normalizeYoutubeParams(params: List<Pair<String, String?>>): List<Pair<String, String?>> {
-        if (params.isEmpty()) return params
-
-        val cleaned = params.filterNot { isNoise(it.first) }
-        val (vParams, others) = cleaned.partition { it.first == "v" }
-        val v = vParams.firstOrNull()
-
-        val sortedOthers = others.sortedWith(compareBy({ it.first.lowercase() }, { it.second ?: "" }))
-
-        return listOfNotNull(v) + sortedOthers
-    }
-
-    private fun parseQuery(q: String?): List<Pair<String, String?>> {
-        if (q.isNullOrBlank()) return emptyList()
-        val utf8 = StandardCharsets.UTF_8
-        return q
-            .split('&')
-            .filter { it.isNotBlank() }
-            .map { pair ->
-                val i = pair.indexOf('=')
-                if (i < 0) {
-                    URLDecoder.decode(pair, utf8) to null
-                } else {
-                    URLDecoder.decode(pair.take(i), utf8) to
-                        URLDecoder.decode(pair.substring(i + 1), utf8)
-                }
+            host.matchesDomain("youtube.com") || host.matchesDomain("youtu.be") -> {
+                val prioritize = if (url.encodedPath == "/watch") "v" else null
+                applyNormalizedQuery(url, prioritizeKey = prioritize)
             }
-    }
-
-    private fun buildQuery(params: List<Pair<String, String?>>): String? {
-        if (params.isEmpty()) return null
-        val utf8 = StandardCharsets.UTF_8
-        return params.joinToString("&") { (n, v) ->
-            val en = URLEncoder.encode(n, utf8)
-            if (v == null) en else "$en=${URLEncoder.encode(v, utf8)}"
+            else -> {
+                applyNormalizedQuery(url)
+            }
         }
     }
+
+    private fun HttpUrl.Builder.applyNormalizedQuery(url: HttpUrl, prioritizeKey: String? = null) {
+        val validParams = url.queryParameterNames
+            .filterNot { it.isNoise() }
+            .flatMap { name -> url.queryParameterValues(name).map { name to it } }
+
+        query(null)
+        if (validParams.isEmpty())
+            return
+
+        val (priority, others) = if (prioritizeKey != null) {
+            validParams.partition { it.first == prioritizeKey }
+        } else {
+            emptyList<Pair<String, String?>>() to validParams
+        }
+
+        val finalParams = priority + others.sortedWith(ALPHABETICAL_PARAM_COMPARATOR)
+
+        finalParams.forEach { (name, value) ->
+            addQueryParameter(name, value)
+        }
+    }
+
+
+    private fun String.removeRedundantTrailingSlash(url: HttpUrl): String =
+        if (this.endsWith("/") && url.encodedPath.length > 1)
+            this.removeSuffix("/")
+        else
+            this
+
+    private fun String.matchesDomain(base: String): Boolean =
+        this == base || this.endsWith(".$base")
+
+    private fun String.isNoise(): Boolean =
+        this.startsWith("utm_", ignoreCase = true) || this.lowercase() in DROP_EXACT
 }

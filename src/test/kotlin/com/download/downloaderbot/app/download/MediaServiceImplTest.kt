@@ -23,14 +23,14 @@ class MediaServiceImplTest :
     FunSpec({
 
         lateinit var provider: MediaProvider
-        lateinit var urlOps: UrlOps
+        lateinit var urlProcessor: UrlProcessor
         lateinit var cache: CachePort<String, List<Media>>
         lateinit var urlLock: UrlLockManager
 
         fun service(cacheProps: CacheProperties = DEFAULT_CACHE_PROPS) =
             MediaServiceImpl(
                 provider,
-                urlOps,
+                urlProcessor,
                 cache,
                 cacheProps,
                 urlLock,
@@ -38,7 +38,7 @@ class MediaServiceImplTest :
 
         beforeTest {
             provider = mockk()
-            urlOps = mockk()
+            urlProcessor = mockk()
             cache = mockk()
             urlLock = mockk()
         }
@@ -47,7 +47,7 @@ class MediaServiceImplTest :
             val rawUrl = " https://short.url "
             val finalUrl = "https://normalized.url"
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { provider.supports(finalUrl) } returns true
 
             val result = service().supports(rawUrl)
@@ -55,7 +55,7 @@ class MediaServiceImplTest :
             result shouldBe true
 
             coVerifyOrder {
-                urlOps.finalOf(rawUrl)
+                urlProcessor.process(rawUrl)
                 provider.supports(finalUrl)
             }
         }
@@ -65,7 +65,7 @@ class MediaServiceImplTest :
             val finalUrl = "https://normalized.example.com/video"
             val cached = listOf(mockk<Media>(), mockk())
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { cache.get(finalUrl) } returns cached
 
             val result = service().download(rawUrl)
@@ -83,7 +83,7 @@ class MediaServiceImplTest :
             val token = "lock-token"
             val downloaded = listOf(mockk<Media>())
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { cache.get(finalUrl) } returns null
             coEvery { urlLock.tryAcquire(finalUrl, DEFAULT_CACHE_PROPS.lockTtl) } returns token
             coEvery { provider.download(finalUrl) } returns downloaded
@@ -94,7 +94,7 @@ class MediaServiceImplTest :
             result shouldContainExactly downloaded
 
             coVerifyOrder {
-                urlOps.finalOf(rawUrl)
+                urlProcessor.process(rawUrl)
                 cache.get(finalUrl)
                 urlLock.tryAcquire(finalUrl, DEFAULT_CACHE_PROPS.lockTtl)
                 provider.download(finalUrl)
@@ -107,7 +107,7 @@ class MediaServiceImplTest :
             val finalUrl = "https://normalized.example.com/video"
             val cachedAfterWait = listOf(mockk<Media>())
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             // 1st call to get: before the first tryAcquire (returns null)
             // 2nd call to get: during awaitGet (returns cached)
             coEvery { cache.get(finalUrl) } returnsMany listOf(null, cachedAfterWait)
@@ -137,7 +137,7 @@ class MediaServiceImplTest :
                     waitPoll = Duration.ZERO,
                 )
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { cache.get(finalUrl) } returns null
             coEvery { urlLock.tryAcquire(finalUrl, shortWaitProps.lockTtl) } returnsMany listOf(null, token)
             coEvery { provider.download(finalUrl) } returns downloaded
@@ -163,7 +163,7 @@ class MediaServiceImplTest :
                     waitPoll = Duration.ZERO,
                 )
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { cache.get(finalUrl) } returns null
             coEvery { urlLock.tryAcquire(finalUrl, shortWaitProps.lockTtl) } returnsMany listOf(null, null)
 
@@ -181,7 +181,7 @@ class MediaServiceImplTest :
             val finalUrl = "https://normalized.example.com/video"
             val token = "lock-token"
 
-            coEvery { urlOps.finalOf(rawUrl) } returns finalUrl
+            coEvery { urlProcessor.process(rawUrl) } returns finalUrl
             coEvery { cache.get(finalUrl) } returns null
             coEvery { urlLock.tryAcquire(finalUrl, DEFAULT_CACHE_PROPS.lockTtl) } returns token
             coEvery { provider.download(finalUrl) } throws IllegalStateException("boom")
