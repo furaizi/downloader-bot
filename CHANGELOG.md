@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/furaizi/downloader-bot/compare/v1.0.3...v1.0.4) (2026-04-16)
+
+
+### Bug Fixes
+
+* **docker:** update Docker image JDK version to 25 ([#199](https://github.com/furaizi/downloader-bot/issues/199)) ([6674a57](https://github.com/furaizi/downloader-bot/commit/6674a575e08d187cef74125327fdcdf34ac7b86f))
+
 ## [1.0.3](https://github.com/furaizi/downloader-bot/compare/v1.0.2...v1.0.3) (2026-04-16)
 
 
