@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM eclipse-temurin:25-jdk-noble AS builder
 WORKDIR /src
 
 COPY gradlew ./
@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon clean bootJar
 
 
-FROM eclipse-temurin:21-jre-noble AS runtime
+FROM eclipse-temurin:25-jre-noble AS runtime
 
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
