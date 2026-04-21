@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.download"
-version = "1.0.4" // x-release-please-version
+version = "1.0.5" // x-release-please-version
 description = "downloader-bot"
 
 kotlin {
