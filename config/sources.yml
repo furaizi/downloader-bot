@@ -15,6 +15,7 @@ sources:
           - '^https?://([a-z0-9-]+\.)?tiktok\.com/@[^/]+/photo/\d+/?(?:[?#].*)?$'
           - '^https?://([a-z0-9-]+\.)?tiktok\.com/photo/\d+/?(?:[?#].*)?$'
   instagram:
+    enabled: false
     subresources:
       reels:
         tool: yt-dlp
