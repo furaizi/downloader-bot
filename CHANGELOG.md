@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.10](https://github.com/furaizi/downloader-bot/compare/v1.0.9...v1.0.10) (2026-05-23)
+
+
+### Bug Fixes
+
+* release tick ([87bafbe](https://github.com/furaizi/downloader-bot/commit/87bafbe31a022e3490096b9ae4ce861246766be2))
+* turn off Instagram support ([#207](https://github.com/furaizi/downloader-bot/issues/207)) ([4f5625e](https://github.com/furaizi/downloader-bot/commit/4f5625e9eb541f887caef43f87cfdb0e0b80bd20))
+
 ## [1.0.9](https://github.com/furaizi/downloader-bot/compare/v1.0.8...v1.0.9) (2026-05-21)
 
 
