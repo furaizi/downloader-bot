@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/furaizi/downloader-bot/compare/v1.0.12...v1.1.0) (2026-08-08)
+
+
+### Features
+
+* return back Instagram Reels support ([#211](https://github.com/furaizi/downloader-bot/issues/211)) ([20d5cdf](https://github.com/furaizi/downloader-bot/commit/20d5cdf00a396578145041406f8df6cc6f3ff744))
+
 ## [1.0.12](https://github.com/furaizi/downloader-bot/compare/v1.0.11...v1.0.12) (2026-08-08)
 
 
