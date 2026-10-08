@@ -13,8 +13,8 @@ import com.download.downloaderbot.infra.process.cli.common.extractor.OutputJsonE
 import com.download.downloaderbot.infra.process.cli.common.parser.DefaultJsonParser
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.core.type.TypeReference
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.time.Duration
 
 class CliToolFixture(
@@ -22,7 +22,7 @@ class CliToolFixture(
 ) {
     private val runner = DefaultProcessRunner("/bin/sh", Duration.ofSeconds(3))
     private val extractor = OutputJsonExtractor("test-cli")
-    private val mapper = jacksonObjectMapper()
+    private val mapper = jacksonMapperBuilder().build()
     private val ytDlpParser = DefaultJsonParser(mapper, object : TypeReference<YtDlpMedia>() {})
 
     fun ytDlp(cmd: CommandBuilder) =

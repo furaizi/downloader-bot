@@ -2,7 +2,6 @@ package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
 import com.download.downloaderbot.bot.config.properties.fingerprint
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.BandwidthBuilder
 import io.github.bucket4j.BucketConfiguration
@@ -12,6 +11,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
+import tools.jackson.databind.json.JsonMapper
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
@@ -23,7 +23,7 @@ private const val NANOS_PER_MILLISECOND = 1_000_000L
 class Bucket4jRateLimiter(
     proxyManager: ProxyManager<String>,
     private val props: RateLimitProperties,
-    private val mapper: ObjectMapper,
+    private val mapper: JsonMapper,
 ) : RateLimiter {
     private val async: AsyncProxyManager<String> = proxyManager.asAsync()
     private val version: String by lazy { props.fingerprint(mapper) }

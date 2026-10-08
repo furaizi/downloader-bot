@@ -7,11 +7,16 @@ spring:
   profiles:
     default: dev
   jackson:
-    property-naming-strategy: SNAKE_CASE
     deserialization:
       fail-on-unknown-properties: false
     mapper:
       accept-case-insensitive-enums: true
+      sort-properties-alphabetically: true
+      sort-creator-properties-first: false
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
+        write-durations-as-timestamps: true
 
 management:
   server:
