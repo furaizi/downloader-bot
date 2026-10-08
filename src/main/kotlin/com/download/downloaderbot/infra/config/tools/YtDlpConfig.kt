@@ -14,11 +14,11 @@ import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpCommandBuilder
 import com.download.downloaderbot.infra.process.cli.ytdlp.YtDlpMedia
 import com.download.downloaderbot.infra.process.runner.DefaultProcessRunner
 import com.download.downloaderbot.infra.process.runner.ProcessRunner
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.json.JsonMapper
 
 @Configuration
 @ConditionalOnProperty(prefix = "downloader.yt-dlp", name = ["enabled"], havingValue = "true", matchIfMissing = true)
@@ -32,7 +32,7 @@ class YtDlpConfig(
 
     @Bean
     fun ytDlp(
-        mapper: ObjectMapper,
+        mapper: JsonMapper,
         @ForYtDlp fileFinder: FilesByPrefixFinder,
         @ForYtDlp processRunner: ProcessRunner,
     ): CliTool =

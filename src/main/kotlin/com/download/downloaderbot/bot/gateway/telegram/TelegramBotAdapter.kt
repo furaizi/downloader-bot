@@ -13,6 +13,7 @@ import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.Message
 import com.github.kotlintelegrambot.entities.ReplyMarkup
+import com.github.kotlintelegrambot.entities.ReplyParameters
 import com.github.kotlintelegrambot.entities.files.PhotoSize
 import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
@@ -38,7 +39,7 @@ class TelegramBotAdapter(
             .sendMessage(
                 chatId = ChatId.fromId(chatId),
                 text = text,
-                replyToMessageId = replyToMessageId,
+                replyParameters = replyToMessageId.toReplyParameters(),
                 replyMarkup = replyMarkup,
             ).toGateway()
 
@@ -52,7 +53,7 @@ class TelegramBotAdapter(
                 chatId = ChatId.fromId(chatId),
                 photo = file.toTelegram(),
                 caption = options.caption,
-                replyToMessageId = options.replyToMessageId,
+                replyParameters = options.replyToMessageId.toReplyParameters(),
                 replyMarkup = options.replyMarkup,
             ).toGateway()
 
@@ -70,7 +71,7 @@ class TelegramBotAdapter(
                 duration = videoOptions.durationSeconds,
                 width = videoOptions.width,
                 height = videoOptions.height,
-                replyToMessageId = messageOptions.replyToMessageId,
+                replyParameters = messageOptions.replyToMessageId.toReplyParameters(),
                 replyMarkup = messageOptions.replyMarkup,
             ).toGateway()
 
@@ -87,7 +88,7 @@ class TelegramBotAdapter(
                 duration = audioOptions.durationSeconds,
                 performer = audioOptions.performer,
                 title = audioOptions.title,
-                replyToMessageId = messageOptions.replyToMessageId,
+                replyParameters = messageOptions.replyToMessageId.toReplyParameters(),
                 replyMarkup = messageOptions.replyMarkup,
             ).toGateway()
 
@@ -101,7 +102,7 @@ class TelegramBotAdapter(
                 chatId = ChatId.fromId(chatId),
                 document = file.toTelegram(),
                 caption = options.caption,
-                replyToMessageId = options.replyToMessageId,
+                replyParameters = options.replyToMessageId.toReplyParameters(),
                 replyMarkup = options.replyMarkup,
             ).toGateway()
 
@@ -129,7 +130,7 @@ class TelegramBotAdapter(
             .sendMediaGroup(
                 chatId = ChatId.fromId(chatId),
                 mediaGroup = MediaGroup.from(*media),
-                replyToMessageId = replyToMessageId,
+                replyParameters = replyToMessageId.toReplyParameters(),
             ).toGateway()
     }
 }
@@ -180,3 +181,5 @@ val Message.fileUniqueId: String?
             ?: this.animation?.fileUniqueId
 
 private fun List<PhotoSize>?.largest(): PhotoSize? = this?.maxByOrNull { max(it.width, it.height) }
+
+private fun Long?.toReplyParameters(): ReplyParameters? = this?.let { ReplyParameters(messageId = it) }

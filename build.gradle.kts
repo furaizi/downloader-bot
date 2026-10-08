@@ -14,6 +14,11 @@ group = "com.download"
 version = "1.1.2" // x-release-please-version
 description = "downloader-bot"
 
+repositories {
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
 kotlin {
     jvmToolchain(25)
     compilerOptions {
@@ -29,6 +34,7 @@ jmh {
 
 dependencies {
     implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(libs.kotlin.bom))
 
     implementation(libs.spring.boot.starter.data.redis.reactive)
     implementation(libs.spring.boot.starter.webflux)
@@ -41,12 +47,10 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.reactor)
-//    implementation(libs.coroutines.jdk8)
 
     implementation(libs.kotlin.logging)
     implementation(libs.telegram.bot)
     implementation(libs.jackson.module.kotlin)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
 

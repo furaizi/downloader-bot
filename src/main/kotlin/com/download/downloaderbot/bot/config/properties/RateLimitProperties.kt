@@ -1,7 +1,7 @@
 package com.download.downloaderbot.bot.config.properties
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.context.properties.ConfigurationProperties
+import tools.jackson.databind.json.JsonMapper
 import java.security.MessageDigest
 import java.time.Duration
 
@@ -45,7 +45,7 @@ data class RateLimitProperties(
     )
 }
 
-fun RateLimitProperties.fingerprint(mapper: ObjectMapper): String {
+fun RateLimitProperties.fingerprint(mapper: JsonMapper): String {
     val norm =
         copy(
             global = global.normalizeRefillPeriod(),
