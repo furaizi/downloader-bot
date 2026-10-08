@@ -1,22 +1,22 @@
 package com.download.downloaderbot.bot.config
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.Module
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.github.kotlintelegrambot.entities.MessageEntity
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.JacksonModule
+import tools.jackson.databind.ValueDeserializer
+import tools.jackson.databind.module.SimpleModule
 
 @Configuration
 class TelegramJacksonConfig {
     @Bean
-    fun telegramEnumsModule(): Module =
+    fun telegramEnumsModule(): JacksonModule =
         SimpleModule("TelegramEnums").apply {
             addDeserializer(
                 MessageEntity.Type::class.java,
-                object : JsonDeserializer<MessageEntity.Type>() {
+                object : ValueDeserializer<MessageEntity.Type>() {
                     override fun deserialize(
                         p: JsonParser,
                         ctxt: DeserializationContext,

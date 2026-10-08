@@ -1,9 +1,8 @@
 package com.download.downloaderbot.bot.ratelimit.limiter
 
 import com.download.downloaderbot.bot.config.properties.RateLimitProperties
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.bucket4j.distributed.proxy.ProxyManager
-import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
+import io.github.bucket4j.redis.lettuce.Bucket4jLettuce
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.test.context.ActiveProfiles
+import tools.jackson.databind.json.JsonMapper
 import java.time.Duration
 
 @SpringBootTest(
@@ -33,7 +33,7 @@ class Bucket4jRateLimiterIT
         private val limiter: RateLimiter,
         private val redisConnection: StatefulRedisConnection<String, ByteArray>,
         private val proxyManager: ProxyManager<String>,
-        private val mapper: ObjectMapper,
+        private val mapper: JsonMapper,
         private val connectionFactory: LettuceConnectionFactory,
     ) : FunSpec({
 
@@ -109,7 +109,7 @@ class Bucket4jRateLimiterIT
             test("fail-open: if Redis connection is closed, tryConsumePerChatOrGroup returns true") {
                 val redisClient = connectionFactory.requiredNativeClient as RedisClient
                 val conn = redisClient.connect(codec)
-                val brokenProxyManager = LettuceBasedProxyManager.builderFor(conn).build()
+                val brokenProxyManager = Bucket4jLettuce.casBasedBuilder(conn).build()
 
                 val p =
                     RateLimitProperties(

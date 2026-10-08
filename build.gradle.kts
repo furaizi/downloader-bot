@@ -51,7 +51,6 @@ dependencies {
     implementation(libs.kotlin.logging)
     implementation(libs.telegram.bot)
     implementation(libs.jackson.module.kotlin)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
 
