@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.download"
-version = "1.1.3" // x-release-please-version
+version = "1.1.4" // x-release-please-version
 description = "downloader-bot"
 
 repositories {
