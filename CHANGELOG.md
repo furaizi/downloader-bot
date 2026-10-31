@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.6](https://github.com/furaizi/downloader-bot/compare/v1.1.5...v1.1.6) (2026-10-31)
+
+
+### Bug Fixes
+
+* release tick ([70ff3db](https://github.com/furaizi/downloader-bot/commit/70ff3db5187cbae2bd5d752416610ff884d43d9d))
+
 ## [1.1.5](https://github.com/furaizi/downloader-bot/compare/v1.1.4...v1.1.5) (2026-10-30)
 
 
